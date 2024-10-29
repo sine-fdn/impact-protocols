@@ -20,15 +20,12 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            api/target/
+            target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: CI
-        env:
-          PRIV_KEY: ${{ secrets.PRIV_KEY }}
         working-directory: demo-api
         run: |
-          cargo build
-          cargo test
+          make ci
           cargo clippy -- -Dwarnings
 
   deploy_preview:
