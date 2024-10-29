@@ -30,5 +30,5 @@ version = "0.5.0"
 features = ["json"]
 
 [dependencies.uuid]
-version = "1.8"
+version = "1.11"
 features = ["v4", "serde"]
