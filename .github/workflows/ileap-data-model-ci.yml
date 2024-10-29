@@ -1,0 +1,48 @@
+on: [push]
+
+name: iLEAP Data Model CI
+
+jobs:
+  sqlite3_smoke_test:
+    name: SQLite3 smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: SQLITE3 Smoke Test
+        working-directory: ileap-data-model/sql-example
+        run: |
+          sqlite3 < ileap.sql
+
+  build_and_test:
+    name: Rust project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Cache target
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-default-target-and-lockfile
+        with:
+          path: |
+            target
+            Cargo.lock
+            ~/.rustup
+          key: ${{ env.cache-name }}-${{ hashFiles('**/Cargo.toml') }}
+      - name: CI
+        working-directory: ileap-data-model
+        run: |
+          cargo build
+          cargo test
+
+  generate_schema:
+    runs-on: ubuntu-latest
+    needs: build_and_test
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Generate schema
+        run: |
+          cargo run --bin ileap-data-model

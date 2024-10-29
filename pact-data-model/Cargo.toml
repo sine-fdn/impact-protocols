@@ -1,0 +1,18 @@
+[package]
+name = "pact-data-model"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+license-file = "LICENSE"
+
+[[bin]]
+name = "pact-data-model"
+path = "src/main.rs"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+schemars = { version = "0.8.21", features = ["chrono"] }
+rust_decimal = "1.35.0"
+uuid = { version = "1.8", features = ["v4", "serde"] }
+serde = { version = "1.0.203", features = ["derive"] }
+serde_json = "1.0.85"

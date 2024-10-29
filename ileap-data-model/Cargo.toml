@@ -1,0 +1,21 @@
+[package]
+name = "ileap-data-model"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+license-file = "LICENSE"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+pact-data-model = { path = "../pact-data-model" }
+chrono = { version = "0.4", features = ["serde"] }
+schemars = { version = "0.8", features = ["chrono"] }
+serde = { version = "1.0.203", features = ["derive"] }
+serde_json = "1.0.96"
+rust_decimal = "1.35.0"
+rust_decimal_macros = "^1.20"
+regex = "1.10.4"
+quickcheck = "1"
+quickcheck_macros = "1"
+uuid = { version = "1.8", features = ["v4", "serde"] }
