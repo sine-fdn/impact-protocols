@@ -2,12 +2,16 @@ on: [push]
 
 name: PACT Data Model CI
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 jobs:
   build_and_test:
     name: Rust project
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Test
         working-directory: ./pact-data-model
         run: |
@@ -20,7 +24,7 @@ jobs:
     needs: build_and_test
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Generate schema
         run: |
           cargo run --bin pact-data-model

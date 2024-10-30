@@ -2,12 +2,16 @@ on: [push]
 
 name: iLEAP Data Model CI
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 jobs:
   sqlite3_smoke_test:
     name: SQLite3 smoke test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: SQLITE3 Smoke Test
         working-directory: ileap-data-model/sql-example
         run: |
@@ -17,20 +21,17 @@ jobs:
     name: Rust project
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+      - uses: actions/checkout@v4
       - name: Cache target
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-default-target-and-lockfile
+        uses: actions/cache@v4
         with:
           path: |
-            target
-            Cargo.lock
-            ~/.rustup
-          key: ${{ env.cache-name }}-${{ hashFiles('**/Cargo.toml') }}
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: CI
         working-directory: ileap-data-model
         run: |
@@ -42,7 +43,7 @@ jobs:
     needs: build_and_test
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Generate schema
         run: |
           cargo run --bin ileap-data-model
