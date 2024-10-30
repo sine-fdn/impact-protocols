@@ -1,0 +1,63 @@
+on: [push]
+
+name: PACT and iLEAP CI & CD
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    name: Rust projects
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: CI
+        run: |
+          make -C demo-api ci
+          cargo build
+          cargo test
+          cargo clippy -- -Dwarnings
+
+  demo_api_deployment:
+    runs-on: ubuntu-latest
+    name: Demo API deployment
+    needs: build_and_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Deploy app
+        if: github.ref == 'refs/heads/main'
+        run: flyctl deploy --remote-only --config demo-api/fly.production.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Deploy preview app
+        if: github.ref == 'refs/heads/preview'
+        run: flyctl deploy --remote-only --config demo-api/fly.staging.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_PREVIEW_TOKEN }}
+
+  data_models_outputs:
+    runs-on: ubuntu-latest
+    name: Data models outputs
+    needs: build_and_test
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate schemas
+        run: |
+          cargo run --bin pact-data-model & cargo run --bin ileap-data-model
+      - name: SQLITE3 Smoke Test
+        working-directory: ileap-data-model/sql-example
+        run: |
+          sqlite3 < ileap.sql
