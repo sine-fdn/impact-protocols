@@ -25,4 +25,13 @@ aws-upload: target_lambda/deploy.zip
 		--zip-file fileb://$<  \
 		--region ${AWS_REGION}
 
+
+.PHONY: ci
+ci: keypair.pem
+	cargo build
+	PRIV_KEY=`cat keypair.pem` cargo test 
+
+keypair.pem: scripts/keygen.sh
+	$<
+
 .PHONY: build-lambda target_lambda/deploy.zip aws-upload

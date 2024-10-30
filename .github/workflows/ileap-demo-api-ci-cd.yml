@@ -20,15 +20,12 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            api/target/
+            target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: CI
-        env:
-          PRIV_KEY: ${{ secrets.PRIV_KEY }}
         working-directory: demo-api
         run: |
-          cargo build
-          cargo test
+          make ci
           cargo clippy -- -Dwarnings
 
   deploy_preview:
@@ -37,7 +34,7 @@ jobs:
     name: Deploy preview app
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy --remote-only --config demo-api/fly.staging.toml
         env:
@@ -49,7 +46,7 @@ jobs:
     name: Deploy app
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy --remote-only --config demo-api/fly.production.toml
         env:
