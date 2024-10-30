@@ -9,7 +9,6 @@
 #![allow(clippy::blocks_in_conditions)]
 
 use std::collections::HashSet;
-use std::env;
 
 use jsonwebtoken::errors::Result;
 use jsonwebtoken::{Algorithm, TokenData};
@@ -22,6 +21,7 @@ use rocket::request::{self, FromRequest, Request};
 use rocket::response::status;
 use rocket::serde::{Deserialize, Serialize};
 
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use rocket_okapi::okapi::map;
 use rocket_okapi::okapi::openapi3::{
     Object, SecurityRequirement, SecurityScheme, SecuritySchemeData,
@@ -33,7 +33,6 @@ use rocket_okapi::{
 use rsa::pkcs8::DecodePrivateKey;
 use rsa::pkcs8::EncodePublicKey;
 use rsa::{pkcs8::LineEnding, RsaPrivateKey, RsaPublicKey};
-use base64::{engine::general_purpose::STANDARD, Engine as _};
 
 #[derive(Clone)]
 pub struct KeyPair {
@@ -156,9 +155,12 @@ impl<'r> FromRequest<'r> for UserToken {
 }
 
 pub fn load_keys() -> KeyPair {
-    let priv_key = env::var("PRIV_KEY").expect("PRIV_KEY must be set");
+    #[cfg(test)]
+    let priv_key = include_str!("../keypair.pem");
+    #[cfg(not(test))]
+    let priv_key: &str = &std::env::var("PRIV_KEY").expect("PRIV_KEY must be set");
 
-    let private_key = RsaPrivateKey::from_pkcs8_pem(&priv_key)
+    let private_key = RsaPrivateKey::from_pkcs8_pem(priv_key)
         .unwrap_or_else(|err| panic!("Could not deserialize private key: {}", err));
     let public_key = RsaPublicKey::from(&private_key);
 
