@@ -16,8 +16,8 @@ fn read_schema(schema_name: &str) -> String {
 fn normalize_json(json_str: &str) -> Value {
     serde_json::from_str(json_str).unwrap()
 }
-#[test]
 
+#[test]
 fn compare_schemas() {
     fn update_schema_title(schema: &mut RootSchema) {
         if let Some(metadata) = schema.schema.metadata.as_mut() {

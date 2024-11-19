@@ -160,7 +160,7 @@ pub enum DeclaredUnit {
     SquareMeter,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, JsonSchema, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 /// Data Type "CrossSectoralStandard" of Spec Version 3
 pub enum CrossSectoralStandard {
     #[serde(rename = "GHGP Product")]
@@ -181,9 +181,10 @@ pub enum CrossSectoralStandard {
     Pas2050,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, JsonSchema, PartialEq)]
-/// DEPRECATED Data Type "CrossSectoralStandard" of Spec Version 2, to be removed in v3, used to
-/// populate `crossSectoralStandardsUsed`
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, JsonSchema)]
+/// Deprecated Data Type "CrossSectoralStandard" of Spec Version 2, to be removed in v3, used in
+/// `CrossSectoralStandardsSet`s to populate `crossSectoralSectoralStandardsUsed` (also deprecated).
+#[serde(rename = "CrossSectoralStandard")]
 pub enum DeprecatedCrossSectoralStandard {
     #[serde(rename = "GHG Protocol Product standard")]
     Ghgp,
@@ -354,7 +355,7 @@ pub enum UNRegionOrSubregion {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ProductOrSectorSpecificRuleSet(pub Vec<ProductOrSectorSpecificRule>);
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
 pub struct CrossSectoralStandardSet(pub Vec<DeprecatedCrossSectoralStandard>);
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
@@ -824,16 +825,6 @@ impl JsonSchema for CompanyIdSet {
 
     fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> Schema {
         json_set_schema::<Urn>(gen, Some(1))
-    }
-}
-
-impl JsonSchema for CrossSectoralStandardSet {
-    fn schema_name() -> String {
-        "CrossSectoralStandardSet".into()
-    }
-
-    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> Schema {
-        json_set_schema::<CrossSectoralStandard>(gen, Some(1))
     }
 }
 
