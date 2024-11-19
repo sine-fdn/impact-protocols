@@ -476,7 +476,7 @@
     "CrossSectoralStandardSet": {
       "type": "array",
       "items": {
-        "description": "Data Type \"CrossSectoralStandard\" of Spec Version 2",
+        "description": "Data Type \"CrossSectoralStandard\" of Spec Version 3",
         "type": "string",
         "enum": [
           "GHGP Product",
@@ -485,7 +485,7 @@
           "ISO14083",
           "ISO14040-44",
           "PEF",
-          "PACT Methodology 3.0",
+          "PACT Methodology 2.0",
           "PAS2050"
         ]
       },
@@ -493,7 +493,7 @@
       "uniqueItems": true
     },
     "CrossSectoralStandard": {
-      "description": "Data Type \"CrossSectoralStandard\" of Spec Version 2",
+      "description": "Data Type \"CrossSectoralStandard\" of Spec Version 3",
       "type": "string",
       "enum": [
         "GHGP Product",
@@ -502,7 +502,7 @@
         "ISO14083",
         "ISO14040-44",
         "PEF",
-        "PACT Methodology 3.0",
+        "PACT Methodology 2.0",
         "PAS2050"
       ]
     },

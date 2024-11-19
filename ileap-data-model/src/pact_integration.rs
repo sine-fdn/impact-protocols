@@ -1,9 +1,6 @@
 use chrono::Utc;
 use pact_data_model::{
-    CarbonFootprint, CharacterizationFactors, CompanyIdSet, CrossSectoralStandard,
-    CrossSectoralStandardSet, DataModelExtension, DeclaredUnit, ExemptedEmissionsPercent,
-    IpccCharacterizationFactorsSource, PfId, PfStatus, PositiveDecimal, ProductFootprint,
-    ProductIdSet, SpecVersionString, Urn, VersionInteger,
+    CarbonFootprint, CharacterizationFactors, CompanyIdSet, CrossSectoralStandardSet, DataModelExtension, DeclaredUnit, DeprecatedCrossSectoralStandard, ExemptedEmissionsPercent, IpccCharacterizationFactorsSource, PfId, PfStatus, PositiveDecimal, ProductFootprint, ProductIdSet, SpecVersionString, Urn, VersionInteger
 };
 use rust_decimal::Decimal;
 use schemars::JsonSchema;
@@ -175,8 +172,9 @@ where
             aircraft_ghg_emissions: None,
             characterization_factors,
             ipcc_characterization_factors_sources: characterization_factors_sources.into(),
+            // TODO: Add cross_sectoral_standards with value vec![CrossSectoralStandardNew::Iso14083]
             cross_sectoral_standards_used: CrossSectoralStandardSet(vec![
-                CrossSectoralStandard::ISO14083,
+                DeprecatedCrossSectoralStandard::Ghgp,
             ]),
             product_or_sector_specific_rules: None, // TODO: get clarity on whether GLEC should be specified
             biogenic_accounting_methodology: None,

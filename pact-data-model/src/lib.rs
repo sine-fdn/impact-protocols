@@ -161,7 +161,7 @@ pub enum DeclaredUnit {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, JsonSchema, PartialEq)]
-/// Data Type "CrossSectoralStandard" of Spec Version 2
+/// Data Type "CrossSectoralStandard" of Spec Version 3
 pub enum CrossSectoralStandard {
     #[serde(rename = "GHGP Product")]
     Ghgp,
@@ -175,10 +175,22 @@ pub enum CrossSectoralStandard {
     ISO14040_44,
     #[serde(rename = "PEF")]
     Pef,
-    #[serde(rename = "PACT Methodology 3.0")] // TODO: support also other versions
+    #[serde(rename = "PACT Methodology 2.0")] // TODO: support also other versions
     PactMethodology,
     #[serde(rename = "PAS2050")]
     Pas2050,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, JsonSchema, PartialEq)]
+/// DEPRECATED Data Type "CrossSectoralStandard" of Spec Version 2, to be removed in v3, used to
+/// populate `crossSectoralStandardsUsed`
+pub enum DeprecatedCrossSectoralStandard {
+    #[serde(rename = "GHG Protocol Product standard")]
+    Ghgp,
+    #[serde(rename = "ISO Standard 14067")]
+    ISO14067,
+    #[serde(rename = "ISO Standard 14044")]
+    ISO14044,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, JsonSchema, PartialEq)]
@@ -343,7 +355,7 @@ pub enum UNRegionOrSubregion {
 pub struct ProductOrSectorSpecificRuleSet(pub Vec<ProductOrSectorSpecificRule>);
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CrossSectoralStandardSet(pub Vec<CrossSectoralStandard>);
+pub struct CrossSectoralStandardSet(pub Vec<DeprecatedCrossSectoralStandard>);
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 // TODO JSONSchema
