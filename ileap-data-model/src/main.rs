@@ -9,46 +9,37 @@ use ileap_data_model::*;
 use pact_data_model::ProductFootprint;
 use regex::Regex;
 use schemars::gen::{SchemaGenerator, SchemaSettings};
-use schemars::schema::{ObjectValidation, Schema, SchemaObject};
+use schemars::schema::{ObjectValidation, RootSchema, Schema, SchemaObject};
 use schemars::{schema_for, Map, Set};
-use serde::de::DeserializeOwned;
 use serde_json::to_string_pretty;
 use std::fs::File;
 use std::io::{Error, Write};
 
 fn main() -> Result<(), Error> {
-    generate_schema::<ShipmentFootprint>()?;
-    generate_schema::<Toc>()?;
-    generate_schema::<Tad>()?;
-    generate_schema::<Hoc>()?;
+    generate_schemas::<ShipmentFootprint>()?;
+    generate_schemas::<Toc>()?;
+    generate_schemas::<Tad>()?;
+    generate_schemas::<Hoc>()?;
 
     Ok(())
 }
 
-fn generate_schema<T: schemars::JsonSchema + DeserializeOwned>() -> Result<(), Error> {
-    let type_name = std::any::type_name::<T>();
-    let type_name = type_name.split("::").collect::<Vec<&str>>();
-    let type_name = type_name.last().unwrap_or(&"Could not parse type name");
-
-    let regex = Regex::new(r"([^A-Z])([A-Z])").unwrap();
-
-    let schema_name = regex
-        .replace_all(type_name, "$1-$2")
-        .into_owned()
-        .to_lowercase();
+fn generate_schemas<T: schemars::JsonSchema>() -> Result<(), Error> {
+    let type_name = get_type_name::<T>()?;
 
     let schema = schema_for!(T);
 
-    let schema_json = to_string_pretty(&schema)
-        .unwrap_or_else(|_| panic!("Failed to serialize {type_name} schema"));
+    write_schema_file(schema, &type_name)?;
 
-    let mut schema_file = File::create(format!("./ileap-data-model/schemas/{schema_name}.json"))?;
+    let pcf_schema = embedded_schema::<T>()?;
 
-    schema_file.write_all(schema_json.as_bytes())?;
+    write_schema_file(pcf_schema, &format!("pcf-{type_name}"))?;
 
-    println!("{schema_name}.json successfully created");
+    Ok(())
+}
 
-    // let mut pcf_schema = schema_for!(ProductFootprint<T>);
+fn embedded_schema<T: schemars::JsonSchema>() -> Result<RootSchema, Error> {
+    let type_name = get_type_name::<T>()?;
 
     let settings = SchemaSettings::default();
 
@@ -60,7 +51,6 @@ fn generate_schema<T: schemars::JsonSchema + DeserializeOwned>() -> Result<(), E
         instance_type: Some(schemars::schema::SingleOrVec::Single(Box::new(
             schemars::schema::InstanceType::Object,
         ))),
-
         object: Some(Box::new(ObjectValidation {
             required: Set::from([
                 "data".to_string(),
@@ -119,13 +109,33 @@ fn generate_schema<T: schemars::JsonSchema + DeserializeOwned>() -> Result<(), E
         metadata.description = Some(format!("PData Type \"ProductFootprint\" of PACT Tech Spec Version 2 with {} as a DataModelExtension", type_name));
     };
 
-    let pcf_schema_json = to_string_pretty(&pcf_schema)
-        .unwrap_or_else(|_| panic!("Failed to serialize pcf-{type_name} schema"));
+    Ok(pcf_schema)
+}
 
-    let mut pcf_schema_file =
-        File::create(format!("./ileap-data-model/schemas/pcf-{schema_name}.json"))?;
+fn get_type_name<T: schemars::JsonSchema>() -> Result<String, Error> {
+    let type_name = std::any::type_name::<T>();
+    let type_name = type_name.split("::").collect::<Vec<&str>>();
+    let type_name = type_name.last().unwrap_or(&"Could not parse type name");
 
-    pcf_schema_file.write_all(pcf_schema_json.as_bytes())?;
+    Ok(type_name.to_string())
+}
+
+fn write_schema_file(schema: RootSchema, type_name: &str) -> Result<(), Error> {
+    let schema_json = to_string_pretty(&schema)
+        .unwrap_or_else(|_| panic!("Failed to serialize {type_name} schema"));
+
+    let regex = Regex::new(r"([^A-Z])([A-Z])").unwrap();
+
+    let schema_name = regex
+        .replace_all(&type_name, "$1-$2")
+        .into_owned()
+        .to_lowercase();
+
+    let mut schema_file = File::create(format!("./ileap-data-model/schemas/{schema_name}.json"))?;
+
+    schema_file.write_all(schema_json.as_bytes())?;
+
+    println!("{schema_name}.json successfully created");
 
     Ok(())
 }
