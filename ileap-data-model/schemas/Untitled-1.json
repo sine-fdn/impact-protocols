@@ -1,0 +1,68 @@
+{
+    "id": "d9be4477-e351-45b3-acd9-e1da05e6f633",
+    "specVersion": "2.0.0",
+    "version": 0,
+    "created": "2022-05-22T21:47:32Z",
+    "status": "Active",
+    "companyName": "Super Duper Transport Co.",
+    "companyIds": ["urn:epc:id:sgln:4063973.00000.8"],
+    "productDescription": "Logistics emissions related to shipment with ID shipment-1",
+    "productIds": [
+      "urn:pathfinder:product:customcode:vendor-assigned:shipment:shipment-simple-1"
+    ],
+    "productCategoryCpc": "83117",
+    "productNameCompany": "Shipment with ID shipment-simple-1",
+    "comment": "",
+    "pcf": {
+      "geographyCountry": "DE",
+      "declaredUnit": "ton kilometer",
+      "unitaryProductAmount": "16920",
+      "pCfExcludingBiogenic": "1962.72",
+      "fossilGhgEmissions": "1962.72",
+      "fossilCarbonContent": "1962.72",
+      "biogenicCarbonContent": "0",
+      "characterizationFactors": "AR6",
+      "ipccCharacterizationFactorsSources": ["AR6"],
+      "crossSectoralStandardsUsed": ["GHGP Product"],
+      "productOrSectorSpecificRules": [],
+      "boundaryProcessesDescription": "SFC GLEC Framework-conforming (W2W CO2e emissions)",
+      "referencePeriodStart": "2021-01-01T00:00:00Z",
+      "referencePeriodEnd": "2022-01-01T00:00:00Z",
+      "secondaryEmissionFactorSources": [
+        {
+          "name": "Ecoinvent",
+          "version": "3.9.1"
+        }
+      ],
+      "exemptedEmissionsPercent": 0,
+      "exemptedEmissionsDescription": "",
+      "packagingEmissionsIncluded": false,
+      "primaryDataShare": 56.12
+    },
+    "extensions": [
+      {
+        "specVersion": "2.0.0",
+        "dataSchema": "https://api.ileap.sine.dev/shipment-footprint.json",
+        "documentation": "https://sine-fdn.github.io/ileap-extension/",
+        "data": {
+          "mass": "40000",
+          "shipmentId": "shipment-simple-1",
+          "tces": [
+            {
+              "tceId": "abcdef",
+              "prevTceIds": [],
+              "tocId": "truck-40t-euro5-de",
+              "shipmentId": "shipment-1",
+              "mass": "40000",
+              "distance": {
+                "actual": "423"
+              },
+              "transportActivity": "16920",
+              "co2eWTW": "1962.72",
+              "co2eTTW": "1505.88"
+            }
+          ]
+        }
+      }
+    ]
+  }
