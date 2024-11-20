@@ -106,6 +106,7 @@
       }
     }
   },
+  "additionalProperties": false,
   "definitions": {
     "PfId": {
       "type": "string",
@@ -167,10 +168,7 @@
     "CarbonFootprint": {
       "description": "Data Type \"CarbonFootprint\" of Spec Version 2",
       "type": "object",
-      "anyOf": [
-        {
-          "type": "null"
-        },
+      "oneOf": [
         {
           "type": "object",
           "required": [
@@ -179,7 +177,9 @@
           "properties": {
             "geographyRegionOrSubregion": {
               "$ref": "#/definitions/UNRegionOrSubregion"
-            }
+            },
+            "geographyCountry": false,
+            "geographyCountrySubdivision": false
           }
         },
         {
@@ -190,7 +190,9 @@
           "properties": {
             "geographyCountry": {
               "$ref": "#/definitions/ISO3166CC"
-            }
+            },
+            "geographyRegionOrSubregion": false,
+            "geographyCountrySubdivision": false
           }
         },
         {
@@ -201,7 +203,17 @@
           "properties": {
             "geographyCountrySubdivision": {
               "$ref": "#/definitions/NonEmptyString"
-            }
+            },
+            "geographyRegionOrSubregion": false,
+            "geographyCountry": false
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "geographyRegionOrSubregion": false,
+            "geographyCountry": false,
+            "geographyCountrySubdivision": false
           }
         }
       ],
@@ -422,7 +434,8 @@
             }
           ]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "DeclaredUnit": {
       "description": "Data Type \"DeclaredUnit\" of Spec Version 2",

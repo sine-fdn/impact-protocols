@@ -10,12 +10,16 @@
 //!
 //! See https://wbcsd.github.io/data-exchange-protocol/v2 for further details.
 
+use std::collections::BTreeSet;
+
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
+use schemars::gen::SchemaGenerator;
 use schemars::schema::{
-    ArrayValidation, InstanceType, NumberValidation, Schema, SchemaObject, StringValidation,
+    ArrayValidation, InstanceType, NumberValidation, ObjectValidation, Schema, SchemaObject,
+    StringValidation, SubschemaValidation,
 };
-use schemars::JsonSchema;
+use schemars::{JsonSchema, Map};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -23,7 +27,7 @@ mod schema_gen;
 pub use schema_gen::generate_schema;
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 /// Data Type "ProductFootprint" of Tech Spec Version 2
 pub struct ProductFootprint<T: JsonSchema> {
     pub id: PfId,
@@ -55,8 +59,8 @@ pub struct ProductFootprint<T: JsonSchema> {
     pub extensions: Option<Vec<DataModelExtension<T>>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 /// Data Type "CarbonFootprint" of Spec Version 2
 pub struct CarbonFootprint {
     pub declared_unit: DeclaredUnit,
@@ -553,7 +557,6 @@ impl From<String> for SpecVersionString {
         SpecVersionString(s)
     }
 }
-
 impl JsonSchema for IpccCharacterizationFactorsSource {
     fn schema_name() -> String {
         "IpccCharacterizationFactorsSource".into()
