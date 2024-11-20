@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ProductFootprint_with_Hoc_Extension",
-  "description": "PData Type \"ProductFootprint\" of PACT Tech Spec Version 2 with Hoc as a DataModelExtension",
+  "description": "Data Type \"ProductFootprint\" of PACT Tech Spec Version 2 with Hoc as a DataModelExtension",
   "type": "object",
   "required": [
     "comment",

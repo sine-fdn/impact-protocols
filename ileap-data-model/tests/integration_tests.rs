@@ -1,6 +1,6 @@
 use std::{fs::File, io::Read};
 
-use ileap_data_model::{Hoc, ShipmentFootprint, Tad, Toc};
+use ileap_data_model::{gen_pcf_with_extension, Hoc, ShipmentFootprint, Tad, Toc};
 use schemars::schema_for;
 use serde_json::{to_string_pretty, Value};
 
@@ -24,15 +24,36 @@ fn compare_schemas() {
         normalize_json(&to_string_pretty(&schema_for!(ShipmentFootprint)).unwrap())
     );
     assert_eq!(
+        normalize_json(&read_schema("pcf-shipment-footprint.json")),
+        normalize_json(
+            &to_string_pretty(&gen_pcf_with_extension::<ShipmentFootprint>().unwrap()).unwrap()
+        )
+    );
+
+    assert_eq!(
         normalize_json(&read_schema("toc.json")),
         normalize_json(&to_string_pretty(&schema_for!(Toc)).unwrap())
     );
+    assert_eq!(
+        normalize_json(&read_schema("pcf-toc.json")),
+        normalize_json(&to_string_pretty(&gen_pcf_with_extension::<Toc>().unwrap()).unwrap())
+    );
+
     assert_eq!(
         normalize_json(&read_schema("hoc.json")),
         normalize_json(&to_string_pretty(&schema_for!(Hoc)).unwrap())
     );
     assert_eq!(
+        normalize_json(&read_schema("pcf-hoc.json")),
+        normalize_json(&to_string_pretty(&gen_pcf_with_extension::<Hoc>().unwrap()).unwrap())
+    );
+
+    assert_eq!(
         normalize_json(&read_schema("tad.json")),
         normalize_json(&to_string_pretty(&schema_for!(Tad)).unwrap())
+    );
+    assert_eq!(
+        normalize_json(&read_schema("pcf-tad.json")),
+        normalize_json(&to_string_pretty(&gen_pcf_with_extension::<Tad>().unwrap()).unwrap())
     );
 }

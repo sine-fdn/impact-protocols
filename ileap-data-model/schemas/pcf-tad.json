@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ProductFootprint_with_Tad_Extension",
-  "description": "PData Type \"ProductFootprint\" of PACT Tech Spec Version 2 with Tad as a DataModelExtension",
+  "description": "Data Type \"ProductFootprint\" of PACT Tech Spec Version 2 with Tad as a DataModelExtension",
   "type": "object",
   "required": [
     "comment",

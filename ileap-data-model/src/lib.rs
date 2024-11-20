@@ -26,6 +26,9 @@ mod arbitrary_impls;
 mod data_gen;
 pub use data_gen::*;
 
+pub mod schema_gen;
+pub use schema_gen::*;
+
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ShipmentFootprint {
