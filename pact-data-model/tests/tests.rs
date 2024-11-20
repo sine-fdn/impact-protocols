@@ -24,8 +24,8 @@ fn test_deser_geography() {
             IpccCharacterizationFactorsSource::from("AR6".to_string()),
         ]),
         cross_sectoral_standards_used: CrossSectoralStandardSet(vec![
-            CrossSectoralStandard::Ghgp,
-            CrossSectoralStandard::ISO14044,
+            DeprecatedCrossSectoralStandard::Ghgp,
+            DeprecatedCrossSectoralStandard::ISO14044,
         ]),
         product_or_sector_specific_rules: None,
         biogenic_accounting_methodology: None,
@@ -60,8 +60,8 @@ fn test_deser_geography() {
                 "AR6"
                 ],
                 "crossSectoralStandardsUsed": [
-                "GHGP Product",
-                "ISO14044"
+                "GHG Protocol Product standard",
+                "ISO Standard 14044"
                 ],
                 "boundaryProcessesDescription": "",
                 "referencePeriodStart": "2021-01-01T00:00:00Z",
@@ -90,8 +90,8 @@ fn test_deser_geography() {
                 "AR6"
                 ],
                 "crossSectoralStandardsUsed": [
-                "GHGP Product",
-                "ISO14044"
+                "GHG Protocol Product standard",
+                "ISO Standard 14044"
                 ],
                 "boundaryProcessesDescription": "",
                 "referencePeriodStart": "2021-01-01T00:00:00Z",
@@ -128,8 +128,8 @@ fn test_deser_geography() {
                 "AR6"
                 ],
                 "crossSectoralStandardsUsed": [
-                "GHGP Product",
-                "ISO14044"
+                "GHG Protocol Product standard",
+                "ISO Standard 14044"
                 ],
                 "boundaryProcessesDescription": "",
                 "referencePeriodStart": "2021-01-01T00:00:00Z",
@@ -169,8 +169,8 @@ fn test_deser_geography() {
                 "AR6"
                 ],
                 "crossSectoralStandardsUsed": [
-                "GHGP Product",
-                "ISO14044"
+                "GHG Protocol Product standard",
+                "ISO Standard 14044"
                 ],
                 "boundaryProcessesDescription": "",
                 "referencePeriodStart": "2021-01-01T00:00:00Z",

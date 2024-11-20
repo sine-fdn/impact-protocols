@@ -160,8 +160,8 @@ pub enum DeclaredUnit {
     SquareMeter,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, JsonSchema, PartialEq)]
-/// Data Type "CrossSectoralStandard" of Spec Version 2
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+/// Data Type "CrossSectoralStandard" of Spec Version 3
 pub enum CrossSectoralStandard {
     #[serde(rename = "GHGP Product")]
     Ghgp,
@@ -175,10 +175,23 @@ pub enum CrossSectoralStandard {
     ISO14040_44,
     #[serde(rename = "PEF")]
     Pef,
-    #[serde(rename = "PACT Methodology 3.0")] // TODO: support also other versions
+    #[serde(rename = "PACT Methodology 2.0")] // TODO: support also other versions
     PactMethodology,
     #[serde(rename = "PAS2050")]
     Pas2050,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, JsonSchema)]
+/// Deprecated Data Type "CrossSectoralStandard" of Spec Version 2, to be removed in v3, used in
+/// `CrossSectoralStandardsSet`s to populate `crossSectoralSectoralStandardsUsed` (also deprecated).
+#[serde(rename = "CrossSectoralStandard")]
+pub enum DeprecatedCrossSectoralStandard {
+    #[serde(rename = "GHG Protocol Product standard")]
+    Ghgp,
+    #[serde(rename = "ISO Standard 14067")]
+    ISO14067,
+    #[serde(rename = "ISO Standard 14044")]
+    ISO14044,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, JsonSchema, PartialEq)]
@@ -342,8 +355,8 @@ pub enum UNRegionOrSubregion {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ProductOrSectorSpecificRuleSet(pub Vec<ProductOrSectorSpecificRule>);
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CrossSectoralStandardSet(pub Vec<CrossSectoralStandard>);
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
+pub struct CrossSectoralStandardSet(pub Vec<DeprecatedCrossSectoralStandard>);
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 // TODO JSONSchema
@@ -812,16 +825,6 @@ impl JsonSchema for CompanyIdSet {
 
     fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> Schema {
         json_set_schema::<Urn>(gen, Some(1))
-    }
-}
-
-impl JsonSchema for CrossSectoralStandardSet {
-    fn schema_name() -> String {
-        "CrossSectoralStandardSet".into()
-    }
-
-    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> Schema {
-        json_set_schema::<CrossSectoralStandard>(gen, Some(1))
     }
 }
 
