@@ -170,7 +170,9 @@
       "type": "object",
       "oneOf": [
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyRegionOrSubregion"
           ],
@@ -183,7 +185,9 @@
           }
         },
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyCountry"
           ],
@@ -196,7 +200,9 @@
           }
         },
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyCountrySubdivision"
           ],
@@ -209,7 +215,9 @@
           }
         },
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "properties": {
             "geographyRegionOrSubregion": false,
             "geographyCountry": false,
@@ -433,6 +441,15 @@
               "type": "null"
             }
           ]
+        },
+        "geographyCountry": {
+          "$ref": "#/definitions/ISO3166CC"
+        },
+        "geographyRegionOrSubregion": {
+          "$ref": "#/definitions/UNRegionOrSubregion"
+        },
+        "geographyCountrySubdivision": {
+          "$ref": "#/definitions/NonEmptyString"
         }
       },
       "additionalProperties": false

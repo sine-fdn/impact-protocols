@@ -457,42 +457,60 @@
       }
     },
     "GeographicScope": {
-      "description": "Encoded geographic scope rules of a Spec Version 2 `CarbonFootprint`",
-      "anyOf": [
+      "oneOf": [
         {
-          "type": "null"
-        },
-        {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyRegionOrSubregion"
           ],
           "properties": {
             "geographyRegionOrSubregion": {
               "$ref": "#/definitions/UNRegionOrSubregion"
-            }
+            },
+            "geographyCountry": false,
+            "geographyCountrySubdivision": false
           }
         },
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyCountry"
           ],
           "properties": {
             "geographyCountry": {
               "$ref": "#/definitions/ISO3166CC"
-            }
+            },
+            "geographyRegionOrSubregion": false,
+            "geographyCountrySubdivision": false
           }
         },
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyCountrySubdivision"
           ],
           "properties": {
             "geographyCountrySubdivision": {
               "$ref": "#/definitions/NonEmptyString"
-            }
+            },
+            "geographyRegionOrSubregion": false,
+            "geographyCountry": false
+          }
+        },
+        {
+          "type": [
+            "object"
+          ],
+          "properties": {
+            "geographyRegionOrSubregion": false,
+            "geographyCountry": false,
+            "geographyCountrySubdivision": false
           }
         }
       ]
@@ -615,7 +633,9 @@
       "type": "object",
       "oneOf": [
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyRegionOrSubregion"
           ],
@@ -628,7 +648,9 @@
           }
         },
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyCountry"
           ],
@@ -641,7 +663,9 @@
           }
         },
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyCountrySubdivision"
           ],
@@ -654,13 +678,565 @@
           }
         },
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "properties": {
             "geographyRegionOrSubregion": false,
             "geographyCountry": false,
             "geographyCountrySubdivision": false
           }
         }
+      ],
+      "required": [
+        "biogenicCarbonContent",
+        "boundaryProcessesDescription",
+        "characterizationFactors",
+        "crossSectoralStandardsUsed",
+        "declaredUnit",
+        "exemptedEmissionsDescription",
+        "exemptedEmissionsPercent",
+        "fossilCarbonContent",
+        "fossilGhgEmissions",
+        "ipccCharacterizationFactorsSources",
+        "pCfExcludingBiogenic",
+        "packagingEmissionsIncluded",
+        "referencePeriodEnd",
+        "referencePeriodStart",
+        "unitaryProductAmount"
+      ],
+      "properties": {
+        "declaredUnit": {
+          "$ref": "#/definitions/DeclaredUnit"
+        },
+        "unitaryProductAmount": {
+          "$ref": "#/definitions/StrictlyPositiveDecimal"
+        },
+        "pCfExcludingBiogenic": {
+          "$ref": "#/definitions/PositiveDecimal"
+        },
+        "pCfIncludingBiogenic": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fossilGhgEmissions": {
+          "$ref": "#/definitions/PositiveDecimal"
+        },
+        "fossilCarbonContent": {
+          "$ref": "#/definitions/PositiveDecimal"
+        },
+        "biogenicCarbonContent": {
+          "$ref": "#/definitions/PositiveDecimal"
+        },
+        "dLucGhgEmissions": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "landManagementGhgEmissions": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "otherBiogenicGhgEmissions": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "iLucGhgEmissions": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "biogenicCarbonWithdrawal": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/NegativeDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "aircraftGhgEmissions": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "characterizationFactors": {
+          "$ref": "#/definitions/CharacterizationFactors"
+        },
+        "ipccCharacterizationFactorsSources": {
+          "$ref": "#/definitions/IpccCharacterizationFactorsSources"
+        },
+        "crossSectoralStandardsUsed": {
+          "$ref": "#/definitions/CrossSectoralStandardSet"
+        },
+        "productOrSectorSpecificRules": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ProductOrSectorSpecificRuleSet"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "biogenicAccountingMethodology": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/BiogenicAccountingMethodology"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "boundaryProcessesDescription": {
+          "type": "string"
+        },
+        "referencePeriodStart": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "referencePeriodEnd": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "secondaryEmissionFactorSources": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EmissionFactorDSSet"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "exemptedEmissionsPercent": {
+          "$ref": "#/definitions/ExemptedEmissionsPercent"
+        },
+        "exemptedEmissionsDescription": {
+          "type": "string"
+        },
+        "packagingEmissionsIncluded": {
+          "type": "boolean"
+        },
+        "packagingGhgEmissions": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "allocationRulesDescription": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "uncertaintyAssessmentDescription": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "primaryDataShare": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Percent"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dqi": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DataQualityIndicators"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "assurance": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Assurance"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "DeclaredUnit": {
+      "description": "Data Type \"DeclaredUnit\" of Spec Version 2",
+      "type": "string",
+      "enum": [
+        "liter",
+        "kilogram",
+        "cubic meter",
+        "kilowatt hour",
+        "megajoule",
+        "ton kilometer",
+        "square meter"
+      ]
+    },
+    "StrictlyPositiveDecimal": {
+      "type": "string",
+      "pattern": "^(\\d*[1-9]\\d*([\\.]\\d+)?|\\d+(\\.\\d*[1-9]\\d*)?)$"
+    },
+    "PositiveDecimal": {
+      "type": "string",
+      "pattern": "^\\d+(\\.\\d+)?$"
+    },
+    "NegativeDecimal": {
+      "type": "string",
+      "pattern": "^(-\\d+(\\.\\d+)?)|0$"
+    },
+    "CharacterizationFactors": {
+      "type": "string",
+      "enum": [
+        "AR5",
+        "AR6"
+      ]
+    },
+    "IpccCharacterizationFactorsSources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^AR\\d+$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "IpccCharacterizationFactorsSource": {
+      "type": "string",
+      "pattern": "^AR\\d+$"
+    },
+    "CrossSectoralStandardSet": {
+      "type": "array",
+      "items": {
+        "description": "Data Type \"CrossSectoralStandard\" of Spec Version 2",
+        "type": "string",
+        "enum": [
+          "GHGP Product",
+          "ISO14067",
+          "ISO14044",
+          "ISO14083",
+          "ISO14040-44",
+          "PEF",
+          "PACT Methodology 3.0",
+          "PAS2050"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "CrossSectoralStandard": {
+      "description": "Data Type \"CrossSectoralStandard\" of Spec Version 2",
+      "type": "string",
+      "enum": [
+        "GHGP Product",
+        "ISO14067",
+        "ISO14044",
+        "ISO14083",
+        "ISO14040-44",
+        "PEF",
+        "PACT Methodology 3.0",
+        "PAS2050"
+      ]
+    },
+    "ProductOrSectorSpecificRuleSet": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "operator",
+          "ruleNames"
+        ],
+        "properties": {
+          "operator": {
+            "$ref": "#/definitions/ProductOrSectorSpecificRuleOperator"
+          },
+          "ruleNames": {
+            "$ref": "#/definitions/NonEmptyStringVec"
+          },
+          "otherOperatorName": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/NonEmptyString"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "uniqueItems": true
+    },
+    "ProductOrSectorSpecificRule": {
+      "type": "object",
+      "required": [
+        "operator",
+        "ruleNames"
+      ],
+      "properties": {
+        "operator": {
+          "$ref": "#/definitions/ProductOrSectorSpecificRuleOperator"
+        },
+        "ruleNames": {
+          "$ref": "#/definitions/NonEmptyStringVec"
+        },
+        "otherOperatorName": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/NonEmptyString"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ProductOrSectorSpecificRuleOperator": {
+      "type": "string",
+      "enum": [
+        "PEF",
+        "EPD International",
+        "Other"
+      ]
+    },
+    "NonEmptyStringVec": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "BiogenicAccountingMethodology": {
+      "type": "string",
+      "enum": [
+        "PEF",
+        "ISO",
+        "GHPG",
+        "Quantis"
+      ]
+    },
+    "EmissionFactorDSSet": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "version"
+        ],
+        "properties": {
+          "name": {
+            "$ref": "#/definitions/NonEmptyString"
+          },
+          "version": {
+            "$ref": "#/definitions/NonEmptyString"
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "EmissionFactorDS": {
+      "type": "object",
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "version": {
+          "$ref": "#/definitions/NonEmptyString"
+        }
+      }
+    },
+    "ExemptedEmissionsPercent": {
+      "type": "number",
+      "format": "double",
+      "maximum": 5.0,
+      "minimum": 0.0
+    },
+    "Percent": {
+      "type": "number",
+      "format": "double",
+      "maximum": 100.0,
+      "minimum": 0.0
+    },
+    "DataQualityIndicators": {
+      "description": "Data Type \"DataQualityIndicators\" of Spec Version 2",
+      "type": "object",
+      "required": [
+        "completenessDQR",
+        "coveragePercent",
+        "geographicalDQR",
+        "reliabilityDQR",
+        "technologicalDQR",
+        "temporalDQR"
+      ],
+      "properties": {
+        "coveragePercent": {
+          "$ref": "#/definitions/Percent"
+        },
+        "technologicalDQR": {
+          "$ref": "#/definitions/FloatBetween1And3"
+        },
+        "temporalDQR": {
+          "$ref": "#/definitions/FloatBetween1And3"
+        },
+        "geographicalDQR": {
+          "$ref": "#/definitions/FloatBetween1And3"
+        },
+        "completenessDQR": {
+          "$ref": "#/definitions/FloatBetween1And3"
+        },
+        "reliabilityDQR": {
+          "$ref": "#/definitions/FloatBetween1And3"
+        }
+      }
+    },
+    "FloatBetween1And3": {
+      "type": "number",
+      "format": "float",
+      "maximum": 3.0,
+      "minimum": 1.0
+    },
+    "Assurance": {
+      "description": "Data Type \"Assurance\" of Spec Version 2",
+      "type": "object",
+      "required": [
+        "assurance",
+        "providerName"
+      ],
+      "properties": {
+        "assurance": {
+          "type": "boolean"
+        },
+        "coverage": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AssuranceCoverage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "level": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AssuranceLevel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "boundary": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AssuranceBoundary"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "providerName": {
+          "type": "string"
+        },
+        "completedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "standardName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "comments": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "AssuranceCoverage": {
+      "type": "string",
+      "enum": [
+        "corporate level",
+        "product line",
+        "PCF system",
+        "product level"
+      ]
+    },
+    "AssuranceLevel": {
+      "type": "string",
+      "enum": [
+        "limited",
+        "reasonable"
+      ]
+    },
+    "AssuranceBoundary": {
+      "type": "string",
+      "enum": [
+        "Gate-to-Gate",
+        "Cradle-to-Gate"
       ]
     },
     "DataModelExtension": {

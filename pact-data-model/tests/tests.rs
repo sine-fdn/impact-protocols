@@ -104,9 +104,7 @@ fn test_deser_geography() {
     "#;
 
         let cf_test = CarbonFootprint {
-            geographic_scope: Some(GeographicScope::Country {
-                geography_country: ISO3166CC("FR".to_string()),
-            }),
+            geographic_scope: Some(GeographicScope::Country(ISO3166CC("FR".to_string()))),
             ..(cf.clone())
         };
 
@@ -142,9 +140,7 @@ fn test_deser_geography() {
     "#;
 
         let cf_test = CarbonFootprint {
-            geographic_scope: Some(GeographicScope::Regional {
-                geography_region_or_subregion: UNRegionOrSubregion::Americas,
-            }),
+            geographic_scope: Some(GeographicScope::Regional(UNRegionOrSubregion::Americas)),
             ..(cf.clone())
         };
 
@@ -183,9 +179,10 @@ fn test_deser_geography() {
     "#;
 
         let cf_test = CarbonFootprint {
-            geographic_scope: Some(GeographicScope::Subdivision {
-                geography_country_subdivision: NonEmptyString("FR-48".to_string()),
-            }),
+            geographic_scope: Some(GeographicScope::Subdivision(NonEmptyString(
+                "FR-48".to_string(),
+            ))),
+
             ..(cf.clone())
         };
 

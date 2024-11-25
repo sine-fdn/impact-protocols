@@ -1,14 +1,12 @@
 use std::{
-    collections::BTreeSet,
     fs::File,
     io::{Error, Write},
 };
 
 use schemars::{
-    schema::{
-        InstanceType, ObjectValidation, RootSchema, Schema, SchemaObject, SubschemaValidation,
-    },
-    schema_for, Map,
+    gen::SchemaGenerator,
+    schema::{RootSchema, Schema},
+    schema_for,
 };
 use serde_json::{to_string_pretty, Value};
 
@@ -18,7 +16,7 @@ pub fn generate_schema() -> Result<(), Error> {
     let mut schema = schema_for!(ProductFootprint<Value>);
 
     update_schema_title(&mut schema);
-    fix_geographic_scope(&mut schema);
+    include_geo_scope_props(&mut schema);
 
     let schema_json = to_string_pretty(&schema).expect("Failed to serialize schema");
 
@@ -31,126 +29,70 @@ pub fn generate_schema() -> Result<(), Error> {
     Ok(())
 }
 
-fn fix_geographic_scope(schema: &mut RootSchema) {
-    let definitions = schema.clone().definitions;
-    let carbon_footprint_schema = definitions.get("CarbonFootprint").unwrap().to_owned();
-
-    // Create the oneOf variants for geographic scope
-    let mut one_of = Vec::new();
-
-    // Regional variant
-    one_of.push(Schema::Object(SchemaObject {
-        instance_type: Some(InstanceType::Object.into()),
-        object: Some(Box::new(ObjectValidation {
-            required: BTreeSet::from(["geographyRegionOrSubregion".to_string()]),
-            properties: Map::from([
-                (
-                    "geographyRegionOrSubregion".to_string(),
-                    Schema::Object(SchemaObject {
-                        instance_type: None,
-                        reference: Some(format!("#/definitions/UNRegionOrSubregion",)),
-                        ..Default::default()
-                    }),
-                ),
-                ("geographyCountry".to_string(), Schema::Bool(false)),
-                (
-                    "geographyCountrySubdivision".to_string(),
-                    Schema::Bool(false),
-                ),
-            ]),
-            ..Default::default()
-        })),
-        ..Default::default()
-    }));
-
-    // Country variant
-    one_of.push(Schema::Object(SchemaObject {
-        instance_type: Some(InstanceType::Object.into()),
-        object: Some(Box::new(ObjectValidation {
-            required: BTreeSet::from(["geographyCountry".to_string()]),
-            properties: Map::from([
-                (
-                    "geographyCountry".to_string(),
-                    Schema::Object(SchemaObject {
-                        instance_type: None,
-                        reference: Some(format!("#/definitions/ISO3166CC",)),
-                        ..Default::default()
-                    }),
-                ),
-                (
-                    "geographyRegionOrSubregion".to_string(),
-                    Schema::Bool(false),
-                ),
-                (
-                    "geographyCountrySubdivision".to_string(),
-                    Schema::Bool(false),
-                ),
-            ]),
-            ..Default::default()
-        })),
-        ..Default::default()
-    }));
-
-    // Subdivision variant
-    one_of.push(Schema::Object(SchemaObject {
-        instance_type: Some(InstanceType::Object.into()),
-        object: Some(Box::new(ObjectValidation {
-            required: BTreeSet::from(["geographyCountrySubdivision".to_string()]),
-            properties: Map::from([
-                (
-                    "geographyCountrySubdivision".to_string(),
-                    Schema::Object(SchemaObject {
-                        instance_type: None,
-                        reference: Some(format!("#/definitions/NonEmptyString",)),
-                        ..Default::default()
-                    }),
-                ),
-                (
-                    "geographyRegionOrSubregion".to_string(),
-                    Schema::Bool(false),
-                ),
-                ("geographyCountry".to_string(), Schema::Bool(false)),
-            ]),
-            ..Default::default()
-        })),
-        ..Default::default()
-    }));
-
-    // Global variant (no geographic properties)
-    one_of.push(Schema::Object(SchemaObject {
-        instance_type: Some(InstanceType::Object.into()),
-        object: Some(Box::new(ObjectValidation {
-            properties: Map::from([
-                (
-                    "geographyRegionOrSubregion".to_string(),
-                    Schema::Bool(false),
-                ),
-                ("geographyCountry".to_string(), Schema::Bool(false)),
-                (
-                    "geographyCountrySubdivision".to_string(),
-                    Schema::Bool(false),
-                ),
-            ]),
-
-            ..Default::default()
-        })),
-        ..Default::default()
-    }));
-
-    let mut carbon_footprint_schema = carbon_footprint_schema.clone().into_object();
-    carbon_footprint_schema.subschemas = Some(Box::new(SubschemaValidation {
-        one_of: Some(one_of),
-        ..Default::default()
-    }));
-
-    schema.definitions.insert(
-        "CarbonFootprint".to_string(),
-        Schema::Object(carbon_footprint_schema),
-    );
-}
-
-pub fn update_schema_title(schema: &mut RootSchema) {
+fn update_schema_title(schema: &mut RootSchema) {
     if let Some(metadata) = schema.schema.metadata.as_mut() {
         metadata.title = Some("ProductFootprint".to_string());
     }
+}
+
+fn include_geo_scope_props(schema: &mut RootSchema) {
+    let carbon_footprint = schema
+        .definitions
+        .get("CarbonFootprint")
+        .unwrap()
+        .to_owned();
+
+    let mut carbon_footprint = carbon_footprint.into_object();
+    if let Some(object) = carbon_footprint.object.as_mut() {
+        let mut gen = SchemaGenerator::default();
+        object.properties.insert(
+            "geographyCountry".to_string(),
+            gen.subschema_for::<ISO3166CC>(),
+        );
+        object.properties.insert(
+            "geographyRegionOrSubregion".to_string(),
+            gen.subschema_for::<UNRegionOrSubregion>(),
+        );
+        object.properties.insert(
+            "geographyCountrySubdivision".to_string(),
+            gen.subschema_for::<NonEmptyString>(),
+        );
+    }
+
+    schema.definitions.insert(
+        "CarbonFootprint".to_string(),
+        Schema::Object(carbon_footprint),
+    );
+}
+
+#[test]
+
+fn compare_schemas() {
+    use crate::ProductFootprint;
+    use schemars::schema_for;
+    use serde_json::{to_string_pretty, Value};
+    use std::{fs::File, io::Read};
+
+    fn read_schema(schema_name: &str) -> String {
+        let schema_dir = std::path::Path::new("schema");
+        let mut file = File::open(schema_dir.join(schema_name)).unwrap();
+
+        let mut schema = String::new();
+        file.read_to_string(&mut schema).unwrap();
+
+        schema
+    }
+
+    fn normalize_json(json_str: &str) -> Value {
+        serde_json::from_str(json_str).unwrap()
+    }
+
+    let mut gen_schema = schema_for!(ProductFootprint<Value>);
+    update_schema_title(&mut gen_schema);
+    include_geo_scope_props(&mut gen_schema);
+
+    assert_eq!(
+        normalize_json(&read_schema("data-model-schema.json")),
+        normalize_json(&to_string_pretty(&gen_schema).unwrap())
+    );
 }

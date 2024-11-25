@@ -10,14 +10,11 @@
 //!
 //! See https://wbcsd.github.io/data-exchange-protocol/v2 for further details.
 
-use std::collections::BTreeSet;
-
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
-use schemars::gen::SchemaGenerator;
 use schemars::schema::{
     ArrayValidation, InstanceType, NumberValidation, ObjectValidation, Schema, SchemaObject,
-    StringValidation, SubschemaValidation,
+    StringValidation,
 };
 use schemars::{JsonSchema, Map};
 use serde::{Deserialize, Serialize};
@@ -290,33 +287,56 @@ pub struct SpecVersionString(pub String);
 /// Data Type "VersionInteger" of Spec Version 2
 pub struct VersionInteger(pub i32);
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+// #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+// #[serde(rename_all = "camelCase")]
+// #[serde(untagged)]
+// /// Encoded geographic scope rules of a Spec Version 2 `CarbonFootprint`
+// pub enum GeographicScope {
+//     #[serde(skip_serializing)]
+//     Global,
+//     #[serde(rename_all = "camelCase")]
+//     Regional {
+//         geography_region_or_subregion: UNRegionOrSubregion,
+//     },
+//     #[serde(rename_all = "camelCase")]
+//     Country { geography_country: ISO3166CC },
+//     #[serde(rename_all = "camelCase")]
+//     Subdivision {
+//         geography_country_subdivision: NonEmptyString,
+//     },
+// }
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
-#[serde(untagged)]
 /// Encoded geographic scope rules of a Spec Version 2 `CarbonFootprint`
 pub enum GeographicScope {
     #[serde(skip_serializing)]
     Global,
-    #[serde(rename_all = "camelCase")]
-    Regional {
-        geography_region_or_subregion: UNRegionOrSubregion,
-    },
-    #[serde(rename_all = "camelCase")]
-    Country { geography_country: ISO3166CC },
-    #[serde(rename_all = "camelCase")]
-    Subdivision {
-        geography_country_subdivision: NonEmptyString,
-    },
+    #[serde(rename = "geographyRegionOrSubregion")]
+    Regional(UNRegionOrSubregion),
+    #[serde(rename = "geographyCountry")]
+    Country(ISO3166CC),
+    #[serde(rename = "geographyCountrySubdivision")]
+    Subdivision(NonEmptyString),
 }
 
 impl GeographicScope {
     pub fn geography_country(&self) -> Option<&str> {
         match self {
-            GeographicScope::Country { geography_country } => Some(&geography_country.0),
+            GeographicScope::Country(geography_country) => Some(&geography_country.0),
             _ => None,
         }
     }
 }
+
+// impl GeographicScope {
+//     pub fn geography_country(&self) -> Option<&str> {
+//         match self {
+//             GeographicScope::Country { geography_country } => Some(&geography_country.0),
+//             _ => None,
+//         }
+//     }
+// }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 /// List of UN regions and subregions
@@ -557,6 +577,113 @@ impl From<String> for SpecVersionString {
         SpecVersionString(s)
     }
 }
+
+impl JsonSchema for GeographicScope {
+    fn schema_name() -> String {
+        "GeographicScope".to_string()
+    }
+
+    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> Schema {
+        let regional_or_subregion = {
+            let mut obj = ObjectValidation::default();
+            obj.required
+                .insert("geographyRegionOrSubregion".to_string());
+            obj.properties.insert(
+                "geographyRegionOrSubregion".to_string(),
+                gen.subschema_for::<UNRegionOrSubregion>().into(),
+            );
+            obj.properties
+                .insert("geographyCountry".to_string(), Schema::Bool(false).into());
+            obj.properties.insert(
+                "geographyCountrySubdivision".to_string(),
+                Schema::Bool(false).into(),
+            );
+            Schema::Object(SchemaObject {
+                instance_type: Some(vec![InstanceType::Object].into()),
+                object: Some(Box::new(obj)),
+                ..Default::default()
+            })
+        };
+
+        let country = {
+            let mut obj = ObjectValidation::default();
+            obj.required.insert("geographyCountry".to_string());
+            obj.properties.insert(
+                "geographyCountry".to_string(),
+                gen.subschema_for::<ISO3166CC>().into(),
+            );
+            obj.properties.insert(
+                "geographyRegionOrSubregion".to_string(),
+                Schema::Bool(false).into(),
+            );
+            obj.properties.insert(
+                "geographyCountrySubdivision".to_string(),
+                Schema::Bool(false).into(),
+            );
+            Schema::Object(SchemaObject {
+                instance_type: Some(vec![InstanceType::Object].into()),
+                object: Some(Box::new(obj)),
+                ..Default::default()
+            })
+        };
+
+        let country_subdivision = {
+            let mut obj = ObjectValidation::default();
+            obj.required
+                .insert("geographyCountrySubdivision".to_string());
+            obj.properties.insert(
+                "geographyCountrySubdivision".to_string(),
+                gen.subschema_for::<NonEmptyString>().into(),
+            );
+            obj.properties.insert(
+                "geographyRegionOrSubregion".to_string(),
+                Schema::Bool(false).into(),
+            );
+            obj.properties
+                .insert("geographyCountry".to_string(), Schema::Bool(false).into());
+            Schema::Object(SchemaObject {
+                instance_type: Some(vec![InstanceType::Object].into()),
+                object: Some(Box::new(obj)),
+                ..Default::default()
+            })
+        };
+
+        let global = Schema::Object(SchemaObject {
+            instance_type: Some(vec![InstanceType::Object].into()),
+            object: Some(Box::new(ObjectValidation {
+                properties: Map::from([
+                    (
+                        "geographyRegionOrSubregion".to_string(),
+                        Schema::Bool(false).into(),
+                    ),
+                    ("geographyCountry".to_string(), Schema::Bool(false).into()),
+                    (
+                        "geographyCountrySubdivision".to_string(),
+                        Schema::Bool(false).into(),
+                    ),
+                ]),
+                ..Default::default()
+            })),
+            ..Default::default()
+        });
+
+        // Combine schemas into a `oneOf`
+        Schema::Object(SchemaObject {
+            instance_type: None,
+            subschemas: Some(Box::new(schemars::schema::SubschemaValidation {
+                one_of: Some(vec![
+                    regional_or_subregion,
+                    country,
+                    country_subdivision,
+                    global,
+                ]),
+                ..Default::default()
+            })),
+            ..Default::default()
+        })
+    }
+}
+
 impl JsonSchema for IpccCharacterizationFactorsSource {
     fn schema_name() -> String {
         "IpccCharacterizationFactorsSource".into()
