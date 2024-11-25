@@ -22,7 +22,7 @@ pub fn write_schemas<T: schemars::JsonSchema>(
 
     write_schema_file(schema, schema_file_name)?;
 
-    let pcf_schema = gen_pcf_with_extension::<T>(&type_name);
+    let pcf_schema = gen_pcf_with_extension::<T>(type_name);
 
     write_schema_file(pcf_schema, pcf_schema_file_name)?;
 
