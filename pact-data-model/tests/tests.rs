@@ -104,7 +104,7 @@ fn test_deser_geography() {
     "#;
 
         let cf_test = CarbonFootprint {
-            geographic_scope: Some(GeographicScope::Country(ISO3166CC("FR".to_string()))),
+            geographic_scope: Some(GeographicScope::Country(ISO3166CC("FR".to_string().into()))),
             ..(cf.clone())
         };
 

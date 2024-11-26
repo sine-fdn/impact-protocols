@@ -287,25 +287,6 @@ pub struct SpecVersionString(pub String);
 /// Data Type "VersionInteger" of Spec Version 2
 pub struct VersionInteger(pub i32);
 
-// #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
-// #[serde(rename_all = "camelCase")]
-// #[serde(untagged)]
-// /// Encoded geographic scope rules of a Spec Version 2 `CarbonFootprint`
-// pub enum GeographicScope {
-//     #[serde(skip_serializing)]
-//     Global,
-//     #[serde(rename_all = "camelCase")]
-//     Regional {
-//         geography_region_or_subregion: UNRegionOrSubregion,
-//     },
-//     #[serde(rename_all = "camelCase")]
-//     Country { geography_country: ISO3166CC },
-//     #[serde(rename_all = "camelCase")]
-//     Subdivision {
-//         geography_country_subdivision: NonEmptyString,
-//     },
-// }
-
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 /// Encoded geographic scope rules of a Spec Version 2 `CarbonFootprint`
@@ -321,22 +302,13 @@ pub enum GeographicScope {
 }
 
 impl GeographicScope {
-    pub fn geography_country(&self) -> Option<&str> {
+    pub fn geography_country(&self) -> Option<&Alpha2CountryCode> {
         match self {
             GeographicScope::Country(geography_country) => Some(&geography_country.0),
             _ => None,
         }
     }
 }
-
-// impl GeographicScope {
-//     pub fn geography_country(&self) -> Option<&str> {
-//         match self {
-//             GeographicScope::Country { geography_country } => Some(&geography_country.0),
-//             _ => None,
-//         }
-//     }
-// }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 /// List of UN regions and subregions
@@ -385,9 +357,18 @@ pub struct ProductOrSectorSpecificRuleSet(pub Vec<ProductOrSectorSpecificRule>);
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
 pub struct CrossSectoralStandardSet(pub Vec<DeprecatedCrossSectoralStandard>);
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+// TODO: use Enum instead
+pub struct ISO3166CC(pub Alpha2CountryCode);
+
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
-// TODO JSONSchema
-pub struct ISO3166CC(pub String);
+pub struct Alpha2CountryCode(pub String);
+
+impl Alpha2CountryCode {
+    pub fn is_valid(&self) -> bool {
+        self.0.len() == 2 && self.0.chars().all(|c| c.is_ascii_uppercase())
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[allow(dead_code)]
@@ -492,6 +473,12 @@ pub struct DataModelExtension<T: JsonSchema> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub documentation: Option<String>, // Replace String with URL
     pub data: T,
+}
+
+impl From<String> for Alpha2CountryCode {
+    fn from(s: String) -> Alpha2CountryCode {
+        Alpha2CountryCode(s)
+    }
 }
 
 impl From<String> for IpccCharacterizationFactorsSource {
@@ -681,6 +668,26 @@ impl JsonSchema for GeographicScope {
             })),
             ..Default::default()
         })
+    }
+}
+
+impl JsonSchema for ISO3166CC {
+    fn schema_name() -> String {
+        "ISO3166CC".to_string()
+    }
+
+    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> Schema {
+        let mut s = match String::json_schema(gen) {
+            Schema::Object(s) => s,
+            Schema::Bool(_) => panic!("Unexpected base schema"),
+        };
+
+        s.string = Some(Box::new(StringValidation {
+            pattern: Some("^[A-Z]{2}$".to_string()),
+            ..Default::default()
+        }));
+
+        Schema::Object(s)
     }
 }
 

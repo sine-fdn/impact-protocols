@@ -394,7 +394,8 @@
       ]
     },
     "ISO3166CC": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
     },
     "NonEmptyString": {
       "type": "string",

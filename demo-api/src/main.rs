@@ -283,7 +283,7 @@ fn filtered_data(filter: Option<&'_ str>) -> Result<Vec<ProductFootprint<ILeapTy
                                 .geographic_scope
                                 .map(|v| {
                                     v.geography_country()
-                                        .map(|v| v == value)
+                                        .map(|v| v.0 == value)
                                         .unwrap_or_default()
                                 })
                                 .unwrap_or_default(),
