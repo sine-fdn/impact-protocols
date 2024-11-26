@@ -1,6 +1,17 @@
-[workspace]
+[package]
+name = "pact-data-model"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
 
-resolver = "2"
-members = ["pact-data-model", "ileap-data-model", "demo-api"]
+[[bin]]
+name = "pact-data-model"
+path = "src/main.rs"
 
-# TODO: import makefile from ileap
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+schemars = { version = "0.8.21", features = ["chrono"] }
+rust_decimal = "1.35.0"
+uuid = { version = "1.11", features = ["v4", "serde"] }
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = "1.0.133"

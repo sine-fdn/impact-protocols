@@ -1,5 +1,0 @@
-target
-.env
-target_lambda/
-keypair.pem
-venv
