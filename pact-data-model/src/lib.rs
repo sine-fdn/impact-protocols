@@ -577,13 +577,13 @@ impl JsonSchema for GeographicScope {
                 .insert("geographyRegionOrSubregion".to_string());
             obj.properties.insert(
                 "geographyRegionOrSubregion".to_string(),
-                gen.subschema_for::<UNRegionOrSubregion>().into(),
+                gen.subschema_for::<UNRegionOrSubregion>(),
             );
             obj.properties
-                .insert("geographyCountry".to_string(), Schema::Bool(false).into());
+                .insert("geographyCountry".to_string(), Schema::Bool(false));
             obj.properties.insert(
                 "geographyCountrySubdivision".to_string(),
-                Schema::Bool(false).into(),
+                Schema::Bool(false),
             );
             Schema::Object(SchemaObject {
                 instance_type: Some(vec![InstanceType::Object].into()),
@@ -597,15 +597,15 @@ impl JsonSchema for GeographicScope {
             obj.required.insert("geographyCountry".to_string());
             obj.properties.insert(
                 "geographyCountry".to_string(),
-                gen.subschema_for::<ISO3166CC>().into(),
+                gen.subschema_for::<ISO3166CC>(),
             );
             obj.properties.insert(
                 "geographyRegionOrSubregion".to_string(),
-                Schema::Bool(false).into(),
+                Schema::Bool(false),
             );
             obj.properties.insert(
                 "geographyCountrySubdivision".to_string(),
-                Schema::Bool(false).into(),
+                Schema::Bool(false),
             );
             Schema::Object(SchemaObject {
                 instance_type: Some(vec![InstanceType::Object].into()),
@@ -620,14 +620,14 @@ impl JsonSchema for GeographicScope {
                 .insert("geographyCountrySubdivision".to_string());
             obj.properties.insert(
                 "geographyCountrySubdivision".to_string(),
-                gen.subschema_for::<NonEmptyString>().into(),
+                gen.subschema_for::<NonEmptyString>(),
             );
             obj.properties.insert(
                 "geographyRegionOrSubregion".to_string(),
-                Schema::Bool(false).into(),
+                Schema::Bool(false),
             );
             obj.properties
-                .insert("geographyCountry".to_string(), Schema::Bool(false).into());
+                .insert("geographyCountry".to_string(), Schema::Bool(false));
             Schema::Object(SchemaObject {
                 instance_type: Some(vec![InstanceType::Object].into()),
                 object: Some(Box::new(obj)),
@@ -641,12 +641,12 @@ impl JsonSchema for GeographicScope {
                 properties: Map::from([
                     (
                         "geographyRegionOrSubregion".to_string(),
-                        Schema::Bool(false).into(),
+                        Schema::Bool(false),
                     ),
-                    ("geographyCountry".to_string(), Schema::Bool(false).into()),
+                    ("geographyCountry".to_string(), Schema::Bool(false)),
                     (
                         "geographyCountrySubdivision".to_string(),
-                        Schema::Bool(false).into(),
+                        Schema::Bool(false),
                     ),
                 ]),
                 ..Default::default()
