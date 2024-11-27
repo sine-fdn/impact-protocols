@@ -13,9 +13,10 @@
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use schemars::schema::{
-    ArrayValidation, InstanceType, NumberValidation, Schema, SchemaObject, StringValidation,
+    ArrayValidation, InstanceType, NumberValidation, ObjectValidation, Schema, SchemaObject,
+    StringValidation,
 };
-use schemars::JsonSchema;
+use schemars::{JsonSchema, Map};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -23,7 +24,7 @@ mod schema_gen;
 pub use schema_gen::generate_schema;
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 /// Data Type "ProductFootprint" of Tech Spec Version 2
 pub struct ProductFootprint<T: JsonSchema> {
     pub id: PfId,
@@ -55,8 +56,8 @@ pub struct ProductFootprint<T: JsonSchema> {
     pub extensions: Option<Vec<DataModelExtension<T>>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 /// Data Type "CarbonFootprint" of Spec Version 2
 pub struct CarbonFootprint {
     pub declared_unit: DeclaredUnit,
@@ -286,29 +287,24 @@ pub struct SpecVersionString(pub String);
 /// Data Type "VersionInteger" of Spec Version 2
 pub struct VersionInteger(pub i32);
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
-#[serde(untagged)]
 /// Encoded geographic scope rules of a Spec Version 2 `CarbonFootprint`
 pub enum GeographicScope {
     #[serde(skip_serializing)]
     Global,
-    #[serde(rename_all = "camelCase")]
-    Regional {
-        geography_region_or_subregion: UNRegionOrSubregion,
-    },
-    #[serde(rename_all = "camelCase")]
-    Country { geography_country: ISO3166CC },
-    #[serde(rename_all = "camelCase")]
-    Subdivision {
-        geography_country_subdivision: NonEmptyString,
-    },
+    #[serde(rename = "geographyRegionOrSubregion")]
+    Regional(UNRegionOrSubregion),
+    #[serde(rename = "geographyCountry")]
+    Country(ISO3166CC),
+    #[serde(rename = "geographyCountrySubdivision")]
+    Subdivision(NonEmptyString),
 }
 
 impl GeographicScope {
-    pub fn geography_country(&self) -> Option<&str> {
+    pub fn geography_country(&self) -> Option<&Alpha2CountryCode> {
         match self {
-            GeographicScope::Country { geography_country } => Some(&geography_country.0),
+            GeographicScope::Country(geography_country) => Some(&geography_country.0),
             _ => None,
         }
     }
@@ -361,9 +357,18 @@ pub struct ProductOrSectorSpecificRuleSet(pub Vec<ProductOrSectorSpecificRule>);
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
 pub struct CrossSectoralStandardSet(pub Vec<DeprecatedCrossSectoralStandard>);
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+// TODO: use Enum instead
+pub struct ISO3166CC(pub Alpha2CountryCode);
+
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
-// TODO JSONSchema
-pub struct ISO3166CC(pub String);
+pub struct Alpha2CountryCode(pub String);
+
+impl Alpha2CountryCode {
+    pub fn is_valid(&self) -> bool {
+        self.0.len() == 2 && self.0.chars().all(|c| c.is_ascii_uppercase())
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[allow(dead_code)]
@@ -470,6 +475,12 @@ pub struct DataModelExtension<T: JsonSchema> {
     pub data: T,
 }
 
+impl From<String> for Alpha2CountryCode {
+    fn from(s: String) -> Alpha2CountryCode {
+        Alpha2CountryCode(s)
+    }
+}
+
 impl From<String> for IpccCharacterizationFactorsSource {
     fn from(s: String) -> IpccCharacterizationFactorsSource {
         IpccCharacterizationFactorsSource(s)
@@ -551,6 +562,132 @@ impl From<String> for Urn {
 impl From<String> for SpecVersionString {
     fn from(s: String) -> SpecVersionString {
         SpecVersionString(s)
+    }
+}
+
+impl JsonSchema for GeographicScope {
+    fn schema_name() -> String {
+        "GeographicScope".to_string()
+    }
+
+    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> Schema {
+        let regional_or_subregion = {
+            let mut obj = ObjectValidation::default();
+            obj.required
+                .insert("geographyRegionOrSubregion".to_string());
+            obj.properties.insert(
+                "geographyRegionOrSubregion".to_string(),
+                gen.subschema_for::<UNRegionOrSubregion>(),
+            );
+            obj.properties
+                .insert("geographyCountry".to_string(), Schema::Bool(false));
+            obj.properties.insert(
+                "geographyCountrySubdivision".to_string(),
+                Schema::Bool(false),
+            );
+            Schema::Object(SchemaObject {
+                instance_type: Some(vec![InstanceType::Object].into()),
+                object: Some(Box::new(obj)),
+                ..Default::default()
+            })
+        };
+
+        let country = {
+            let mut obj = ObjectValidation::default();
+            obj.required.insert("geographyCountry".to_string());
+            obj.properties.insert(
+                "geographyCountry".to_string(),
+                gen.subschema_for::<ISO3166CC>(),
+            );
+            obj.properties.insert(
+                "geographyRegionOrSubregion".to_string(),
+                Schema::Bool(false),
+            );
+            obj.properties.insert(
+                "geographyCountrySubdivision".to_string(),
+                Schema::Bool(false),
+            );
+            Schema::Object(SchemaObject {
+                instance_type: Some(vec![InstanceType::Object].into()),
+                object: Some(Box::new(obj)),
+                ..Default::default()
+            })
+        };
+
+        let country_subdivision = {
+            let mut obj = ObjectValidation::default();
+            obj.required
+                .insert("geographyCountrySubdivision".to_string());
+            obj.properties.insert(
+                "geographyCountrySubdivision".to_string(),
+                gen.subschema_for::<NonEmptyString>(),
+            );
+            obj.properties.insert(
+                "geographyRegionOrSubregion".to_string(),
+                Schema::Bool(false),
+            );
+            obj.properties
+                .insert("geographyCountry".to_string(), Schema::Bool(false));
+            Schema::Object(SchemaObject {
+                instance_type: Some(vec![InstanceType::Object].into()),
+                object: Some(Box::new(obj)),
+                ..Default::default()
+            })
+        };
+
+        let global = Schema::Object(SchemaObject {
+            instance_type: Some(vec![InstanceType::Object].into()),
+            object: Some(Box::new(ObjectValidation {
+                properties: Map::from([
+                    (
+                        "geographyRegionOrSubregion".to_string(),
+                        Schema::Bool(false),
+                    ),
+                    ("geographyCountry".to_string(), Schema::Bool(false)),
+                    (
+                        "geographyCountrySubdivision".to_string(),
+                        Schema::Bool(false),
+                    ),
+                ]),
+                ..Default::default()
+            })),
+            ..Default::default()
+        });
+
+        // Combine schemas into a `oneOf`
+        Schema::Object(SchemaObject {
+            instance_type: None,
+            subschemas: Some(Box::new(schemars::schema::SubschemaValidation {
+                one_of: Some(vec![
+                    regional_or_subregion,
+                    country,
+                    country_subdivision,
+                    global,
+                ]),
+                ..Default::default()
+            })),
+            ..Default::default()
+        })
+    }
+}
+
+impl JsonSchema for ISO3166CC {
+    fn schema_name() -> String {
+        "ISO3166CC".to_string()
+    }
+
+    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> Schema {
+        let mut s = match String::json_schema(gen) {
+            Schema::Object(s) => s,
+            Schema::Bool(_) => panic!("Unexpected base schema"),
+        };
+
+        s.string = Some(Box::new(StringValidation {
+            pattern: Some("^[A-Z]{2}$".to_string()),
+            ..Default::default()
+        }));
+
+        Schema::Object(s)
     }
 }
 

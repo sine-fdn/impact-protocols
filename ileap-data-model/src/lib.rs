@@ -12,7 +12,7 @@
 
 use chrono::{DateTime, Utc};
 
-use pact_data_model::{GeographicScope, WrappedDecimal};
+use pact_data_model::{WrappedDecimal, ISO3166CC};
 use rust_decimal::Decimal;
 
 use schemars::JsonSchema;
@@ -295,7 +295,7 @@ pub struct Location {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub zip: Option<String>,
     pub city: String,
-    pub country: GeographicScope,
+    pub country: ISO3166CC,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub iata: Option<IataCode>,
     #[serde(skip_serializing_if = "Option::is_none")]
