@@ -19,6 +19,9 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+mod schema_gen;
+pub use schema_gen::generate_schema;
+
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
 /// Data Type "ProductFootprint" of Tech Spec Version 2
