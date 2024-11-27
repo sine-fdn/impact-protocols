@@ -402,7 +402,7 @@
           "type": "string"
         },
         "country": {
-          "$ref": "#/definitions/GeographicScope"
+          "$ref": "#/definitions/ISO3166CC"
         },
         "iata": {
           "anyOf": [
@@ -456,100 +456,9 @@
         }
       }
     },
-    "GeographicScope": {
-      "oneOf": [
-        {
-          "type": [
-            "object"
-          ],
-          "required": [
-            "geographyRegionOrSubregion"
-          ],
-          "properties": {
-            "geographyRegionOrSubregion": {
-              "$ref": "#/definitions/UNRegionOrSubregion"
-            },
-            "geographyCountry": false,
-            "geographyCountrySubdivision": false
-          }
-        },
-        {
-          "type": [
-            "object"
-          ],
-          "required": [
-            "geographyCountry"
-          ],
-          "properties": {
-            "geographyCountry": {
-              "$ref": "#/definitions/ISO3166CC"
-            },
-            "geographyRegionOrSubregion": false,
-            "geographyCountrySubdivision": false
-          }
-        },
-        {
-          "type": [
-            "object"
-          ],
-          "required": [
-            "geographyCountrySubdivision"
-          ],
-          "properties": {
-            "geographyCountrySubdivision": {
-              "$ref": "#/definitions/NonEmptyString"
-            },
-            "geographyRegionOrSubregion": false,
-            "geographyCountry": false
-          }
-        },
-        {
-          "type": [
-            "object"
-          ],
-          "properties": {
-            "geographyRegionOrSubregion": false,
-            "geographyCountry": false,
-            "geographyCountrySubdivision": false
-          }
-        }
-      ]
-    },
-    "UNRegionOrSubregion": {
-      "description": "List of UN regions and subregions",
-      "type": "string",
-      "enum": [
-        "Africa",
-        "Americas",
-        "Asia",
-        "Europe",
-        "Oceania",
-        "Australia and New Zealand",
-        "Central Asia",
-        "Eastern Asia",
-        "Eastern Europe",
-        "Latin America and the Caribbean",
-        "Melanesia",
-        "Micronesia",
-        "Northern Africa",
-        "Northern America",
-        "Northern Europe",
-        "Polynesia",
-        "South-eastern Asia",
-        "Southern Asia",
-        "Southern Europe",
-        "Sub-Saharan Africa",
-        "Western Asia",
-        "Western Europe"
-      ]
-    },
     "ISO3166CC": {
       "type": "string",
       "pattern": "^[A-Z]{2}$"
-    },
-    "NonEmptyString": {
-      "type": "string",
-      "minLength": 1
     },
     "IataCode": {
       "type": "string"
@@ -606,6 +515,10 @@
         "Active",
         "Deprecated"
       ]
+    },
+    "NonEmptyString": {
+      "type": "string",
+      "minLength": 1
     },
     "CompanyIdSet": {
       "type": "array",
@@ -1220,6 +1133,34 @@
       "enum": [
         "Gate-to-Gate",
         "Cradle-to-Gate"
+      ]
+    },
+    "UNRegionOrSubregion": {
+      "description": "List of UN regions and subregions",
+      "type": "string",
+      "enum": [
+        "Africa",
+        "Americas",
+        "Asia",
+        "Europe",
+        "Oceania",
+        "Australia and New Zealand",
+        "Central Asia",
+        "Eastern Asia",
+        "Eastern Europe",
+        "Latin America and the Caribbean",
+        "Melanesia",
+        "Micronesia",
+        "Northern Africa",
+        "Northern America",
+        "Northern Europe",
+        "Polynesia",
+        "South-eastern Asia",
+        "Southern Asia",
+        "Southern Europe",
+        "Sub-Saharan Africa",
+        "Western Asia",
+        "Western Europe"
       ]
     },
     "DataModelExtension": {
