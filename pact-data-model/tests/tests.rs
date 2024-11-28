@@ -43,6 +43,11 @@ fn test_deser_geography() {
         primary_data_share: None,
         dqi: None,
         assurance: None,
+        product_mass_per_declared_unit: None,
+        cross_sectoral_standards: vec![
+            CrossSectoralStandard::Ghgp,
+            CrossSectoralStandard::ISO14040_44,
+        ],
     };
 
     // test case with geography "global" ; i.e. no further geography defined

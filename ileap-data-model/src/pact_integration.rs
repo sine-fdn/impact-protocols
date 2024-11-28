@@ -1,6 +1,9 @@
 use chrono::Utc;
 use pact_data_model::{
-    CarbonFootprint, CharacterizationFactors, CompanyIdSet, CrossSectoralStandardSet, DataModelExtension, DeclaredUnit, DeprecatedCrossSectoralStandard, ExemptedEmissionsPercent, IpccCharacterizationFactorsSource, PfId, PfStatus, PositiveDecimal, ProductFootprint, ProductIdSet, SpecVersionString, Urn, VersionInteger
+    CarbonFootprint, CharacterizationFactors, CompanyIdSet, CrossSectoralStandard,
+    CrossSectoralStandardSet, DataModelExtension, DeclaredUnit, DeprecatedCrossSectoralStandard,
+    ExemptedEmissionsPercent, IpccCharacterizationFactorsSource, PfId, PfStatus, PositiveDecimal,
+    ProductFootprint, ProductIdSet, SpecVersionString, Urn, VersionInteger,
 };
 use rust_decimal::Decimal;
 use schemars::JsonSchema;
@@ -192,6 +195,8 @@ where
             primary_data_share: None,
             dqi: None,
             assurance: None,
+            product_mass_per_declared_unit: None,
+            cross_sectoral_standards: vec![CrossSectoralStandard::ISO14083],
         },
         extensions: Some(vec![DataModelExtension {
             spec_version: SpecVersionString::from("0.2.0".to_string()),
@@ -199,6 +204,7 @@ where
             documentation: Some("https://sine-fdn.github.io/ileap-extension/".to_string()),
             data: ileap_type,
         }]),
+        product_classifications: None,
     }
 }
 

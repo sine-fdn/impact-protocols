@@ -45,6 +45,8 @@ pub struct ProductFootprint<T: JsonSchema> {
     pub company_ids: CompanyIdSet,
     pub product_description: String,
     pub product_ids: ProductIdSet,
+    pub product_classifications: Option<Vec<ProductClassification>>,
+    /// Deprecated. To be removed in v3.
     pub product_category_cpc: NonEmptyString,
     pub product_name_company: NonEmptyString,
     pub comment: String,
@@ -57,10 +59,16 @@ pub struct ProductFootprint<T: JsonSchema> {
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
+/// Data Type "ProductClassification" of Spec Version 3
+pub struct ProductClassification(pub Urn);
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[serde(rename_all = "camelCase")]
 /// Data Type "CarbonFootprint" of Spec Version 2
 pub struct CarbonFootprint {
     pub declared_unit: DeclaredUnit,
     pub unitary_product_amount: StrictlyPositiveDecimal,
+    pub product_mass_per_declared_unit: Option<PositiveDecimal>,
     pub p_cf_excluding_biogenic: PositiveDecimal,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub p_cf_including_biogenic: Option<WrappedDecimal>,
@@ -88,6 +96,7 @@ pub struct CarbonFootprint {
     pub ipcc_characterization_factors_sources: IpccCharacterizationFactorsSources,
 
     pub cross_sectoral_standards_used: CrossSectoralStandardSet,
+    pub cross_sectoral_standards: Vec<CrossSectoralStandard>,
     pub product_or_sector_specific_rules: Option<ProductOrSectorSpecificRuleSet>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -145,7 +154,7 @@ pub enum PfStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, JsonSchema, PartialEq)]
-/// Data Type "DeclaredUnit" of Spec Version 2
+/// Data Type "DeclaredUnit" of Spec Version 2. Version 3 will include `piece`.
 pub enum DeclaredUnit {
     #[serde(rename = "liter")]
     Liter,
@@ -163,15 +172,13 @@ pub enum DeclaredUnit {
     SquareMeter,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, JsonSchema)]
 /// Data Type "CrossSectoralStandard" of Spec Version 3
 pub enum CrossSectoralStandard {
     #[serde(rename = "GHGP Product")]
     Ghgp,
     #[serde(rename = "ISO14067")]
     ISO14067,
-    #[serde(rename = "ISO14044")]
-    ISO14044,
     #[serde(rename = "ISO14083")]
     ISO14083,
     #[serde(rename = "ISO14040-44")]
