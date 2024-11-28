@@ -45,6 +45,7 @@ pub struct ProductFootprint<T: JsonSchema> {
     pub company_ids: CompanyIdSet,
     pub product_description: String,
     pub product_ids: ProductIdSet,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub product_classifications: Option<Vec<ProductClassification>>,
     /// Deprecated. To be removed in v3.
     pub product_category_cpc: NonEmptyString,
@@ -68,6 +69,7 @@ pub struct ProductClassification(pub Urn);
 pub struct CarbonFootprint {
     pub declared_unit: DeclaredUnit,
     pub unitary_product_amount: StrictlyPositiveDecimal,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub product_mass_per_declared_unit: Option<PositiveDecimal>,
     pub p_cf_excluding_biogenic: PositiveDecimal,
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -64,6 +64,7 @@ fn test_deser_geography() {
                 "ipccCharacterizationFactorsSources": [
                 "AR6"
                 ],
+                "crossSectoralStandards": ["GHGP Product", "ISO14040-44"],
                 "crossSectoralStandardsUsed": [
                 "GHG Protocol Product standard",
                 "ISO Standard 14044"
@@ -94,6 +95,7 @@ fn test_deser_geography() {
                 "ipccCharacterizationFactorsSources": [
                 "AR6"
                 ],
+                "crossSectoralStandards": ["GHGP Product", "ISO14040-44"],
                 "crossSectoralStandardsUsed": [
                 "GHG Protocol Product standard",
                 "ISO Standard 14044"
@@ -132,6 +134,7 @@ fn test_deser_geography() {
                 "ipccCharacterizationFactorsSources": [
                 "AR6"
                 ],
+                "crossSectoralStandards": ["GHGP Product", "ISO14040-44"],
                 "crossSectoralStandardsUsed": [
                 "GHG Protocol Product standard",
                 "ISO Standard 14044"
@@ -173,6 +176,7 @@ fn test_deser_geography() {
                 "ipccCharacterizationFactorsSources": [
                 "AR6"
                 ],
+                "crossSectoralStandards": ["GHGP Product", "ISO14040-44"],
                 "crossSectoralStandardsUsed": [
                 "GHG Protocol Product standard",
                 "ISO Standard 14044"
