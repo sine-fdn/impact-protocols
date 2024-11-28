@@ -84,8 +84,22 @@
     "productIds": {
       "$ref": "#/definitions/ProductIdSet"
     },
+    "productClassifications": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/definitions/ProductClassification"
+      }
+    },
     "productCategoryCpc": {
-      "$ref": "#/definitions/NonEmptyString"
+      "description": "Deprecated. To be removed in v3.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/NonEmptyString"
+        }
+      ]
     },
     "productNameCompany": {
       "$ref": "#/definitions/NonEmptyString"
@@ -164,6 +178,14 @@
       "minItems": 1,
       "uniqueItems": true
     },
+    "ProductClassification": {
+      "description": "Data Type \"ProductClassification\" of Spec Version 3",
+      "allOf": [
+        {
+          "$ref": "#/definitions/GenericURN"
+        }
+      ]
+    },
     "CarbonFootprint": {
       "description": "Data Type \"CarbonFootprint\" of Spec Version 2",
       "type": "object",
@@ -209,6 +231,7 @@
         "biogenicCarbonContent",
         "boundaryProcessesDescription",
         "characterizationFactors",
+        "crossSectoralStandards",
         "crossSectoralStandardsUsed",
         "declaredUnit",
         "exemptedEmissionsDescription",
@@ -228,6 +251,16 @@
         },
         "unitaryProductAmount": {
           "$ref": "#/definitions/StrictlyPositiveDecimal"
+        },
+        "productMassPerDeclaredUnit": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "pCfExcludingBiogenic": {
           "$ref": "#/definitions/PositiveDecimal"
@@ -319,6 +352,12 @@
         },
         "crossSectoralStandardsUsed": {
           "$ref": "#/definitions/CrossSectoralStandardSet"
+        },
+        "crossSectoralStandards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CrossSectoralStandard"
+          }
         },
         "productOrSectorSpecificRules": {
           "anyOf": [
@@ -425,7 +464,7 @@
       }
     },
     "DeclaredUnit": {
-      "description": "Data Type \"DeclaredUnit\" of Spec Version 2",
+      "description": "Data Type \"DeclaredUnit\" of Spec Version 2. Version 3 will include `piece`.",
       "type": "string",
       "enum": [
         "liter",
