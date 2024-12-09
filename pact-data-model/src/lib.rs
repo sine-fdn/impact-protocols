@@ -307,7 +307,7 @@ const GEOGRAPHY_COUNTRY_SUBDIVISION: &str = "geographyCountrySubdivision";
 impl GeographicScope {
     pub fn geography_country(&self) -> Option<&ISO3166CC> {
         match self {
-            GeographicScope::Country(geography_country) => Some(&geography_country),
+            GeographicScope::Country(geography_country) => Some(geography_country),
             _ => None,
         }
     }
