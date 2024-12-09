@@ -305,9 +305,9 @@ const GEOGRAPHY_COUNTRY: &str = "geographyCountry";
 const GEOGRAPHY_COUNTRY_SUBDIVISION: &str = "geographyCountrySubdivision";
 
 impl GeographicScope {
-    pub fn geography_country(&self) -> Option<&Alpha2CountryCode> {
+    pub fn geography_country(&self) -> Option<&ISO3166CC> {
         match self {
-            GeographicScope::Country(geography_country) => Some(&geography_country.0),
+            GeographicScope::Country(geography_country) => Some(&geography_country),
             _ => None,
         }
     }
@@ -360,14 +360,11 @@ pub struct ProductOrSectorSpecificRuleSet(pub Vec<ProductOrSectorSpecificRule>);
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
 pub struct CrossSectoralStandardSet(pub Vec<DeprecatedCrossSectoralStandard>);
 
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-// TODO: use Enum instead
-pub struct ISO3166CC(pub Alpha2CountryCode);
+pub struct ISO3166CC(pub String);
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
-pub struct Alpha2CountryCode(pub String);
-
-impl Alpha2CountryCode {
+impl ISO3166CC {
     pub fn is_valid(&self) -> bool {
         self.0.len() == 2 && self.0.chars().all(|c| c.is_ascii_uppercase())
     }
@@ -478,9 +475,9 @@ pub struct DataModelExtension<T: JsonSchema> {
     pub data: T,
 }
 
-impl From<String> for Alpha2CountryCode {
-    fn from(s: String) -> Alpha2CountryCode {
-        Alpha2CountryCode(s)
+impl From<String> for ISO3166CC {
+    fn from(s: String) -> ISO3166CC {
+        ISO3166CC(s)
     }
 }
 
