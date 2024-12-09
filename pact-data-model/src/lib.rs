@@ -300,6 +300,9 @@ pub enum GeographicScope {
     #[serde(rename = "geographyCountrySubdivision")]
     Subdivision(NonEmptyString),
 }
+const GEOGRAPHY_REGION_OR_SUBREGION: &str = "geographyRegionOrSubregion";
+const GEOGRAPHY_COUNTRY: &str = "geographyCountry";
+const GEOGRAPHY_COUNTRY_SUBDIVISION: &str = "geographyCountrySubdivision";
 
 impl GeographicScope {
     pub fn geography_country(&self) -> Option<&Alpha2CountryCode> {
@@ -574,15 +577,15 @@ impl JsonSchema for GeographicScope {
         let regional_or_subregion = {
             let mut obj = ObjectValidation::default();
             obj.required
-                .insert("geographyRegionOrSubregion".to_string());
+                .insert(GEOGRAPHY_REGION_OR_SUBREGION.to_string());
             obj.properties.insert(
-                "geographyRegionOrSubregion".to_string(),
+                GEOGRAPHY_REGION_OR_SUBREGION.to_string(),
                 gen.subschema_for::<UNRegionOrSubregion>(),
             );
             obj.properties
-                .insert("geographyCountry".to_string(), Schema::Bool(false));
+                .insert(GEOGRAPHY_COUNTRY.to_string(), Schema::Bool(false));
             obj.properties.insert(
-                "geographyCountrySubdivision".to_string(),
+                GEOGRAPHY_COUNTRY_SUBDIVISION.to_string(),
                 Schema::Bool(false),
             );
             Schema::Object(SchemaObject {
@@ -594,17 +597,17 @@ impl JsonSchema for GeographicScope {
 
         let country = {
             let mut obj = ObjectValidation::default();
-            obj.required.insert("geographyCountry".to_string());
+            obj.required.insert(GEOGRAPHY_COUNTRY.to_string());
             obj.properties.insert(
-                "geographyCountry".to_string(),
+                GEOGRAPHY_COUNTRY.to_string(),
                 gen.subschema_for::<ISO3166CC>(),
             );
             obj.properties.insert(
-                "geographyRegionOrSubregion".to_string(),
+                GEOGRAPHY_REGION_OR_SUBREGION.to_string(),
                 Schema::Bool(false),
             );
             obj.properties.insert(
-                "geographyCountrySubdivision".to_string(),
+                GEOGRAPHY_COUNTRY_SUBDIVISION.to_string(),
                 Schema::Bool(false),
             );
             Schema::Object(SchemaObject {
@@ -617,17 +620,17 @@ impl JsonSchema for GeographicScope {
         let country_subdivision = {
             let mut obj = ObjectValidation::default();
             obj.required
-                .insert("geographyCountrySubdivision".to_string());
+                .insert(GEOGRAPHY_COUNTRY_SUBDIVISION.to_string());
             obj.properties.insert(
-                "geographyCountrySubdivision".to_string(),
+                GEOGRAPHY_COUNTRY_SUBDIVISION.to_string(),
                 gen.subschema_for::<NonEmptyString>(),
             );
             obj.properties.insert(
-                "geographyRegionOrSubregion".to_string(),
+                GEOGRAPHY_REGION_OR_SUBREGION.to_string(),
                 Schema::Bool(false),
             );
             obj.properties
-                .insert("geographyCountry".to_string(), Schema::Bool(false));
+                .insert(GEOGRAPHY_COUNTRY.to_string(), Schema::Bool(false));
             Schema::Object(SchemaObject {
                 instance_type: Some(vec![InstanceType::Object].into()),
                 object: Some(Box::new(obj)),
@@ -640,12 +643,12 @@ impl JsonSchema for GeographicScope {
             object: Some(Box::new(ObjectValidation {
                 properties: Map::from([
                     (
-                        "geographyRegionOrSubregion".to_string(),
+                        GEOGRAPHY_REGION_OR_SUBREGION.to_string(),
                         Schema::Bool(false),
                     ),
-                    ("geographyCountry".to_string(), Schema::Bool(false)),
+                    (GEOGRAPHY_COUNTRY.to_string(), Schema::Bool(false)),
                     (
-                        "geographyCountrySubdivision".to_string(),
+                        GEOGRAPHY_COUNTRY_SUBDIVISION.to_string(),
                         Schema::Bool(false),
                     ),
                 ]),
