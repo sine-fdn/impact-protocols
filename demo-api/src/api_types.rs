@@ -168,7 +168,7 @@ fn openapi_link_header() -> okapi::openapi3::Header {
     }
 }
 
-impl<'r> schemars::JsonSchema for FilterString<'r> {
+impl schemars::JsonSchema for FilterString<'_> {
     fn schema_name() -> String {
         "FilterString".to_owned()
     }

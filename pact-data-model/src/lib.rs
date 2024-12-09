@@ -13,9 +13,10 @@
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use schemars::schema::{
-    ArrayValidation, InstanceType, NumberValidation, Schema, SchemaObject, StringValidation,
+    ArrayValidation, InstanceType, NumberValidation, ObjectValidation, Schema, SchemaObject,
+    StringValidation,
 };
-use schemars::JsonSchema;
+use schemars::{JsonSchema, Map};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -55,7 +56,7 @@ pub struct ProductFootprint<T: JsonSchema> {
     pub extensions: Option<Vec<DataModelExtension<T>>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 /// Data Type "CarbonFootprint" of Spec Version 2
 pub struct CarbonFootprint {
@@ -286,29 +287,27 @@ pub struct SpecVersionString(pub String);
 /// Data Type "VersionInteger" of Spec Version 2
 pub struct VersionInteger(pub i32);
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
-#[serde(untagged)]
 /// Encoded geographic scope rules of a Spec Version 2 `CarbonFootprint`
 pub enum GeographicScope {
     #[serde(skip_serializing)]
     Global,
-    #[serde(rename_all = "camelCase")]
-    Regional {
-        geography_region_or_subregion: UNRegionOrSubregion,
-    },
-    #[serde(rename_all = "camelCase")]
-    Country { geography_country: ISO3166CC },
-    #[serde(rename_all = "camelCase")]
-    Subdivision {
-        geography_country_subdivision: NonEmptyString,
-    },
+    #[serde(rename = "geographyRegionOrSubregion")]
+    Regional(UNRegionOrSubregion),
+    #[serde(rename = "geographyCountry")]
+    Country(ISO3166CC),
+    #[serde(rename = "geographyCountrySubdivision")]
+    Subdivision(NonEmptyString),
 }
+const GEOGRAPHY_REGION_OR_SUBREGION: &str = "geographyRegionOrSubregion";
+const GEOGRAPHY_COUNTRY: &str = "geographyCountry";
+const GEOGRAPHY_COUNTRY_SUBDIVISION: &str = "geographyCountrySubdivision";
 
 impl GeographicScope {
-    pub fn geography_country(&self) -> Option<&str> {
+    pub fn geography_country(&self) -> Option<&ISO3166CC> {
         match self {
-            GeographicScope::Country { geography_country } => Some(&geography_country.0),
+            GeographicScope::Country(geography_country) => Some(geography_country),
             _ => None,
         }
     }
@@ -361,9 +360,15 @@ pub struct ProductOrSectorSpecificRuleSet(pub Vec<ProductOrSectorSpecificRule>);
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
 pub struct CrossSectoralStandardSet(pub Vec<DeprecatedCrossSectoralStandard>);
 
-#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
-// TODO JSONSchema
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ISO3166CC(pub String);
+
+impl ISO3166CC {
+    pub fn is_valid(&self) -> bool {
+        self.0.len() == 2 && self.0.chars().all(|c| c.is_ascii_uppercase())
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[allow(dead_code)]
@@ -470,6 +475,12 @@ pub struct DataModelExtension<T: JsonSchema> {
     pub data: T,
 }
 
+impl From<String> for ISO3166CC {
+    fn from(s: String) -> ISO3166CC {
+        ISO3166CC(s)
+    }
+}
+
 impl From<String> for IpccCharacterizationFactorsSource {
     fn from(s: String) -> IpccCharacterizationFactorsSource {
         IpccCharacterizationFactorsSource(s)
@@ -551,6 +562,132 @@ impl From<String> for Urn {
 impl From<String> for SpecVersionString {
     fn from(s: String) -> SpecVersionString {
         SpecVersionString(s)
+    }
+}
+
+impl JsonSchema for GeographicScope {
+    fn schema_name() -> String {
+        "GeographicScope".to_string()
+    }
+
+    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> Schema {
+        let regional_or_subregion = {
+            let mut obj = ObjectValidation::default();
+            obj.required
+                .insert(GEOGRAPHY_REGION_OR_SUBREGION.to_string());
+            obj.properties.insert(
+                GEOGRAPHY_REGION_OR_SUBREGION.to_string(),
+                gen.subschema_for::<UNRegionOrSubregion>(),
+            );
+            obj.properties
+                .insert(GEOGRAPHY_COUNTRY.to_string(), Schema::Bool(false));
+            obj.properties.insert(
+                GEOGRAPHY_COUNTRY_SUBDIVISION.to_string(),
+                Schema::Bool(false),
+            );
+            Schema::Object(SchemaObject {
+                instance_type: Some(vec![InstanceType::Object].into()),
+                object: Some(Box::new(obj)),
+                ..Default::default()
+            })
+        };
+
+        let country = {
+            let mut obj = ObjectValidation::default();
+            obj.required.insert(GEOGRAPHY_COUNTRY.to_string());
+            obj.properties.insert(
+                GEOGRAPHY_COUNTRY.to_string(),
+                gen.subschema_for::<ISO3166CC>(),
+            );
+            obj.properties.insert(
+                GEOGRAPHY_REGION_OR_SUBREGION.to_string(),
+                Schema::Bool(false),
+            );
+            obj.properties.insert(
+                GEOGRAPHY_COUNTRY_SUBDIVISION.to_string(),
+                Schema::Bool(false),
+            );
+            Schema::Object(SchemaObject {
+                instance_type: Some(vec![InstanceType::Object].into()),
+                object: Some(Box::new(obj)),
+                ..Default::default()
+            })
+        };
+
+        let country_subdivision = {
+            let mut obj = ObjectValidation::default();
+            obj.required
+                .insert(GEOGRAPHY_COUNTRY_SUBDIVISION.to_string());
+            obj.properties.insert(
+                GEOGRAPHY_COUNTRY_SUBDIVISION.to_string(),
+                gen.subschema_for::<NonEmptyString>(),
+            );
+            obj.properties.insert(
+                GEOGRAPHY_REGION_OR_SUBREGION.to_string(),
+                Schema::Bool(false),
+            );
+            obj.properties
+                .insert(GEOGRAPHY_COUNTRY.to_string(), Schema::Bool(false));
+            Schema::Object(SchemaObject {
+                instance_type: Some(vec![InstanceType::Object].into()),
+                object: Some(Box::new(obj)),
+                ..Default::default()
+            })
+        };
+
+        let global = Schema::Object(SchemaObject {
+            instance_type: Some(vec![InstanceType::Object].into()),
+            object: Some(Box::new(ObjectValidation {
+                properties: Map::from([
+                    (
+                        GEOGRAPHY_REGION_OR_SUBREGION.to_string(),
+                        Schema::Bool(false),
+                    ),
+                    (GEOGRAPHY_COUNTRY.to_string(), Schema::Bool(false)),
+                    (
+                        GEOGRAPHY_COUNTRY_SUBDIVISION.to_string(),
+                        Schema::Bool(false),
+                    ),
+                ]),
+                ..Default::default()
+            })),
+            ..Default::default()
+        });
+
+        // Combine schemas into a `oneOf`
+        Schema::Object(SchemaObject {
+            instance_type: None,
+            subschemas: Some(Box::new(schemars::schema::SubschemaValidation {
+                one_of: Some(vec![
+                    regional_or_subregion,
+                    country,
+                    country_subdivision,
+                    global,
+                ]),
+                ..Default::default()
+            })),
+            ..Default::default()
+        })
+    }
+}
+
+impl JsonSchema for ISO3166CC {
+    fn schema_name() -> String {
+        "ISO3166CC".to_string()
+    }
+
+    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> Schema {
+        let mut s = match String::json_schema(gen) {
+            Schema::Object(s) => s,
+            Schema::Bool(_) => panic!("Unexpected base schema"),
+        };
+
+        s.string = Some(Box::new(StringValidation {
+            pattern: Some("^[A-Z]{2}$".to_string()),
+            ..Default::default()
+        }));
+
+        Schema::Object(s)
     }
 }
 

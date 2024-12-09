@@ -550,9 +550,7 @@ impl Arbitrary for Location {
             street: Option::<String>::arbitrary(g),
             zip: Option::<String>::arbitrary(g),
             city: String::arbitrary(g),
-            country: GeographicScope::Country {
-                geography_country: pact_data_model::ISO3166CC(String::arbitrary(g)),
-            },
+            country: pact_data_model::ISO3166CC(String::arbitrary(g)),
             iata: Option::<IataCode>::arbitrary(g),
             locode: Option::<Locode>::arbitrary(g),
             uic: Option::<UicCode>::arbitrary(g),

@@ -167,41 +167,60 @@
     "CarbonFootprint": {
       "description": "Data Type \"CarbonFootprint\" of Spec Version 2",
       "type": "object",
-      "anyOf": [
+      "oneOf": [
         {
-          "type": "null"
-        },
-        {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyRegionOrSubregion"
           ],
           "properties": {
             "geographyRegionOrSubregion": {
               "$ref": "#/definitions/UNRegionOrSubregion"
-            }
+            },
+            "geographyCountry": false,
+            "geographyCountrySubdivision": false
           }
         },
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyCountry"
           ],
           "properties": {
             "geographyCountry": {
               "$ref": "#/definitions/ISO3166CC"
-            }
+            },
+            "geographyRegionOrSubregion": false,
+            "geographyCountrySubdivision": false
           }
         },
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyCountrySubdivision"
           ],
           "properties": {
             "geographyCountrySubdivision": {
               "$ref": "#/definitions/NonEmptyString"
-            }
+            },
+            "geographyRegionOrSubregion": false,
+            "geographyCountry": false
+          }
+        },
+        {
+          "type": [
+            "object"
+          ],
+          "properties": {
+            "geographyRegionOrSubregion": false,
+            "geographyCountry": false,
+            "geographyCountrySubdivision": false
           }
         }
       ],
@@ -421,6 +440,15 @@
               "type": "null"
             }
           ]
+        },
+        "geographyCountry": {
+          "$ref": "#/definitions/ISO3166CC"
+        },
+        "geographyRegionOrSubregion": {
+          "$ref": "#/definitions/UNRegionOrSubregion"
+        },
+        "geographyCountrySubdivision": {
+          "$ref": "#/definitions/NonEmptyString"
         }
       }
     },
@@ -770,7 +798,8 @@
       ]
     },
     "ISO3166CC": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
     },
     "DataModelExtension": {
       "type": "object",

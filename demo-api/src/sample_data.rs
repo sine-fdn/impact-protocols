@@ -58,7 +58,7 @@ lazy_static!(
             boundary_processes_description: String::from("1) Material acquisition and preprocessing, including growth of corn 2) Production: fuel consumption, electricity consumption, water consumption, process-generated direct emissions 3) Distribution and storage: transportation of the finished product from manufacturing site to storage site"),
             reference_period_start: Utc.with_ymd_and_hms(2021, 1, 1, 00, 00, 00).unwrap(),
             reference_period_end: Utc.with_ymd_and_hms(2022, 1, 1, 00, 00, 00).unwrap(),
-            geographic_scope: Some(GeographicScope::Regional { geography_region_or_subregion: UNRegionOrSubregion::WesternEurope }),
+            geographic_scope: Some(GeographicScope::Regional(UNRegionOrSubregion::WesternEurope)),
             secondary_emission_factor_sources: Some(EmissionFactorDSSet(vec![EmissionFactorDS {
                 name: String::from("Ecoinvent").into(),
                 version: String::from("3.1").into(),
@@ -128,7 +128,7 @@ lazy_static!(
             boundary_processes_description: String::from("1) Material acquisition and preprocessing, including growth of corn 2) Production: fuel consumption, electricity consumption, water consumption, process-generated direct emissions 3) Distribution and storage: transportation of the finished product from manufacturing site to storage site"),
             reference_period_start: Utc.with_ymd_and_hms(2021, 1, 1, 00, 00, 00).unwrap(),
             reference_period_end: Utc.with_ymd_and_hms(2022, 1, 1, 00, 00, 00).unwrap(),
-            geographic_scope: Some(GeographicScope::Country { geography_country: ISO3166CC(String::from("DE")) }),
+            geographic_scope: Some(GeographicScope::Country(ISO3166CC(String::from("DE")))),
             secondary_emission_factor_sources: Some(EmissionFactorDSSet(vec![EmissionFactorDS {
                 name: String::from("Ecoinvent").into(),
                 version: String::from("3.1").into(),
@@ -200,7 +200,7 @@ lazy_static!(
             boundary_processes_description: String::from("1) Material acquisition and preprocessing, including growth of trees 2) Production: fuel consumption, electricity consumption, water consumption, process-generated direct emissions 3) Distribution and storage: transportation of the finished product from manufacturing site to storage site"),
             reference_period_start: Utc.with_ymd_and_hms(2021, 1, 1, 00, 00, 00).unwrap(),
             reference_period_end: Utc.with_ymd_and_hms(2022, 1, 1, 00, 00, 00).unwrap(),
-            geographic_scope: Some(GeographicScope::Country { geography_country: ISO3166CC("FR".into()) }),
+            geographic_scope: Some(GeographicScope::Country(ISO3166CC("FR".to_string()))),
             secondary_emission_factor_sources: Some(EmissionFactorDSSet(vec![EmissionFactorDS {
                 name: String::from("Gabi").into(),
                 version: String::from("2022").into(),
@@ -281,7 +281,7 @@ lazy_static!(
             boundary_processes_description: String::from("1) Material acquisition and preprocessing, including growth of trees 2) Production: fuel consumption, electricity consumption, water consumption, process-generated direct emissions 3) Distribution and storage: transportation of the finished product from manufacturing site to storage site"),
             reference_period_start: Utc.with_ymd_and_hms(2021, 1, 1, 00, 00, 00).unwrap(),
             reference_period_end: Utc.with_ymd_and_hms(2022, 1, 1, 00, 00, 00).unwrap(),
-            geographic_scope: Some(GeographicScope::Subdivision { geography_country_subdivision: String::from("FR-89").into() }),
+            geographic_scope: Some(GeographicScope::Subdivision(String::from("FR-89").into())),
             secondary_emission_factor_sources: Some(EmissionFactorDSSet(vec![EmissionFactorDS {
                 name: String::from("Gabi").into(),
                 version: String::from("2022").into(),
@@ -1246,9 +1246,7 @@ fn demo_tad_base(activity_id: String, consignment_id: String, feedstock: Feedsto
             street: Some("Bredowstraße".into()),
             zip: Some("10551".into()),
             city: "Berlin".into(),
-            country: GeographicScope::Country {
-                geography_country: ISO3166CC(String::from("DE")),
-            },
+            country: ISO3166CC(String::from("DE")),
             iata: None,
             locode: Some(Locode("DEBER".into())),
             uic: None,
@@ -1259,9 +1257,7 @@ fn demo_tad_base(activity_id: String, consignment_id: String, feedstock: Feedsto
             street: Some("Keizersgracht".into()),
             zip: Some("1017".into()),
             city: "Amsterdam".into(),
-            country: GeographicScope::Country {
-                geography_country: ISO3166CC(String::from("NL")),
-            },
+            country: ISO3166CC(String::from("NL")),
             iata: None,
             locode: Some(Locode("NLAMS".into())),
             uic: None,

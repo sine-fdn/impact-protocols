@@ -192,7 +192,7 @@ pub fn encode_token(u: &UserToken, key_pair: &KeyPair) -> Result<String> {
     jsonwebtoken::encode(&header, u, &key_pair.enc_key)
 }
 
-impl<'a> OpenApiFromRequest<'a> for UserToken {
+impl OpenApiFromRequest<'_> for UserToken {
     fn from_request_input(
         _gen: &mut OpenApiGenerator,
         _name: String,

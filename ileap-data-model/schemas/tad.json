@@ -179,7 +179,7 @@
           "type": "string"
         },
         "country": {
-          "$ref": "#/definitions/GeographicScope"
+          "$ref": "#/definitions/ISO3166CC"
         },
         "iata": {
           "anyOf": [
@@ -233,81 +233,9 @@
         }
       }
     },
-    "GeographicScope": {
-      "description": "Encoded geographic scope rules of a Spec Version 2 `CarbonFootprint`",
-      "anyOf": [
-        {
-          "type": "null"
-        },
-        {
-          "type": "object",
-          "required": [
-            "geographyRegionOrSubregion"
-          ],
-          "properties": {
-            "geographyRegionOrSubregion": {
-              "$ref": "#/definitions/UNRegionOrSubregion"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "geographyCountry"
-          ],
-          "properties": {
-            "geographyCountry": {
-              "$ref": "#/definitions/ISO3166CC"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "geographyCountrySubdivision"
-          ],
-          "properties": {
-            "geographyCountrySubdivision": {
-              "$ref": "#/definitions/NonEmptyString"
-            }
-          }
-        }
-      ]
-    },
-    "UNRegionOrSubregion": {
-      "description": "List of UN regions and subregions",
-      "type": "string",
-      "enum": [
-        "Africa",
-        "Americas",
-        "Asia",
-        "Europe",
-        "Oceania",
-        "Australia and New Zealand",
-        "Central Asia",
-        "Eastern Asia",
-        "Eastern Europe",
-        "Latin America and the Caribbean",
-        "Melanesia",
-        "Micronesia",
-        "Northern Africa",
-        "Northern America",
-        "Northern Europe",
-        "Polynesia",
-        "South-eastern Asia",
-        "Southern Asia",
-        "Southern Europe",
-        "Sub-Saharan Africa",
-        "Western Asia",
-        "Western Europe"
-      ]
-    },
     "ISO3166CC": {
-      "type": "string"
-    },
-    "NonEmptyString": {
       "type": "string",
-      "minLength": 1
+      "pattern": "^[A-Z]{2}$"
     },
     "IataCode": {
       "type": "string"

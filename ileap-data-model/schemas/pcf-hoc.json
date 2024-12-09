@@ -251,7 +251,7 @@
           "type": "string"
         },
         "country": {
-          "$ref": "#/definitions/GeographicScope"
+          "$ref": "#/definitions/ISO3166CC"
         },
         "iata": {
           "anyOf": [
@@ -305,81 +305,9 @@
         }
       }
     },
-    "GeographicScope": {
-      "description": "Encoded geographic scope rules of a Spec Version 2 `CarbonFootprint`",
-      "anyOf": [
-        {
-          "type": "null"
-        },
-        {
-          "type": "object",
-          "required": [
-            "geographyRegionOrSubregion"
-          ],
-          "properties": {
-            "geographyRegionOrSubregion": {
-              "$ref": "#/definitions/UNRegionOrSubregion"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "geographyCountry"
-          ],
-          "properties": {
-            "geographyCountry": {
-              "$ref": "#/definitions/ISO3166CC"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "geographyCountrySubdivision"
-          ],
-          "properties": {
-            "geographyCountrySubdivision": {
-              "$ref": "#/definitions/NonEmptyString"
-            }
-          }
-        }
-      ]
-    },
-    "UNRegionOrSubregion": {
-      "description": "List of UN regions and subregions",
-      "type": "string",
-      "enum": [
-        "Africa",
-        "Americas",
-        "Asia",
-        "Europe",
-        "Oceania",
-        "Australia and New Zealand",
-        "Central Asia",
-        "Eastern Asia",
-        "Eastern Europe",
-        "Latin America and the Caribbean",
-        "Melanesia",
-        "Micronesia",
-        "Northern Africa",
-        "Northern America",
-        "Northern Europe",
-        "Polynesia",
-        "South-eastern Asia",
-        "Southern Asia",
-        "Southern Europe",
-        "Sub-Saharan Africa",
-        "Western Asia",
-        "Western Europe"
-      ]
-    },
     "ISO3166CC": {
-      "type": "string"
-    },
-    "NonEmptyString": {
       "type": "string",
-      "minLength": 1
+      "pattern": "^[A-Z]{2}$"
     },
     "IataCode": {
       "type": "string"
@@ -567,6 +495,10 @@
         "Deprecated"
       ]
     },
+    "NonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
     "CompanyIdSet": {
       "type": "array",
       "items": {
@@ -592,41 +524,60 @@
     "CarbonFootprint": {
       "description": "Data Type \"CarbonFootprint\" of Spec Version 2",
       "type": "object",
-      "anyOf": [
+      "oneOf": [
         {
-          "type": "null"
-        },
-        {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyRegionOrSubregion"
           ],
           "properties": {
             "geographyRegionOrSubregion": {
               "$ref": "#/definitions/UNRegionOrSubregion"
-            }
+            },
+            "geographyCountry": false,
+            "geographyCountrySubdivision": false
           }
         },
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyCountry"
           ],
           "properties": {
             "geographyCountry": {
               "$ref": "#/definitions/ISO3166CC"
-            }
+            },
+            "geographyRegionOrSubregion": false,
+            "geographyCountrySubdivision": false
           }
         },
         {
-          "type": "object",
+          "type": [
+            "object"
+          ],
           "required": [
             "geographyCountrySubdivision"
           ],
           "properties": {
             "geographyCountrySubdivision": {
               "$ref": "#/definitions/NonEmptyString"
-            }
+            },
+            "geographyRegionOrSubregion": false,
+            "geographyCountry": false
+          }
+        },
+        {
+          "type": [
+            "object"
+          ],
+          "properties": {
+            "geographyRegionOrSubregion": false,
+            "geographyCountry": false,
+            "geographyCountrySubdivision": false
           }
         }
       ],
@@ -897,34 +848,16 @@
     "CrossSectoralStandardSet": {
       "type": "array",
       "items": {
-        "description": "Data Type \"CrossSectoralStandard\" of Spec Version 2",
-        "type": "string",
-        "enum": [
-          "GHGP Product",
-          "ISO14067",
-          "ISO14044",
-          "ISO14083",
-          "ISO14040-44",
-          "PEF",
-          "PACT Methodology 3.0",
-          "PAS2050"
-        ]
-      },
-      "minItems": 1,
-      "uniqueItems": true
+        "$ref": "#/definitions/CrossSectoralStandard"
+      }
     },
     "CrossSectoralStandard": {
-      "description": "Data Type \"CrossSectoralStandard\" of Spec Version 2",
+      "description": "Deprecated Data Type \"CrossSectoralStandard\" of Spec Version 2, to be removed in v3, used in `CrossSectoralStandardsSet`s to populate `crossSectoralSectoralStandardsUsed` (also deprecated).",
       "type": "string",
       "enum": [
-        "GHGP Product",
-        "ISO14067",
-        "ISO14044",
-        "ISO14083",
-        "ISO14040-44",
-        "PEF",
-        "PACT Methodology 3.0",
-        "PAS2050"
+        "GHG Protocol Product standard",
+        "ISO Standard 14067",
+        "ISO Standard 14044"
       ]
     },
     "ProductOrSectorSpecificRuleSet": {
@@ -1178,6 +1111,34 @@
       "enum": [
         "Gate-to-Gate",
         "Cradle-to-Gate"
+      ]
+    },
+    "UNRegionOrSubregion": {
+      "description": "List of UN regions and subregions",
+      "type": "string",
+      "enum": [
+        "Africa",
+        "Americas",
+        "Asia",
+        "Europe",
+        "Oceania",
+        "Australia and New Zealand",
+        "Central Asia",
+        "Eastern Asia",
+        "Eastern Europe",
+        "Latin America and the Caribbean",
+        "Melanesia",
+        "Micronesia",
+        "Northern Africa",
+        "Northern America",
+        "Northern Europe",
+        "Polynesia",
+        "South-eastern Asia",
+        "Southern Asia",
+        "Southern Europe",
+        "Sub-Saharan Africa",
+        "Western Asia",
+        "Western Europe"
       ]
     },
     "DataModelExtension": {
