@@ -24,7 +24,7 @@ mod schema_gen;
 pub use schema_gen::generate_schema;
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 /// Data Type "ProductFootprint" of Tech Spec Version 2
 pub struct ProductFootprint<T: JsonSchema> {
     pub id: PfId,
@@ -57,7 +57,7 @@ pub struct ProductFootprint<T: JsonSchema> {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 /// Data Type "CarbonFootprint" of Spec Version 2
 pub struct CarbonFootprint {
     pub declared_unit: DeclaredUnit,

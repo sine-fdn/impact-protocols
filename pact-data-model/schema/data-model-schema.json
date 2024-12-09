@@ -106,7 +106,6 @@
       }
     }
   },
-  "additionalProperties": false,
   "definitions": {
     "PfId": {
       "type": "string",
@@ -451,8 +450,7 @@
         "geographyCountrySubdivision": {
           "$ref": "#/definitions/NonEmptyString"
         }
-      },
-      "additionalProperties": false
+      }
     },
     "DeclaredUnit": {
       "description": "Data Type \"DeclaredUnit\" of Spec Version 2",

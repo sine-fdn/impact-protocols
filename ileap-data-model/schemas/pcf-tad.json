@@ -106,7 +106,6 @@
       }
     }
   },
-  "additionalProperties": false,
   "definitions": {
     "TAD": {
       "description": "Data Type \"Transport Activity Data\" of the iLEAP Technical Specifications",
@@ -743,8 +742,7 @@
             }
           ]
         }
-      },
-      "additionalProperties": false
+      }
     },
     "DeclaredUnit": {
       "description": "Data Type \"DeclaredUnit\" of Spec Version 2",

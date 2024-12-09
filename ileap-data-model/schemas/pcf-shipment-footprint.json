@@ -106,7 +106,6 @@
       }
     }
   },
-  "additionalProperties": false,
   "definitions": {
     "ShipmentFootprint": {
       "type": "object",
@@ -819,8 +818,7 @@
             }
           ]
         }
-      },
-      "additionalProperties": false
+      }
     },
     "DeclaredUnit": {
       "description": "Data Type \"DeclaredUnit\" of Spec Version 2",
