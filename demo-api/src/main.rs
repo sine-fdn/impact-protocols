@@ -659,7 +659,10 @@ fn create_server(key_pair: KeyPair) -> rocket::Rocket<rocket::Build> {
         .mount("/", routes![index])
         .mount("/", routes![get_list, get_pcf_unauth, post_event_fallback])
         .mount("/", routes![openid_configuration, jwks])
-        .mount("/", routes![shipment_footprint_schema, toc_schema, hoc_schema])
+        .mount(
+            "/",
+            routes![shipment_footprint_schema, toc_schema, hoc_schema],
+        )
         .mount("/auth", routes![oauth2_create_token])
         .mount(
             "/swagger-ui/",
@@ -1339,4 +1342,31 @@ fn get_tad_with_limit_and_filter_test() {
         .unwrap(),
         resp.into_string().unwrap()
     );
+}
+
+#[test]
+fn schema_jsons_test() {
+    let client = &Client::tracked(create_server(TEST_KEYPAIR.clone())).unwrap();
+
+    fn test_schema(client: &Client, schema_url: &str, schema: RootSchema) {
+        let schema_resp = client.get(schema_url).dispatch();
+
+        assert_eq!(schema_resp.status(), rocket::http::Status::Ok);
+
+        let fetched_schema = schema_resp.into_json::<RootSchema>();
+
+        assert_eq!(fetched_schema.unwrap(), schema);
+    }
+
+    let ship_foot_schema_url = "/shipment-footprint.json";
+    let ship_foot_schema = schema_for!(ShipmentFootprint);
+    test_schema(client, ship_foot_schema_url, ship_foot_schema);
+
+    let toc_schema_url: &str = "/toc.json";
+    let toc_schema = schema_for!(Toc);
+    test_schema(client, toc_schema_url, toc_schema);
+
+    let hoc_schema_url = "/hoc.json";
+    let hoc_schema = schema_for!(Hoc);
+    test_schema(client, hoc_schema_url, hoc_schema);
 }
