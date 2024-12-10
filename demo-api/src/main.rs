@@ -630,6 +630,11 @@ fn toc_schema() -> Json<RootSchema> {
     Json::from(schema_for!(Toc))
 }
 
+#[get("/hoc.json")]
+fn hoc_schema() -> Json<RootSchema> {
+    Json::from(schema_for!(Hoc))
+}
+
 #[catch(400)]
 fn bad_request() -> error::BadRequest {
     Default::default()
@@ -654,7 +659,7 @@ fn create_server(key_pair: KeyPair) -> rocket::Rocket<rocket::Build> {
         .mount("/", routes![index])
         .mount("/", routes![get_list, get_pcf_unauth, post_event_fallback])
         .mount("/", routes![openid_configuration, jwks])
-        .mount("/", routes![shipment_footprint_schema, toc_schema])
+        .mount("/", routes![shipment_footprint_schema, toc_schema, hoc_schema])
         .mount("/auth", routes![oauth2_create_token])
         .mount(
             "/swagger-ui/",
