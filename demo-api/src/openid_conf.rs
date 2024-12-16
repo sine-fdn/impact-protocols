@@ -1,4 +1,3 @@
-
 use rocket::serde::{Deserialize, Serialize};
 use url::Url;
 
