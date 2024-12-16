@@ -659,7 +659,10 @@ fn create_server(key_pair: KeyPair) -> rocket::Rocket<rocket::Build> {
         .mount("/", routes![index])
         .mount("/", routes![get_list, get_pcf_unauth, post_event_fallback])
         .mount("/", routes![openid_configuration, jwks])
-        .mount("/", routes![shipment_footprint_schema, toc_schema, hoc_schema])
+        .mount(
+            "/",
+            routes![shipment_footprint_schema, toc_schema, hoc_schema],
+        )
         .mount("/auth", routes![oauth2_create_token])
         .mount(
             "/swagger-ui/",
@@ -1339,4 +1342,25 @@ fn get_tad_with_limit_and_filter_test() {
         .unwrap(),
         resp.into_string().unwrap()
     );
+}
+
+#[test]
+fn schema_jsons_test() {
+    let endpoints = vec![
+        ("/shipment-footprint.json", schema_for!(ShipmentFootprint)),
+        ("/toc.json", schema_for!(Toc)),
+        ("/hoc.json", schema_for!(Hoc)),
+    ];
+
+    let client = &Client::tracked(create_server(TEST_KEYPAIR.clone())).unwrap();
+
+    for (endpoint, schema) in endpoints {
+        let schema_resp = client.get(endpoint).dispatch();
+
+        assert_eq!(schema_resp.status(), rocket::http::Status::Ok);
+
+        let fetched_schema = schema_resp.into_json::<RootSchema>();
+
+        assert_eq!(fetched_schema.unwrap(), schema);
+    }
 }
