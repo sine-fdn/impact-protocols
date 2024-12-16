@@ -26,6 +26,7 @@ jobs:
         run: |
           cargo build
           cargo test
+          cargo fmt --check
           cargo clippy -- -Dwarnings
       - name: SQLITE3 Smoke Test
         working-directory: ileap-data-model/sql-example
