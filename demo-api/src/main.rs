@@ -1346,10 +1346,16 @@ fn get_tad_with_limit_and_filter_test() {
 
 #[test]
 fn schema_jsons_test() {
+    let endpoints = vec![
+        ("/shipment-footprint.json", schema_for!(ShipmentFootprint)),
+        ("/toc.json", schema_for!(Toc)),
+        ("/hoc.json", schema_for!(Hoc)),
+    ];
+
     let client = &Client::tracked(create_server(TEST_KEYPAIR.clone())).unwrap();
 
-    fn test_schema(client: &Client, schema_url: &str, schema: RootSchema) {
-        let schema_resp = client.get(schema_url).dispatch();
+    for (endpoint, schema) in endpoints {
+        let schema_resp = client.get(endpoint).dispatch();
 
         assert_eq!(schema_resp.status(), rocket::http::Status::Ok);
 
@@ -1357,16 +1363,4 @@ fn schema_jsons_test() {
 
         assert_eq!(fetched_schema.unwrap(), schema);
     }
-
-    let ship_foot_schema_url = "/shipment-footprint.json";
-    let ship_foot_schema = schema_for!(ShipmentFootprint);
-    test_schema(client, ship_foot_schema_url, ship_foot_schema);
-
-    let toc_schema_url: &str = "/toc.json";
-    let toc_schema = schema_for!(Toc);
-    test_schema(client, toc_schema_url, toc_schema);
-
-    let hoc_schema_url = "/hoc.json";
-    let hoc_schema = schema_for!(Hoc);
-    test_schema(client, hoc_schema_url, hoc_schema);
 }
