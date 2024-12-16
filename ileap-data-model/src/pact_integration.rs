@@ -1,6 +1,9 @@
 use chrono::Utc;
 use pact_data_model::{
-    CarbonFootprint, CharacterizationFactors, CompanyIdSet, CrossSectoralStandardSet, DataModelExtension, DeclaredUnit, DeprecatedCrossSectoralStandard, ExemptedEmissionsPercent, IpccCharacterizationFactorsSource, PfId, PfStatus, PositiveDecimal, ProductFootprint, ProductIdSet, SpecVersionString, Urn, VersionInteger
+    CarbonFootprint, CharacterizationFactors, CompanyIdSet, CrossSectoralStandardSet,
+    DataModelExtension, DeclaredUnit, DeprecatedCrossSectoralStandard, ExemptedEmissionsPercent,
+    IpccCharacterizationFactorsSource, PfId, PfStatus, PositiveDecimal, ProductFootprint,
+    ProductIdSet, SpecVersionString, Urn, VersionInteger,
 };
 use rust_decimal::Decimal;
 use schemars::JsonSchema;

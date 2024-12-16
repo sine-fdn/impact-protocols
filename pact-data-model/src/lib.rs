@@ -360,7 +360,6 @@ pub struct ProductOrSectorSpecificRuleSet(pub Vec<ProductOrSectorSpecificRule>);
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
 pub struct CrossSectoralStandardSet(pub Vec<DeprecatedCrossSectoralStandard>);
 
-
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ISO3166CC(pub String);
 
