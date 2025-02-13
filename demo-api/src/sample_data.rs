@@ -1236,7 +1236,11 @@ lazy_static! {
     ];
 }
 
-fn demo_tad_base(activity_id: String, consignment_id: String, feedstock: FeedstockType) -> Tad {
+fn demo_tad_base(
+    activity_id: String,
+    consignment_id: String,
+    energy_carriers: Vec<EnergyCarrier>,
+) -> Tad {
     Tad {
         activity_id,
         consignment_ids: vec![consignment_id],
@@ -1282,28 +1286,61 @@ fn demo_tad_base(activity_id: String, consignment_id: String, feedstock: Feedsto
         // },
         load_factor: Some(dec!(0.8).into()),
         empty_distance_factor: Some(dec!(0.1).into()),
-        feedstocks: Some(vec![Feedstock {
-            feedstock,
-            feedstock_percentage: Some(WrappedDecimal(Decimal::new(8, 1))),
-            region_provenance: None,
-        }]),
+        feedstocks: None,
+        energy_carrier: None,
+        energy_carriers: Some(NonEmptyVec(energy_carriers)),
     }
 }
 
 lazy_static! {
     pub(crate) static ref ILEAP_TAD_DEMO_DATA: Vec<Tad> = {
         let mut demo_data = vec![];
+
         for i in 1..10 {
-            demo_data.push(demo_tad_base(
-                i.to_string(),
-                i.to_string(),
-                FeedstockType::Fossil,
-            ));
+            let energy_carriers = vec![
+                EnergyCarrier {
+                    energy_carrier: EnergyCarrierType::Diesel,
+                    feedstocks: Some(vec![Feedstock {
+                        feedstock: FeedstockType::Fossil,
+                        feedstock_percentage: Some(WrappedDecimal(Decimal::new(82, 1))),
+                        region_provenance: None,
+                    }]),
+                    energy_consumption: None,
+                    energy_consumption_unit: Some(EnergyConsumptionUnit::Kg),
+                    emission_factor_wtw: dec!(4.13).into(),
+                    emission_factor_ttw: dec!(3.17).into(),
+                },
+                EnergyCarrier {
+                    energy_carrier: EnergyCarrierType::Electric,
+                    feedstocks: Some(vec![Feedstock {
+                        feedstock: FeedstockType::Grid,
+                        feedstock_percentage: Some(WrappedDecimal(Decimal::new(100, 0))),
+                        region_provenance: Some("DE".into()),
+                    }]),
+                    energy_consumption: None,
+                    energy_consumption_unit: Some(EnergyConsumptionUnit::KWh),
+                    emission_factor_wtw: dec!(0.383).into(),
+                    emission_factor_ttw: dec!(0.383).into(),
+                },
+            ];
+            demo_data.push(demo_tad_base(i.to_string(), i.to_string(), energy_carriers));
         }
+
         demo_data.push(demo_tad_base(
             "10".to_string(),
             "10".to_string(),
-            FeedstockType::CookingOil,
+            vec![EnergyCarrier {
+                energy_carrier: EnergyCarrierType::Diesel,
+                feedstocks: Some(vec![Feedstock {
+                    feedstock: FeedstockType::CookingOil,
+                    feedstock_percentage: Some(WrappedDecimal(Decimal::new(100, 0))),
+                    region_provenance: None,
+                }]),
+                energy_consumption: None,
+                energy_consumption_unit: Some(EnergyConsumptionUnit::Kg),
+                emission_factor_wtw: dec!(2.13).into(),
+                emission_factor_ttw: dec!(1.17).into(),
+            }],
         ));
         demo_data
     };

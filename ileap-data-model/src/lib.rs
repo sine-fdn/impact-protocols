@@ -259,6 +259,15 @@ pub struct Tad {
     pub packaging_or_tr_eq_type: Option<PackagingOrTrEqType>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub packaging_or_tr_eq_amount: Option<usize>,
+
+    /// see https://sine-fdn.github.io/ileap-extension/#element-attrdef-tad-energycarriers
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub energy_carriers: Option<NonEmptyVec<EnergyCarrier>>,
+
+    /// see https://sine-fdn.github.io/ileap-extension/#element-attrdef-tad-energycarrier
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub energy_carrier: Option<EnergyCarrierType>,
+
     // TODO: verify whether the absence of this property is intended. #[serde(skip_serializing_if =
     // "Option::is_none")] pub energy_carrier: EnergyCarrier,
     #[serde(skip_serializing_if = "Option::is_none")]
