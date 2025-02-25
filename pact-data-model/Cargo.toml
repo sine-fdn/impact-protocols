@@ -10,7 +10,7 @@ path = "src/main.rs"
 
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
-schemars = { version = "0.8.21", features = ["chrono"] }
+schemars = { version = "0.8.22", features = ["chrono"] }
 rust_decimal = "1.35.0"
 uuid = { version = "1.13", features = ["v4", "serde"] }
 serde = { version = "1.0.217", features = ["derive"] }
