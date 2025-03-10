@@ -545,9 +545,9 @@ fn get_tad(
     offset: Option<usize>,
     filter: Option<HashMap<String, Vec<String>>>,
     host: Host,
-) -> Result<TadListingResponse, error::BadRequest> {
+) -> Result<TadListingResponse, error::Unauthorized> {
     if auth.is_none() {
-        return Err(Default::default());
+        return Err(error::Unauthorized::default());
     }
 
     let data = ILEAP_TAD_DEMO_DATA.clone();

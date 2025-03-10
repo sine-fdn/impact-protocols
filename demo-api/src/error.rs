@@ -55,6 +55,14 @@ pub(crate) struct NotImplemented {
     pub(crate) code: &'static str,
 }
 
+#[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
+#[serde(crate = "rocket::serde")]
+/// Response with an error code of `Unauthorized`, used for iLEAP TransportActivityData
+pub(crate) struct Unauthorized {
+    pub(crate) message: &'static str,
+    pub(crate) code: &'static str,
+}
+
 impl Default for AccessDenied {
     fn default() -> Self {
         Self {
@@ -91,6 +99,15 @@ impl Default for NotImplemented {
     }
 }
 
+impl Default for Unauthorized {
+    fn default() -> Self {
+        Unauthorized {
+            message: "Unauthorized",
+            code: "Unauthorized",
+        }
+    }
+}
+
 impl<'r, 'o: 'r> Responder<'r, 'o> for NoSuchFootprint {
     fn respond_to(self, request: &'r Request<'_>) -> response::Result<'o> {
         Response::build()
@@ -123,6 +140,15 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for NotImplemented {
         Response::build()
             .merge(Json(self).respond_to(request)?)
             .status(Status::BadRequest)
+            .ok()
+    }
+}
+
+impl<'r, 'o: 'r> Responder<'r, 'o> for Unauthorized {
+    fn respond_to(self, request: &'r Request<'_>) -> response::Result<'o> {
+        Response::build()
+            .merge(Json(self).respond_to(request)?)
+            .status(Status::Unauthorized)
             .ok()
     }
 }
@@ -172,6 +198,21 @@ impl OpenApiResponderInner for NoSuchFootprint {
             gen,
             "404".to_owned(),
             "# 404 Not Found".to_owned(),
+        );
+        Ok(resp)
+    }
+}
+
+impl OpenApiResponderInner for Unauthorized {
+    fn responses(gen: &mut OpenApiGenerator) -> Result<Responses, OpenApiError> {
+        let resp = openapi_response::<Unauthorized>(
+            gen,
+            "401".to_owned(),
+            "\
+            # 401 Unauthorized\n\
+            The access token is not valid. \
+            "
+            .to_owned(),
         );
         Ok(resp)
     }
