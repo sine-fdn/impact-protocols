@@ -1178,7 +1178,7 @@ fn get_tad_test() {
             .get(get_tad_uri)
             .header(rocket::http::Header::new("Host", EXAMPLE_HOST))
             .dispatch();
-        assert_eq!(rocket::http::Status::BadRequest, resp.status());
+        assert_eq!(rocket::http::Status::Unauthorized, resp.status());
     }
 }
 
