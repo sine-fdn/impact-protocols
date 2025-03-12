@@ -31,6 +31,10 @@ impl From<&ILeapType> for PactMappedFields {
 // TODO: invert logic to generate a list of HOCs and TOCs and only then generate TCEs, improving
 // readability and demo data quality, as suggested by Martin.
 pub fn gen_rnd_demo_data(size: u8) -> Vec<ProductFootprint<ILeapType>> {
+    use chrono::{TimeZone, Utc};
+    let reference_period_start = Utc.with_ymd_and_hms(2024, 1, 1, 0, 0, 0).unwrap();
+    let reference_period_end = Utc.with_ymd_and_hms(2025, 1, 1, 0, 0, 0).unwrap();
+
     let mut og = Gen::new(size as usize);
 
     let mut shipment_footprints = vec![];
@@ -88,6 +92,8 @@ pub fn gen_rnd_demo_data(size: u8) -> Vec<ProductFootprint<ILeapType>> {
                     "SINE Foundation",
                     "urn:sine:example",
                     Some(vec![CharacterizationFactors::Ar6]),
+                    reference_period_start,
+                    reference_period_end,
                 );
 
                 hocs.push(hoc);
@@ -115,6 +121,8 @@ pub fn gen_rnd_demo_data(size: u8) -> Vec<ProductFootprint<ILeapType>> {
                     "SINE Foundation",
                     "urn:sine:example",
                     Some(vec![CharacterizationFactors::Ar6]),
+                    reference_period_start,
+                    reference_period_end,
                 );
 
                 tocs.push(toc.clone());
@@ -137,6 +145,8 @@ pub fn gen_rnd_demo_data(size: u8) -> Vec<ProductFootprint<ILeapType>> {
             "SINE Foundation",
             "urn:sine:example",
             Some(vec![CharacterizationFactors::Ar6]),
+            reference_period_start,
+            reference_period_end,
         );
 
         shipment_footprints.push(ship_foot);

@@ -1,4 +1,4 @@
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use pact_data_model::{
     CarbonFootprint, CharacterizationFactors, CompanyIdSet, CrossSectoralStandardSet,
     DataModelExtension, DeclaredUnit, DeprecatedCrossSectoralStandard, ExemptedEmissionsPercent,
@@ -112,6 +112,8 @@ pub fn to_pcf<T>(
     company_urn: &str,
     //    hoc_container_size: Option<HocTeuContainerSize>,
     characterization_factors: Option<Vec<CharacterizationFactors>>,
+    reference_period_start: DateTime<Utc>,
+    reference_period_end: DateTime<Utc>,
 ) -> ProductFootprint<T>
 where
     T: JsonSchema + Serialize,
@@ -182,8 +184,8 @@ where
             product_or_sector_specific_rules: None, // TODO: get clarity on whether GLEC should be specified
             biogenic_accounting_methodology: None,
             boundary_processes_description: "".to_string(),
-            reference_period_start: Utc::now(),
-            reference_period_end: (Utc::now() + chrono::Duration::days(364)),
+            reference_period_start,
+            reference_period_end,
             geographic_scope: None,
             secondary_emission_factor_sources: None,
             exempted_emissions_percent: ExemptedEmissionsPercent(0.into()),
@@ -345,7 +347,14 @@ fn ship_foot_to_pfc() {
         type_of_items: None,
     };
 
-    let pfc = to_pcf(ship_foot, "test", "urn:test", None);
+    let pfc = to_pcf(
+        ship_foot,
+        "test",
+        "urn:test",
+        None,
+        Utc::now(),
+        Utc::now() + chrono::Duration::days(1),
+    );
 
     assert_eq!(
         pfc.product_name_company.0,
@@ -395,7 +404,14 @@ fn toc_to_pcf() {
         glec_data_quality_index: None,
     };
 
-    let pfc = to_pcf(toc, "test", "urn:test", None);
+    let pfc = to_pcf(
+        toc,
+        "test",
+        "urn:test",
+        None,
+        Utc::now(),
+        Utc::now() + chrono::Duration::days(1),
+    );
 
     assert_eq!(pfc.product_name_company.0, "TOC with ID toc-test");
     assert_eq!(pfc.pcf.declared_unit, DeclaredUnit::TonKilometer);
@@ -446,7 +462,14 @@ fn hoc_to_pfc() {
         co2e_intensity_throughput: HocCo2eIntensityThroughput::Tonnes,
     };
 
-    let pfc = to_pcf(hoc, "test", "urn:test", None);
+    let pfc = to_pcf(
+        hoc,
+        "test",
+        "urn:test",
+        None,
+        Utc::now(),
+        Utc::now() + chrono::Duration::days(1),
+    );
 
     assert_eq!(pfc.product_name_company.0, "HOC with ID hoc-test");
     assert_eq!(pfc.pcf.declared_unit, DeclaredUnit::Kilogram);
