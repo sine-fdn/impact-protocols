@@ -718,6 +718,96 @@ lazy_static!(
         ])
     };
 
+    static ref TOC_ROAD_40T_EXAMPLE: ProductFootprint<ILeapType> = ProductFootprint {
+        id: PfId(uuid!("f9526d98-de57-4d24-a131-95fcef75defb")),
+        spec_version: SpecVersionString::from("2.0.0".to_string()),
+        preceding_pf_ids: None,
+        version: VersionInteger(0),
+        created: Utc.with_ymd_and_hms(2022, 5, 22, 21, 47, 32).unwrap(),
+        updated: None,
+        status: PfStatus::Active,
+        status_comment: None,
+        validity_period_start: None,
+        validity_period_end: None,
+        company_name: String::from("Super Duper Transport Co.").into(),
+        company_ids: CompanyIdSet(vec![Urn::from("urn:epc:id:sgln:4063973.00000.8".to_string())]),
+        product_description: String::from("Logistics emissions related to TOC with ID truck-40t-euro5-de"),
+        product_ids: ProductIdSet(vec![Urn::from("urn:pathfinder:product:customcode:vendor-assigned:toc:truck-40t-euro5-de".to_string())]),
+        product_category_cpc: String::from("83117").into(),
+        product_name_company: String::from("TOC with ID truck-40t-euro5-de").into(),
+        comment: "".to_string(),
+        pcf: CarbonFootprint {
+            declared_unit: DeclaredUnit::TonKilometer,
+            unitary_product_amount: dec!(1).into(),
+            p_cf_excluding_biogenic: dec!(0.116).into(),
+            p_cf_including_biogenic: None,
+            fossil_ghg_emissions: dec!(0.116).into(),
+            fossil_carbon_content: dec!(0.116).into(),
+            biogenic_carbon_content: dec!(0).into(),
+            d_luc_ghg_emissions: None,
+            land_management_ghg_emissions: None,
+            other_biogenic_ghg_emissions: None,
+            i_luc_ghg_emissions: None,
+            biogenic_carbon_withdrawal: None,
+            aircraft_ghg_emissions: None,
+            characterization_factors: CharacterizationFactors::Ar6,
+            ipcc_characterization_factors_sources: IpccCharacterizationFactorsSources::from(vec![String::from("AR6").into()]),
+            cross_sectoral_standards_used: CrossSectoralStandardSet(vec![DeprecatedCrossSectoralStandard::Ghgp]),
+            product_or_sector_specific_rules: Some(ProductOrSectorSpecificRuleSet(vec![])),
+            biogenic_accounting_methodology: None,
+            boundary_processes_description: String::from("SFC GLEC Framework-conforming (W2W CO2e emissions)"),
+            reference_period_start: Utc.with_ymd_and_hms(2021, 1, 1, 0, 0, 0).unwrap(),
+            reference_period_end: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
+            geographic_scope: None,
+            secondary_emission_factor_sources: Some(EmissionFactorDSSet(vec![EmissionFactorDS {
+                name: String::from("Ecoinvent").into(),
+                version: String::from("3.9.1").into(),
+            }])),
+            exempted_emissions_percent: ExemptedEmissionsPercent(0.0),
+            exempted_emissions_description: "".to_string(),
+            packaging_emissions_included: false,
+            packaging_ghg_emissions: None,
+            allocation_rules_description: None,
+            uncertainty_assessment_description: None,
+            primary_data_share: Some(Percent::from(56.12)),
+            dqi: None,
+            assurance: None
+        },
+        extensions: Some(vec![
+            DataModelExtension {
+                spec_version: SpecVersionString::from("2.0.0".to_string()),
+                data_schema: "https://api.ileap.sine.dev/toc.json".to_string(),
+                documentation: Some("https://sine-fdn.github.io/ileap-extension/".to_string()),
+                data: ILeapType::Toc(toc(
+                        TocArgs {
+                            toc_id: "truck-40t-euro5-de".to_string(),
+                            mode: TransportMode::Road,
+                            load_factor: Some(dec!(0.6).to_string()),
+                            empty_distance_factor: Some(dec!(0.3).to_string()),
+                            temperature_control: Some(TemperatureControl::Refrigerated),
+                            truck_loading_sequence: Some(TruckLoadingSequence::Ftl),
+                            energy_carriers: vec![EnergyCarrier {
+                                energy_carrier: EnergyCarrierType::Diesel,
+                                feedstocks: Some(vec![Feedstock {
+                                    feedstock: FeedstockType::Fossil,
+                                    feedstock_percentage: None,
+                                    region_provenance: Some("Europe".to_string()),
+                                }]),
+                                energy_consumption: None,
+                                energy_consumption_unit: Some(EnergyConsumptionUnit::Kg),
+                                emission_factor_wtw: dec!(4.13).into(),
+                                emission_factor_ttw: dec!(3.17).into(),
+                            }].into(),
+                            co2e_intensity_wtw: dec!(0.116).into(),
+                            co2e_intensity_ttw: dec!(0.089).into(),
+                            co2e_intensity_throughput: TocCo2eIntensityThroughput::Tkm
+                        },
+                    )
+                ),
+            }
+        ])
+    };
+
     static ref TOC_SMALL_TRUCK_EXAMPLE: ProductFootprint<ILeapType> = ProductFootprint {
         id: PfId(uuid!("eff7bded-948d-4ed6-adca-fc4a8f0602a5")),
         spec_version: SpecVersionString::from("2.0.0".to_string()),
@@ -1230,6 +1320,7 @@ lazy_static! {
         SHIPMENT_PRE_AND_POST_LEGS_EXAMPLE.clone(),
         TOC_RAIL_EXAMPLE.clone(),
         TOC_ROAD_EXAMPLE.clone(),
+        TOC_ROAD_40T_EXAMPLE.clone(),
         TOC_SMALL_TRUCK_EXAMPLE.clone(),
         HOC_TRANSSHIPMENT_EXAMPLE.clone(),
         HOC_WAREHOUSE_EXAMPLE.clone(),

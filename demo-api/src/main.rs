@@ -545,9 +545,9 @@ fn get_tad(
     offset: Option<usize>,
     filter: Option<HashMap<String, Vec<String>>>,
     host: Host,
-) -> Result<TadListingResponse, error::Unauthorized> {
+) -> Result<TadListingResponse, error::AccessDenied> {
     if auth.is_none() {
-        return Err(error::Unauthorized::default());
+        return Err(error::AccessDenied::default());
     }
 
     let data = ILEAP_TAD_DEMO_DATA.clone();
@@ -1178,7 +1178,7 @@ fn get_tad_test() {
             .get(get_tad_uri)
             .header(rocket::http::Header::new("Host", EXAMPLE_HOST))
             .dispatch();
-        assert_eq!(rocket::http::Status::Unauthorized, resp.status());
+        assert_eq!(rocket::http::Status::Forbidden, resp.status());
     }
 }
 
