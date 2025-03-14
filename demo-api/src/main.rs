@@ -973,8 +973,8 @@ fn get_list_with_limit_test() {
     let jwt = auth::encode_token(&token, key_pair).ok().unwrap();
     let bearer_token = format!("Bearer {jwt}");
 
-    let get_list_with_limit_uri = "/2/footprints?limit=6";
-    let expected_next_link1 = "/2/footprints?offset=6&limit=6";
+    let get_list_with_limit_uri = "/2/footprints?limit=7";
+    let expected_next_link1 = "/2/footprints?offset=7&limit=7";
 
     {
         let resp = client
@@ -993,7 +993,7 @@ fn get_list_with_limit_test() {
             format!("<https://api.pathfinder.sine.dev{expected_next_link1}>; rel=\"next\"")
         );
         let json: PfListingResponseInner = resp.into_json().unwrap();
-        assert_eq!(json.data.len(), 6);
+        assert_eq!(json.data.len(), 7);
     }
 
     {
@@ -1007,7 +1007,7 @@ fn get_list_with_limit_test() {
         assert_eq!(resp.headers().get("link").next(), None);
         assert_eq!(
             serde_json::to_string(&PfListingResponseInner {
-                data: PCF_DEMO_DATA[6..12].to_vec()
+                data: PCF_DEMO_DATA[7..13].to_vec()
             })
             .unwrap(),
             resp.into_string().unwrap()
