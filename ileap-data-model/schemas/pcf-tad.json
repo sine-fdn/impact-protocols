@@ -19,11 +19,33 @@
     "version"
   ],
   "properties": {
+    "comment": {
+      "type": "string"
+    },
+    "companyIds": {
+      "$ref": "#/definitions/CompanyIdSet"
+    },
+    "companyName": {
+      "$ref": "#/definitions/NonEmptyString"
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "extensions": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/definitions/DataModelExtension"
+      }
+    },
     "id": {
       "$ref": "#/definitions/PfId"
     },
-    "specVersion": {
-      "$ref": "#/definitions/VersionString"
+    "pcf": {
+      "$ref": "#/definitions/CarbonFootprint"
     },
     "precedingPfIds": {
       "anyOf": [
@@ -35,19 +57,20 @@
         }
       ]
     },
-    "version": {
-      "$ref": "#/definitions/VersionInteger"
+    "productCategoryCpc": {
+      "$ref": "#/definitions/NonEmptyString"
     },
-    "created": {
-      "type": "string",
-      "format": "date-time"
+    "productDescription": {
+      "type": "string"
     },
-    "updated": {
-      "type": [
-        "string",
-        "null"
-      ],
-      "format": "date-time"
+    "productIds": {
+      "$ref": "#/definitions/ProductIdSet"
+    },
+    "productNameCompany": {
+      "$ref": "#/definitions/NonEmptyString"
+    },
+    "specVersion": {
+      "$ref": "#/definitions/VersionString"
     },
     "status": {
       "$ref": "#/definitions/PfStatus"
@@ -58,7 +81,7 @@
         "null"
       ]
     },
-    "validityPeriodStart": {
+    "updated": {
       "type": [
         "string",
         "null"
@@ -72,141 +95,567 @@
       ],
       "format": "date-time"
     },
-    "companyName": {
-      "$ref": "#/definitions/NonEmptyString"
-    },
-    "companyIds": {
-      "$ref": "#/definitions/CompanyIdSet"
-    },
-    "productDescription": {
-      "type": "string"
-    },
-    "productIds": {
-      "$ref": "#/definitions/ProductIdSet"
-    },
-    "productCategoryCpc": {
-      "$ref": "#/definitions/NonEmptyString"
-    },
-    "productNameCompany": {
-      "$ref": "#/definitions/NonEmptyString"
-    },
-    "comment": {
-      "type": "string"
-    },
-    "pcf": {
-      "$ref": "#/definitions/CarbonFootprint"
-    },
-    "extensions": {
+    "validityPeriodStart": {
       "type": [
-        "array",
+        "string",
         "null"
       ],
-      "items": {
-        "$ref": "#/definitions/DataModelExtension"
-      }
+      "format": "date-time"
+    },
+    "version": {
+      "$ref": "#/definitions/VersionInteger"
     }
   },
   "definitions": {
-    "TAD": {
-      "description": "Data Type \"Transport Activity Data\" of the iLEAP Technical Specifications",
+    "Assurance": {
+      "description": "Data Type \"Assurance\" of Spec Version 2",
       "type": "object",
       "required": [
-        "activityId",
-        "consignmentIds",
-        "destination",
-        "distance",
-        "origin"
+        "assurance",
+        "providerName"
       ],
       "properties": {
-        "activityId": {
+        "assurance": {
+          "type": "boolean"
+        },
+        "boundary": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AssuranceBoundary"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "comments": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "completedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "coverage": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AssuranceCoverage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "level": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AssuranceLevel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "providerName": {
           "type": "string"
         },
-        "consignmentIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
+        "standardName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "AssuranceBoundary": {
+      "type": "string",
+      "enum": [
+        "Gate-to-Gate",
+        "Cradle-to-Gate"
+      ]
+    },
+    "AssuranceCoverage": {
+      "type": "string",
+      "enum": [
+        "corporate level",
+        "product line",
+        "PCF system",
+        "product level"
+      ]
+    },
+    "AssuranceLevel": {
+      "type": "string",
+      "enum": [
+        "limited",
+        "reasonable"
+      ]
+    },
+    "BiogenicAccountingMethodology": {
+      "type": "string",
+      "enum": [
+        "PEF",
+        "ISO",
+        "GHPG",
+        "Quantis"
+      ]
+    },
+    "CarbonFootprint": {
+      "description": "Data Type \"CarbonFootprint\" of Spec Version 2",
+      "type": "object",
+      "oneOf": [
+        {
+          "type": [
+            "object"
+          ],
+          "required": [
+            "geographyRegionOrSubregion"
+          ],
+          "properties": {
+            "geographyCountry": false,
+            "geographyCountrySubdivision": false,
+            "geographyRegionOrSubregion": {
+              "$ref": "#/definitions/UNRegionOrSubregion"
+            }
           }
         },
-        "distance": {
-          "$ref": "#/definitions/GlecDistance"
+        {
+          "type": [
+            "object"
+          ],
+          "required": [
+            "geographyCountry"
+          ],
+          "properties": {
+            "geographyCountry": {
+              "$ref": "#/definitions/ISO3166CC"
+            },
+            "geographyCountrySubdivision": false,
+            "geographyRegionOrSubregion": false
+          }
         },
-        "mass": {
+        {
+          "type": [
+            "object"
+          ],
+          "required": [
+            "geographyCountrySubdivision"
+          ],
+          "properties": {
+            "geographyCountry": false,
+            "geographyCountrySubdivision": {
+              "$ref": "#/definitions/NonEmptyString"
+            },
+            "geographyRegionOrSubregion": false
+          }
+        },
+        {
+          "type": [
+            "object"
+          ],
+          "properties": {
+            "geographyCountry": false,
+            "geographyCountrySubdivision": false,
+            "geographyRegionOrSubregion": false
+          }
+        }
+      ],
+      "required": [
+        "biogenicCarbonContent",
+        "boundaryProcessesDescription",
+        "characterizationFactors",
+        "crossSectoralStandardsUsed",
+        "declaredUnit",
+        "exemptedEmissionsDescription",
+        "exemptedEmissionsPercent",
+        "fossilCarbonContent",
+        "fossilGhgEmissions",
+        "ipccCharacterizationFactorsSources",
+        "pCfExcludingBiogenic",
+        "packagingEmissionsIncluded",
+        "referencePeriodEnd",
+        "referencePeriodStart",
+        "unitaryProductAmount"
+      ],
+      "properties": {
+        "aircraftGhgEmissions": {
           "anyOf": [
             {
-              "$ref": "#/definitions/Decimal"
+              "$ref": "#/definitions/PositiveDecimal"
             },
             {
               "type": "null"
             }
           ]
         },
-        "loadFactor": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Decimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "emptyDistanceFactor": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Decimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "origin": {
-          "$ref": "#/definitions/Location"
-        },
-        "destination": {
-          "$ref": "#/definitions/Location"
-        },
-        "departureAt": {
+        "allocationRulesDescription": {
           "type": [
             "string",
             "null"
-          ],
+          ]
+        },
+        "assurance": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Assurance"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "biogenicAccountingMethodology": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/BiogenicAccountingMethodology"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "biogenicCarbonContent": {
+          "$ref": "#/definitions/PositiveDecimal"
+        },
+        "biogenicCarbonWithdrawal": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/NegativeDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "boundaryProcessesDescription": {
+          "type": "string"
+        },
+        "characterizationFactors": {
+          "$ref": "#/definitions/CharacterizationFactors"
+        },
+        "crossSectoralStandardsUsed": {
+          "$ref": "#/definitions/CrossSectoralStandardSet"
+        },
+        "dLucGhgEmissions": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "declaredUnit": {
+          "$ref": "#/definitions/DeclaredUnit"
+        },
+        "dqi": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DataQualityIndicators"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "exemptedEmissionsDescription": {
+          "type": "string"
+        },
+        "exemptedEmissionsPercent": {
+          "$ref": "#/definitions/ExemptedEmissionsPercent"
+        },
+        "fossilCarbonContent": {
+          "$ref": "#/definitions/PositiveDecimal"
+        },
+        "fossilGhgEmissions": {
+          "$ref": "#/definitions/PositiveDecimal"
+        },
+        "iLucGhgEmissions": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ipccCharacterizationFactorsSources": {
+          "$ref": "#/definitions/IpccCharacterizationFactorsSources"
+        },
+        "landManagementGhgEmissions": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "otherBiogenicGhgEmissions": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pCfExcludingBiogenic": {
+          "$ref": "#/definitions/PositiveDecimal"
+        },
+        "pCfIncludingBiogenic": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "packagingEmissionsIncluded": {
+          "type": "boolean"
+        },
+        "packagingGhgEmissions": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "primaryDataShare": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Percent"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "productOrSectorSpecificRules": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ProductOrSectorSpecificRuleSet"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "referencePeriodEnd": {
+          "type": "string",
           "format": "date-time"
         },
-        "arrivalAt": {
+        "referencePeriodStart": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "secondaryEmissionFactorSources": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EmissionFactorDSSet"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "uncertaintyAssessmentDescription": {
           "type": [
             "string",
             "null"
-          ],
-          "format": "date-time"
+          ]
         },
-        "mode": {
+        "unitaryProductAmount": {
+          "$ref": "#/definitions/StrictlyPositiveDecimal"
+        }
+      }
+    },
+    "CharacterizationFactors": {
+      "type": "string",
+      "enum": [
+        "AR5",
+        "AR6"
+      ]
+    },
+    "CompanyIdSet": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^([uU][rR][nN]):"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "CrossSectoralStandard": {
+      "description": "Deprecated Data Type \"CrossSectoralStandard\" of Spec Version 2, to be removed in v3, used in `CrossSectoralStandardsSet`s to populate `crossSectoralSectoralStandardsUsed` (also deprecated).",
+      "type": "string",
+      "enum": [
+        "GHG Protocol Product standard",
+        "ISO Standard 14067",
+        "ISO Standard 14044"
+      ]
+    },
+    "CrossSectoralStandardSet": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CrossSectoralStandard"
+      }
+    },
+    "DataModelExtension": {
+      "type": "object",
+      "required": [
+        "data",
+        "dataSchema",
+        "specVersion"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Tad"
+        },
+        "dataSchema": {
+          "type": "string"
+        },
+        "documentation": {
+          "type": "string"
+        },
+        "specVersion": {
+          "$ref": "#/definitions/VersionString"
+        }
+      }
+    },
+    "DataQualityIndicators": {
+      "description": "Data Type \"DataQualityIndicators\" of Spec Version 2",
+      "type": "object",
+      "required": [
+        "completenessDQR",
+        "coveragePercent",
+        "geographicalDQR",
+        "reliabilityDQR",
+        "technologicalDQR",
+        "temporalDQR"
+      ],
+      "properties": {
+        "completenessDQR": {
+          "$ref": "#/definitions/FloatBetween1And3"
+        },
+        "coveragePercent": {
+          "$ref": "#/definitions/Percent"
+        },
+        "geographicalDQR": {
+          "$ref": "#/definitions/FloatBetween1And3"
+        },
+        "reliabilityDQR": {
+          "$ref": "#/definitions/FloatBetween1And3"
+        },
+        "technologicalDQR": {
+          "$ref": "#/definitions/FloatBetween1And3"
+        },
+        "temporalDQR": {
+          "$ref": "#/definitions/FloatBetween1And3"
+        }
+      }
+    },
+    "Decimal": {
+      "type": "string",
+      "pattern": "^-?\\d+(\\.\\d+)?$"
+    },
+    "DeclaredUnit": {
+      "description": "Data Type \"DeclaredUnit\" of Spec Version 2",
+      "type": "string",
+      "enum": [
+        "liter",
+        "kilogram",
+        "cubic meter",
+        "kilowatt hour",
+        "megajoule",
+        "ton kilometer",
+        "square meter"
+      ]
+    },
+    "EmissionFactorDS": {
+      "type": "object",
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/NonEmptyString"
+        },
+        "version": {
+          "$ref": "#/definitions/NonEmptyString"
+        }
+      }
+    },
+    "EmissionFactorDSSet": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "version"
+        ],
+        "properties": {
+          "name": {
+            "$ref": "#/definitions/NonEmptyString"
+          },
+          "version": {
+            "$ref": "#/definitions/NonEmptyString"
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "EnergyCarrier": {
+      "type": "object",
+      "required": [
+        "emissionFactorTTW",
+        "emissionFactorWTW",
+        "energyCarrier"
+      ],
+      "properties": {
+        "emissionFactorTTW": {
+          "$ref": "#/definitions/Decimal"
+        },
+        "emissionFactorWTW": {
+          "$ref": "#/definitions/Decimal"
+        },
+        "energyCarrier": {
+          "$ref": "#/definitions/EnergyCarrierType"
+        },
+        "energyConsumption": {
           "anyOf": [
             {
-              "$ref": "#/definitions/TransportMode"
+              "$ref": "#/definitions/Decimal"
             },
             {
               "type": "null"
             }
           ]
         },
-        "packagingOrTrEqType": {
+        "energyConsumptionUnit": {
           "anyOf": [
             {
-              "$ref": "#/definitions/PackagingOrTrEqType"
+              "$ref": "#/definitions/EnergyConsumptionUnit"
             },
             {
               "type": "null"
             }
           ]
-        },
-        "packagingOrTrEqAmount": {
-          "type": [
-            "integer",
-            "null"
-          ],
-          "format": "uint",
-          "minimum": 0.0
         },
         "feedstocks": {
           "type": [
@@ -218,6 +667,85 @@
           }
         }
       }
+    },
+    "EnergyCarrierType": {
+      "type": "string",
+      "enum": [
+        "Diesel",
+        "HVO",
+        "Petrol",
+        "CNG",
+        "LNG",
+        "LPG",
+        "HFO",
+        "MGO",
+        "Aviation fuel",
+        "Hydrogen",
+        "Methanol",
+        "Electric"
+      ]
+    },
+    "EnergyConsumptionUnit": {
+      "type": "string",
+      "enum": [
+        "l",
+        "kg",
+        "kWh",
+        "MJ"
+      ]
+    },
+    "ExemptedEmissionsPercent": {
+      "type": "number",
+      "format": "double",
+      "maximum": 5.0,
+      "minimum": 0.0
+    },
+    "Feedstock": {
+      "type": "object",
+      "required": [
+        "feedstock"
+      ],
+      "properties": {
+        "feedstock": {
+          "$ref": "#/definitions/FeedstockType"
+        },
+        "feedstockPercentage": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "regionProvenance": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "FeedstockType": {
+      "type": "string",
+      "enum": [
+        "Fossil",
+        "Natural gas",
+        "Grid",
+        "Renewable electricity",
+        "Cooking oil"
+      ]
+    },
+    "FloatBetween1And3": {
+      "type": "number",
+      "format": "float",
+      "maximum": 3.0,
+      "minimum": 1.0
+    },
+    "GenericURN": {
+      "type": "string",
+      "pattern": "^([uU][rR][nN]):"
     },
     "GlecDistance": {
       "oneOf": [
@@ -259,9 +787,25 @@
         }
       ]
     },
-    "Decimal": {
+    "ISO3166CC": {
       "type": "string",
-      "pattern": "^-?\\d+(\\.\\d+)?$"
+      "pattern": "^[A-Z]{2}$"
+    },
+    "IataCode": {
+      "type": "string"
+    },
+    "IpccCharacterizationFactorsSource": {
+      "type": "string",
+      "pattern": "^AR\\d+$"
+    },
+    "IpccCharacterizationFactorsSources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^AR\\d+$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
     },
     "Location": {
       "type": "object",
@@ -270,18 +814,6 @@
         "country"
       ],
       "properties": {
-        "street": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "zip": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
         "city": {
           "type": "string"
         },
@@ -292,26 +824,6 @@
           "anyOf": [
             {
               "$ref": "#/definitions/IataCode"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "locode": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Locode"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "uic": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/UicCode"
             },
             {
               "type": "null"
@@ -337,60 +849,34 @@
               "type": "null"
             }
           ]
-        }
-      }
-    },
-    "ISO3166CC": {
-      "type": "string",
-      "pattern": "^[A-Z]{2}$"
-    },
-    "IataCode": {
-      "type": "string"
-    },
-    "Locode": {
-      "type": "string"
-    },
-    "UicCode": {
-      "type": "string"
-    },
-    "TransportMode": {
-      "type": "string",
-      "enum": [
-        "Road",
-        "Rail",
-        "Air",
-        "Sea",
-        "InlandWaterway"
-      ]
-    },
-    "PackagingOrTrEqType": {
-      "type": "string",
-      "enum": [
-        "Box",
-        "Pallet",
-        "Container"
-      ]
-    },
-    "Feedstock": {
-      "type": "object",
-      "required": [
-        "feedstock"
-      ],
-      "properties": {
-        "feedstock": {
-          "$ref": "#/definitions/FeedstockType"
         },
-        "feedstockPercentage": {
+        "locode": {
           "anyOf": [
             {
-              "$ref": "#/definitions/Decimal"
+              "$ref": "#/definitions/Locode"
             },
             {
               "type": "null"
             }
           ]
         },
-        "regionProvenance": {
+        "street": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "uic": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/UicCode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "zip": {
           "type": [
             "string",
             "null"
@@ -398,24 +884,12 @@
         }
       }
     },
-    "FeedstockType": {
-      "type": "string",
-      "enum": [
-        "Fossil",
-        "Natural gas",
-        "Grid",
-        "Renewable electricity",
-        "Cooking oil"
-      ]
+    "Locode": {
+      "type": "string"
     },
-    "PfId": {
+    "NegativeDecimal": {
       "type": "string",
-      "format": "uuid"
-    },
-    "VersionString": {
-      "type": "string",
-      "minLength": 5,
-      "pattern": "^\\d+\\.\\d+\\.\\d+(-\\d{8})?$"
+      "pattern": "^(-\\d+(\\.\\d+)?)|0$"
     },
     "NonEmptyPfIdVec": {
       "type": "array",
@@ -426,11 +900,42 @@
       "minItems": 1,
       "uniqueItems": true
     },
-    "VersionInteger": {
-      "type": "integer",
-      "format": "int32",
-      "maximum": 2147483647.0,
+    "NonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "NonEmptyStringVec": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "NonEmptyVec_for_EnergyCarrier": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EnergyCarrier"
+      }
+    },
+    "PackagingOrTrEqType": {
+      "type": "string",
+      "enum": [
+        "Box",
+        "Pallet",
+        "Container"
+      ]
+    },
+    "Percent": {
+      "type": "number",
+      "format": "double",
+      "maximum": 100.0,
       "minimum": 0.0
+    },
+    "PfId": {
+      "type": "string",
+      "format": "uuid"
     },
     "PfStatus": {
       "type": "string",
@@ -439,22 +944,9 @@
         "Deprecated"
       ]
     },
-    "NonEmptyString": {
+    "PositiveDecimal": {
       "type": "string",
-      "minLength": 1
-    },
-    "CompanyIdSet": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "pattern": "^([uU][rR][nN]):"
-      },
-      "minItems": 1,
-      "uniqueItems": true
-    },
-    "GenericURN": {
-      "type": "string",
-      "pattern": "^([uU][rR][nN]):"
+      "pattern": "^\\d+(\\.\\d+)?$"
     },
     "ProductIdSet": {
       "type": "array",
@@ -465,343 +957,37 @@
       "minItems": 1,
       "uniqueItems": true
     },
-    "CarbonFootprint": {
-      "description": "Data Type \"CarbonFootprint\" of Spec Version 2",
+    "ProductOrSectorSpecificRule": {
       "type": "object",
-      "oneOf": [
-        {
-          "type": [
-            "object"
-          ],
-          "required": [
-            "geographyRegionOrSubregion"
-          ],
-          "properties": {
-            "geographyRegionOrSubregion": {
-              "$ref": "#/definitions/UNRegionOrSubregion"
-            },
-            "geographyCountry": false,
-            "geographyCountrySubdivision": false
-          }
-        },
-        {
-          "type": [
-            "object"
-          ],
-          "required": [
-            "geographyCountry"
-          ],
-          "properties": {
-            "geographyCountry": {
-              "$ref": "#/definitions/ISO3166CC"
-            },
-            "geographyRegionOrSubregion": false,
-            "geographyCountrySubdivision": false
-          }
-        },
-        {
-          "type": [
-            "object"
-          ],
-          "required": [
-            "geographyCountrySubdivision"
-          ],
-          "properties": {
-            "geographyCountrySubdivision": {
-              "$ref": "#/definitions/NonEmptyString"
-            },
-            "geographyRegionOrSubregion": false,
-            "geographyCountry": false
-          }
-        },
-        {
-          "type": [
-            "object"
-          ],
-          "properties": {
-            "geographyRegionOrSubregion": false,
-            "geographyCountry": false,
-            "geographyCountrySubdivision": false
-          }
-        }
-      ],
       "required": [
-        "biogenicCarbonContent",
-        "boundaryProcessesDescription",
-        "characterizationFactors",
-        "crossSectoralStandardsUsed",
-        "declaredUnit",
-        "exemptedEmissionsDescription",
-        "exemptedEmissionsPercent",
-        "fossilCarbonContent",
-        "fossilGhgEmissions",
-        "ipccCharacterizationFactorsSources",
-        "pCfExcludingBiogenic",
-        "packagingEmissionsIncluded",
-        "referencePeriodEnd",
-        "referencePeriodStart",
-        "unitaryProductAmount"
+        "operator",
+        "ruleNames"
       ],
       "properties": {
-        "declaredUnit": {
-          "$ref": "#/definitions/DeclaredUnit"
+        "operator": {
+          "$ref": "#/definitions/ProductOrSectorSpecificRuleOperator"
         },
-        "unitaryProductAmount": {
-          "$ref": "#/definitions/StrictlyPositiveDecimal"
-        },
-        "pCfExcludingBiogenic": {
-          "$ref": "#/definitions/PositiveDecimal"
-        },
-        "pCfIncludingBiogenic": {
+        "otherOperatorName": {
           "anyOf": [
             {
-              "$ref": "#/definitions/Decimal"
+              "$ref": "#/definitions/NonEmptyString"
             },
             {
               "type": "null"
             }
           ]
         },
-        "fossilGhgEmissions": {
-          "$ref": "#/definitions/PositiveDecimal"
-        },
-        "fossilCarbonContent": {
-          "$ref": "#/definitions/PositiveDecimal"
-        },
-        "biogenicCarbonContent": {
-          "$ref": "#/definitions/PositiveDecimal"
-        },
-        "dLucGhgEmissions": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/PositiveDecimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "landManagementGhgEmissions": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/PositiveDecimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "otherBiogenicGhgEmissions": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/PositiveDecimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "iLucGhgEmissions": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/PositiveDecimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "biogenicCarbonWithdrawal": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/NegativeDecimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "aircraftGhgEmissions": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/PositiveDecimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "characterizationFactors": {
-          "$ref": "#/definitions/CharacterizationFactors"
-        },
-        "ipccCharacterizationFactorsSources": {
-          "$ref": "#/definitions/IpccCharacterizationFactorsSources"
-        },
-        "crossSectoralStandardsUsed": {
-          "$ref": "#/definitions/CrossSectoralStandardSet"
-        },
-        "productOrSectorSpecificRules": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/ProductOrSectorSpecificRuleSet"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "biogenicAccountingMethodology": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/BiogenicAccountingMethodology"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "boundaryProcessesDescription": {
-          "type": "string"
-        },
-        "referencePeriodStart": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "referencePeriodEnd": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "secondaryEmissionFactorSources": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/EmissionFactorDSSet"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "exemptedEmissionsPercent": {
-          "$ref": "#/definitions/ExemptedEmissionsPercent"
-        },
-        "exemptedEmissionsDescription": {
-          "type": "string"
-        },
-        "packagingEmissionsIncluded": {
-          "type": "boolean"
-        },
-        "packagingGhgEmissions": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/PositiveDecimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "allocationRulesDescription": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "uncertaintyAssessmentDescription": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "primaryDataShare": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Percent"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "dqi": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/DataQualityIndicators"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "assurance": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Assurance"
-            },
-            {
-              "type": "null"
-            }
-          ]
+        "ruleNames": {
+          "$ref": "#/definitions/NonEmptyStringVec"
         }
       }
     },
-    "DeclaredUnit": {
-      "description": "Data Type \"DeclaredUnit\" of Spec Version 2",
+    "ProductOrSectorSpecificRuleOperator": {
       "type": "string",
       "enum": [
-        "liter",
-        "kilogram",
-        "cubic meter",
-        "kilowatt hour",
-        "megajoule",
-        "ton kilometer",
-        "square meter"
-      ]
-    },
-    "StrictlyPositiveDecimal": {
-      "type": "string",
-      "pattern": "^(\\d*[1-9]\\d*([\\.]\\d+)?|\\d+(\\.\\d*[1-9]\\d*)?)$"
-    },
-    "PositiveDecimal": {
-      "type": "string",
-      "pattern": "^\\d+(\\.\\d+)?$"
-    },
-    "NegativeDecimal": {
-      "type": "string",
-      "pattern": "^(-\\d+(\\.\\d+)?)|0$"
-    },
-    "CharacterizationFactors": {
-      "type": "string",
-      "enum": [
-        "AR5",
-        "AR6"
-      ]
-    },
-    "IpccCharacterizationFactorsSources": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "pattern": "^AR\\d+$"
-      },
-      "minItems": 1,
-      "uniqueItems": true
-    },
-    "IpccCharacterizationFactorsSource": {
-      "type": "string",
-      "pattern": "^AR\\d+$"
-    },
-    "CrossSectoralStandardSet": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/CrossSectoralStandard"
-      }
-    },
-    "CrossSectoralStandard": {
-      "description": "Deprecated Data Type \"CrossSectoralStandard\" of Spec Version 2, to be removed in v3, used in `CrossSectoralStandardsSet`s to populate `crossSectoralSectoralStandardsUsed` (also deprecated).",
-      "type": "string",
-      "enum": [
-        "GHG Protocol Product standard",
-        "ISO Standard 14067",
-        "ISO Standard 14044"
+        "PEF",
+        "EPD International",
+        "Other"
       ]
     },
     "ProductOrSectorSpecificRuleSet": {
@@ -816,9 +1002,6 @@
           "operator": {
             "$ref": "#/definitions/ProductOrSectorSpecificRuleOperator"
           },
-          "ruleNames": {
-            "$ref": "#/definitions/NonEmptyStringVec"
-          },
           "otherOperatorName": {
             "anyOf": [
               {
@@ -828,233 +1011,160 @@
                 "type": "null"
               }
             ]
-          }
-        }
-      },
-      "uniqueItems": true
-    },
-    "ProductOrSectorSpecificRule": {
-      "type": "object",
-      "required": [
-        "operator",
-        "ruleNames"
-      ],
-      "properties": {
-        "operator": {
-          "$ref": "#/definitions/ProductOrSectorSpecificRuleOperator"
-        },
-        "ruleNames": {
-          "$ref": "#/definitions/NonEmptyStringVec"
-        },
-        "otherOperatorName": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/NonEmptyString"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      }
-    },
-    "ProductOrSectorSpecificRuleOperator": {
-      "type": "string",
-      "enum": [
-        "PEF",
-        "EPD International",
-        "Other"
-      ]
-    },
-    "NonEmptyStringVec": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "minLength": 1
-      },
-      "minItems": 1,
-      "uniqueItems": true
-    },
-    "BiogenicAccountingMethodology": {
-      "type": "string",
-      "enum": [
-        "PEF",
-        "ISO",
-        "GHPG",
-        "Quantis"
-      ]
-    },
-    "EmissionFactorDSSet": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "name",
-          "version"
-        ],
-        "properties": {
-          "name": {
-            "$ref": "#/definitions/NonEmptyString"
           },
-          "version": {
-            "$ref": "#/definitions/NonEmptyString"
+          "ruleNames": {
+            "$ref": "#/definitions/NonEmptyStringVec"
           }
         }
       },
-      "minItems": 1,
       "uniqueItems": true
     },
-    "EmissionFactorDS": {
+    "StrictlyPositiveDecimal": {
+      "type": "string",
+      "pattern": "^(\\d*[1-9]\\d*([\\.]\\d+)?|\\d+(\\.\\d*[1-9]\\d*)?)$"
+    },
+    "TAD": {
+      "description": "Data Type \"Transport Activity Data\" of the iLEAP Technical Specifications",
       "type": "object",
       "required": [
-        "name",
-        "version"
+        "activityId",
+        "consignmentIds",
+        "destination",
+        "distance",
+        "origin"
       ],
       "properties": {
-        "name": {
-          "$ref": "#/definitions/NonEmptyString"
-        },
-        "version": {
-          "$ref": "#/definitions/NonEmptyString"
-        }
-      }
-    },
-    "ExemptedEmissionsPercent": {
-      "type": "number",
-      "format": "double",
-      "maximum": 5.0,
-      "minimum": 0.0
-    },
-    "Percent": {
-      "type": "number",
-      "format": "double",
-      "maximum": 100.0,
-      "minimum": 0.0
-    },
-    "DataQualityIndicators": {
-      "description": "Data Type \"DataQualityIndicators\" of Spec Version 2",
-      "type": "object",
-      "required": [
-        "completenessDQR",
-        "coveragePercent",
-        "geographicalDQR",
-        "reliabilityDQR",
-        "technologicalDQR",
-        "temporalDQR"
-      ],
-      "properties": {
-        "coveragePercent": {
-          "$ref": "#/definitions/Percent"
-        },
-        "technologicalDQR": {
-          "$ref": "#/definitions/FloatBetween1And3"
-        },
-        "temporalDQR": {
-          "$ref": "#/definitions/FloatBetween1And3"
-        },
-        "geographicalDQR": {
-          "$ref": "#/definitions/FloatBetween1And3"
-        },
-        "completenessDQR": {
-          "$ref": "#/definitions/FloatBetween1And3"
-        },
-        "reliabilityDQR": {
-          "$ref": "#/definitions/FloatBetween1And3"
-        }
-      }
-    },
-    "FloatBetween1And3": {
-      "type": "number",
-      "format": "float",
-      "maximum": 3.0,
-      "minimum": 1.0
-    },
-    "Assurance": {
-      "description": "Data Type \"Assurance\" of Spec Version 2",
-      "type": "object",
-      "required": [
-        "assurance",
-        "providerName"
-      ],
-      "properties": {
-        "assurance": {
-          "type": "boolean"
-        },
-        "coverage": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/AssuranceCoverage"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "level": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/AssuranceLevel"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "boundary": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/AssuranceBoundary"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "providerName": {
+        "activityId": {
           "type": "string"
         },
-        "completedAt": {
+        "arrivalAt": {
           "type": [
             "string",
             "null"
           ],
           "format": "date-time"
         },
-        "standardName": {
+        "consignmentIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "departureAt": {
           "type": [
             "string",
             "null"
+          ],
+          "format": "date-time"
+        },
+        "destination": {
+          "$ref": "#/definitions/Location"
+        },
+        "distance": {
+          "$ref": "#/definitions/GlecDistance"
+        },
+        "emptyDistanceFactor": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
           ]
         },
-        "comments": {
+        "energyCarrier": {
+          "description": "see https://sine-fdn.github.io/ileap-extension/#element-attrdef-tad-energycarrier",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EnergyCarrierType"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "energyCarriers": {
+          "description": "see https://sine-fdn.github.io/ileap-extension/#element-attrdef-tad-energycarriers",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/NonEmptyVec_for_EnergyCarrier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "feedstocks": {
           "type": [
-            "string",
+            "array",
             "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/Feedstock"
+          }
+        },
+        "loadFactor": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mass": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mode": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TransportMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "origin": {
+          "$ref": "#/definitions/Location"
+        },
+        "packagingOrTrEqAmount": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "packagingOrTrEqType": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PackagingOrTrEqType"
+            },
+            {
+              "type": "null"
+            }
           ]
         }
       }
     },
-    "AssuranceCoverage": {
+    "TransportMode": {
       "type": "string",
       "enum": [
-        "corporate level",
-        "product line",
-        "PCF system",
-        "product level"
-      ]
-    },
-    "AssuranceLevel": {
-      "type": "string",
-      "enum": [
-        "limited",
-        "reasonable"
-      ]
-    },
-    "AssuranceBoundary": {
-      "type": "string",
-      "enum": [
-        "Gate-to-Gate",
-        "Cradle-to-Gate"
+        "Road",
+        "Rail",
+        "Air",
+        "Sea",
+        "InlandWaterway"
       ]
     },
     "UNRegionOrSubregion": {
@@ -1085,27 +1195,19 @@
         "Western Europe"
       ]
     },
-    "DataModelExtension": {
-      "type": "object",
-      "required": [
-        "data",
-        "dataSchema",
-        "specVersion"
-      ],
-      "properties": {
-        "dataSchema": {
-          "type": "string"
-        },
-        "documentation": {
-          "type": "string"
-        },
-        "specVersion": {
-          "$ref": "#/definitions/VersionString"
-        },
-        "data": {
-          "$ref": "#/definitions/Tad"
-        }
-      }
+    "UicCode": {
+      "type": "string"
+    },
+    "VersionInteger": {
+      "type": "integer",
+      "format": "int32",
+      "maximum": 2147483647.0,
+      "minimum": 0.0
+    },
+    "VersionString": {
+      "type": "string",
+      "minLength": 5,
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-\\d{8})?$"
     }
   }
 }

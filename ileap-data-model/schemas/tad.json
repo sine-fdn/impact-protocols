@@ -14,34 +14,31 @@
     "activityId": {
       "type": "string"
     },
+    "arrivalAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
     "consignmentIds": {
       "type": "array",
       "items": {
         "type": "string"
       }
     },
+    "departureAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "destination": {
+      "$ref": "#/definitions/Location"
+    },
     "distance": {
       "$ref": "#/definitions/GlecDistance"
-    },
-    "mass": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/Decimal"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "loadFactor": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/Decimal"
-        },
-        {
-          "type": "null"
-        }
-      ]
     },
     "emptyDistanceFactor": {
       "anyOf": [
@@ -53,25 +50,56 @@
         }
       ]
     },
-    "origin": {
-      "$ref": "#/definitions/Location"
+    "energyCarrier": {
+      "description": "see https://sine-fdn.github.io/ileap-extension/#element-attrdef-tad-energycarrier",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/EnergyCarrierType"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
-    "destination": {
-      "$ref": "#/definitions/Location"
+    "energyCarriers": {
+      "description": "see https://sine-fdn.github.io/ileap-extension/#element-attrdef-tad-energycarriers",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/NonEmptyVec_for_EnergyCarrier"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
-    "departureAt": {
+    "feedstocks": {
       "type": [
-        "string",
+        "array",
         "null"
       ],
-      "format": "date-time"
+      "items": {
+        "$ref": "#/definitions/Feedstock"
+      }
     },
-    "arrivalAt": {
-      "type": [
-        "string",
-        "null"
-      ],
-      "format": "date-time"
+    "loadFactor": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Decimal"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "mass": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Decimal"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "mode": {
       "anyOf": [
@@ -83,15 +111,8 @@
         }
       ]
     },
-    "packagingOrTrEqType": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/PackagingOrTrEqType"
-        },
-        {
-          "type": "null"
-        }
-      ]
+    "origin": {
+      "$ref": "#/definitions/Location"
     },
     "packagingOrTrEqAmount": {
       "type": [
@@ -101,17 +122,133 @@
       "format": "uint",
       "minimum": 0.0
     },
-    "feedstocks": {
-      "type": [
-        "array",
-        "null"
-      ],
-      "items": {
-        "$ref": "#/definitions/Feedstock"
-      }
+    "packagingOrTrEqType": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/PackagingOrTrEqType"
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "definitions": {
+    "Decimal": {
+      "type": "string",
+      "pattern": "^-?\\d+(\\.\\d+)?$"
+    },
+    "EnergyCarrier": {
+      "type": "object",
+      "required": [
+        "emissionFactorTTW",
+        "emissionFactorWTW",
+        "energyCarrier"
+      ],
+      "properties": {
+        "emissionFactorTTW": {
+          "$ref": "#/definitions/Decimal"
+        },
+        "emissionFactorWTW": {
+          "$ref": "#/definitions/Decimal"
+        },
+        "energyCarrier": {
+          "$ref": "#/definitions/EnergyCarrierType"
+        },
+        "energyConsumption": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "energyConsumptionUnit": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EnergyConsumptionUnit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "feedstocks": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/Feedstock"
+          }
+        }
+      }
+    },
+    "EnergyCarrierType": {
+      "type": "string",
+      "enum": [
+        "Diesel",
+        "HVO",
+        "Petrol",
+        "CNG",
+        "LNG",
+        "LPG",
+        "HFO",
+        "MGO",
+        "Aviation fuel",
+        "Hydrogen",
+        "Methanol",
+        "Electric"
+      ]
+    },
+    "EnergyConsumptionUnit": {
+      "type": "string",
+      "enum": [
+        "l",
+        "kg",
+        "kWh",
+        "MJ"
+      ]
+    },
+    "Feedstock": {
+      "type": "object",
+      "required": [
+        "feedstock"
+      ],
+      "properties": {
+        "feedstock": {
+          "$ref": "#/definitions/FeedstockType"
+        },
+        "feedstockPercentage": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "regionProvenance": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "FeedstockType": {
+      "type": "string",
+      "enum": [
+        "Fossil",
+        "Natural gas",
+        "Grid",
+        "Renewable electricity",
+        "Cooking oil"
+      ]
+    },
     "GlecDistance": {
       "oneOf": [
         {
@@ -152,9 +289,12 @@
         }
       ]
     },
-    "Decimal": {
+    "ISO3166CC": {
       "type": "string",
-      "pattern": "^-?\\d+(\\.\\d+)?$"
+      "pattern": "^[A-Z]{2}$"
+    },
+    "IataCode": {
+      "type": "string"
     },
     "Location": {
       "type": "object",
@@ -163,18 +303,6 @@
         "country"
       ],
       "properties": {
-        "street": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "zip": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
         "city": {
           "type": "string"
         },
@@ -185,26 +313,6 @@
           "anyOf": [
             {
               "$ref": "#/definitions/IataCode"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "locode": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Locode"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "uic": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/UicCode"
             },
             {
               "type": "null"
@@ -230,21 +338,57 @@
               "type": "null"
             }
           ]
+        },
+        "locode": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Locode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "street": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "uic": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/UicCode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "zip": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       }
-    },
-    "ISO3166CC": {
-      "type": "string",
-      "pattern": "^[A-Z]{2}$"
-    },
-    "IataCode": {
-      "type": "string"
     },
     "Locode": {
       "type": "string"
     },
-    "UicCode": {
-      "type": "string"
+    "NonEmptyVec_for_EnergyCarrier": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EnergyCarrier"
+      }
+    },
+    "PackagingOrTrEqType": {
+      "type": "string",
+      "enum": [
+        "Box",
+        "Pallet",
+        "Container"
+      ]
     },
     "TransportMode": {
       "type": "string",
@@ -256,50 +400,8 @@
         "InlandWaterway"
       ]
     },
-    "PackagingOrTrEqType": {
-      "type": "string",
-      "enum": [
-        "Box",
-        "Pallet",
-        "Container"
-      ]
-    },
-    "Feedstock": {
-      "type": "object",
-      "required": [
-        "feedstock"
-      ],
-      "properties": {
-        "feedstock": {
-          "$ref": "#/definitions/FeedstockType"
-        },
-        "feedstockPercentage": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Decimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "regionProvenance": {
-          "type": [
-            "string",
-            "null"
-          ]
-        }
-      }
-    },
-    "FeedstockType": {
-      "type": "string",
-      "enum": [
-        "Fossil",
-        "Natural gas",
-        "Grid",
-        "Renewable electricity",
-        "Cooking oil"
-      ]
+    "UicCode": {
+      "type": "string"
     }
   }
 }
