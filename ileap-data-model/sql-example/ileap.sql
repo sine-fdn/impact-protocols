@@ -16,7 +16,7 @@ CREATE TABLE shipmentfootprint(
 -- Table for the iLEAP TOC Data Type
 CREATE TABLE toc(
     toc_id varchar(255) PRIMARY KEY,
-    certifications TEXT[] CHECK (certifications <@ ARRAY['ISO14083:33', 'GLECv2', 'GLECv3', 'GLECv3.1']),
+    certifications TEXT[], -- 'ISO14083:2023', 'GLECv2', 'GLECv3', or 'GLECv3.1'
     description text,
     mode varchar(20) NOT NULL CHECK (mode IN ('Road', 'Rail', 'Air', 'Sea', 'InlandWaterway')),
     load_factor DECIMAL(18, 6),
@@ -27,14 +27,14 @@ CREATE TABLE toc(
     flight_length varchar(20) CHECK (flight_length IN ('short-haul', 'long-haul')),
     co2e_intensity_wtw DECIMAL(18, 6) NOT NULL,
     co2e_intensity_ttw DECIMAL(18, 6) NOT NULL,
-    transport_activity_unit varchar(255) NOT NULL,
+    transport_activity_unit varchar(255) NOT NULL
 );
 
 -- Table for the iLEAP HOC Data Type
 CREATE TABLE hoc(
     hoc_id varchar(255) PRIMARY KEY,
     description text,
-    certifications TEXT[] CHECK (certifications <@ ARRAY['ISO14083:33', 'GLECv2', 'GLECv3', 'GLECv3.1']),
+    certifications TEXT[], -- 'ISO14083:2023', 'GLECv2', 'GLECv3', or 'GLECv3.1'
     hub_type varchar(50) NOT NULL CHECK (hub_type IN ('Transshipment', 'StorageAndTransshipment', 'Warehouse', 'LiquidBulkTerminal', 'MaritimeContainerTerminal')),
     temperature_control varchar(50) CHECK (temperature_control IN ('ambient', 'refrigerated', 'mixed')),
     hub_location_street varchar(255),
