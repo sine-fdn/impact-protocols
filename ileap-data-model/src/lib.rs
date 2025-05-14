@@ -327,6 +327,10 @@ pub enum TransportMode {
 pub enum PackagingOrTrEqType {
     Box,
     Pallet,
+    #[serde(rename = "Container-TEU")]
+    ContainerTEU,
+    #[serde(rename = "Container-FEU")]
+    ContainerFEU,
     Container,
 }
 

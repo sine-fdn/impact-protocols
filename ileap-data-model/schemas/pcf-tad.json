@@ -368,6 +368,8 @@
       "enum": [
         "Box",
         "Pallet",
+        "Container-TEU",
+        "Container-FEU",
         "Container"
       ]
     },
