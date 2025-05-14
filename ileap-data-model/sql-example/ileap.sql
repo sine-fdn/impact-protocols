@@ -16,8 +16,7 @@ CREATE TABLE shipmentfootprint(
 -- Table for the iLEAP TOC Data Type
 CREATE TABLE toc(
     toc_id varchar(255) PRIMARY KEY,
-    is_verified boolean NOT NULL,
-    is_accredited boolean NOT NULL,
+    certifications TEXT[] CHECK (certifications <@ ARRAY['ISO14083:33', 'GLECv2', 'GLECv3', 'GLECv3.1']),
     description text,
     mode varchar(20) NOT NULL CHECK (mode IN ('Road', 'Rail', 'Air', 'Sea', 'InlandWaterway')),
     load_factor DECIMAL(18, 6),
@@ -28,15 +27,14 @@ CREATE TABLE toc(
     flight_length varchar(20) CHECK (flight_length IN ('short-haul', 'long-haul')),
     co2e_intensity_wtw DECIMAL(18, 6) NOT NULL,
     co2e_intensity_ttw DECIMAL(18, 6) NOT NULL,
-    co2e_intensity_throughput varchar(255) NOT NULL,
+    transport_activity_unit varchar(255) NOT NULL,
 );
 
 -- Table for the iLEAP HOC Data Type
 CREATE TABLE hoc(
     hoc_id varchar(255) PRIMARY KEY,
     description text,
-    is_verified boolean NOT NULL,
-    is_accredited boolean NOT NULL,
+    certifications TEXT[] CHECK (certifications <@ ARRAY['ISO14083:33', 'GLECv2', 'GLECv3', 'GLECv3.1']),
     hub_type varchar(50) NOT NULL CHECK (hub_type IN ('Transshipment', 'StorageAndTransshipment', 'Warehouse', 'LiquidBulkTerminal', 'MaritimeContainerTerminal')),
     temperature_control varchar(50) CHECK (temperature_control IN ('ambient', 'refrigerated', 'mixed')),
     hub_location_street varchar(255),
@@ -50,11 +48,11 @@ CREATE TABLE hoc(
     hub_location_lng DECIMAL(11, 8),
     inbound_transport_mode varchar(50) CHECK (inbound_transport_mode IN ('Road', 'Rail', 'Air', 'Sea', 'InlandWaterway')),
     outbound_transport_mode varchar(50) CHECK (outbound_transport_mode IN ('Road', 'Rail', 'Air', 'Sea', 'InlandWaterway')),
-    packaging_or_tr_eq_type varchar(255) CHECK (packaging_or_tr_eq_type IN ('Box', 'Pallet', 'Container')),
+    packaging_or_tr_eq_type varchar(255) CHECK (packaging_or_tr_eq_type IN ('Box', 'Pallet', 'Container-TEU', 'Container-FEU', 'Container')),
     packaging_or_tr_eq_amount int,
     co2e_intensity_wtw DECIMAL(18, 6) NOT NULL,
     co2e_intensity_ttw DECIMAL(18, 6) NOT NULL,
-    co2e_intensity_throughput varchar(255) NOT NULL
+    hub_activity_unit varchar(255) NOT NULL
 );
 
 -- Table for the iLEAP TCE Data Type
@@ -153,7 +151,7 @@ CREATE TABLE energycarrier(
 CREATE TABLE feedstock(
     id serial PRIMARY KEY,
     feedstock_type varchar(50) NOT NULL CHECK (feedstock_type IN ('Fossil', 'Natural gas', 'Grid', 'Renewable electricity', 'Cooking oil')),
-    feedstock_percentage DECIMAL(5, 2),
+    feedstock_share DECIMAL(5, 2),
     region_provenance varchar(255)
 );
 
