@@ -130,10 +130,7 @@ impl Arbitrary for Hoc {
 
 impl Arbitrary for HubActivityUnit {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-        let hub_activity_unit = &[
-            HubActivityUnit::TEU,
-            HubActivityUnit::Tonnes,
-        ];
+        let hub_activity_unit = &[HubActivityUnit::TEU, HubActivityUnit::Tonnes];
 
         g.choose(hub_activity_unit).unwrap().to_owned()
     }
@@ -219,10 +216,7 @@ impl Arbitrary for Toc {
 
 impl Arbitrary for TransportActivityUnit {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-        let transport_activity_unit = &[
-            TransportActivityUnit::Tkm,
-            TransportActivityUnit::TEUkm,
-        ];
+        let transport_activity_unit = &[TransportActivityUnit::Tkm, TransportActivityUnit::TEUkm];
 
         g.choose(transport_activity_unit).unwrap().to_owned()
     }

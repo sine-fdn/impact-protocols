@@ -6,8 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::pact_integration::to_pcf;
 use crate::{
-    GlecDistance, Hoc, HubActivityUnit, NonEmptyVec, PactMappedFields,
-    ShipmentFootprint, Tce, Toc,
+    GlecDistance, Hoc, HubActivityUnit, NonEmptyVec, PactMappedFields, ShipmentFootprint, Tce, Toc,
 };
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
