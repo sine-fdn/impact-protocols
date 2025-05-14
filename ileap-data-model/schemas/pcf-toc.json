@@ -201,16 +201,6 @@
         },
         "co2eIntensityThroughput": {
           "$ref": "#/definitions/TocCo2eIntensityThroughput"
-        },
-        "glecDataQualityIndex": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/GlecDataQualityIndex"
-            },
-            {
-              "type": "null"
-            }
-          ]
         }
       }
     },
@@ -380,11 +370,6 @@
         "TEUkm",
         "tkm"
       ]
-    },
-    "GlecDataQualityIndex": {
-      "type": "integer",
-      "format": "uint8",
-      "minimum": 0.0
     },
     "PfId": {
       "type": "string",

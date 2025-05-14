@@ -202,7 +202,6 @@ impl Arbitrary for Toc {
             co2e_intensity_throughput: TocCo2eIntensityThroughput::arbitrary(g),
             // Currently None for simplicity.
             description: None,
-            glec_data_quality_index: None,
         }
     }
 }
@@ -447,12 +446,6 @@ impl Arbitrary for FeedstockType {
         ];
 
         g.choose(feedstock).unwrap().to_owned()
-    }
-}
-
-impl Arbitrary for GlecDataQualityIndex {
-    fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-        GlecDataQualityIndex(u8::arbitrary(g) % 5)
     }
 }
 

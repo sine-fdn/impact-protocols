@@ -29,7 +29,6 @@ CREATE TABLE toc(
     co2e_intensity_wtw DECIMAL(18, 6) NOT NULL,
     co2e_intensity_ttw DECIMAL(18, 6) NOT NULL,
     co2e_intensity_throughput varchar(255) NOT NULL,
-    glec_data_quality_index DECIMAL(7, 6)
 );
 
 -- Table for the iLEAP HOC Data Type

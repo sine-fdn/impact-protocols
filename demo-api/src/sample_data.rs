@@ -1196,7 +1196,6 @@ fn toc(
         co2e_intensity_wtw,
         co2e_intensity_ttw,
         co2e_intensity_throughput,
-        glec_data_quality_index: None,
     }
 }
 

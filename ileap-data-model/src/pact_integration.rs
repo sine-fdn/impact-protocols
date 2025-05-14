@@ -401,7 +401,6 @@ fn toc_to_pcf() {
         description: None,
         air_shipping_option: None,
         flight_length: None,
-        glec_data_quality_index: None,
     };
 
     let pfc = to_pcf(

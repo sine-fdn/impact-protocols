@@ -138,8 +138,6 @@ pub struct Toc {
     #[serde(rename = "co2eIntensityTTW")]
     pub co2e_intensity_ttw: WrappedDecimal,
     pub co2e_intensity_throughput: TocCo2eIntensityThroughput,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub glec_data_quality_index: Option<GlecDataQualityIndex>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
@@ -181,11 +179,6 @@ pub enum FlightLength {
     #[serde(rename = "long-haul")]
     LongHaul,
 }
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
-#[serde(rename_all = "camelCase")]
-// TODO: use a floating point or a decimal instead.
-pub struct GlecDataQualityIndex(pub u8);
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
 #[serde(rename_all = "camelCase", rename = "HOC")]
@@ -447,16 +440,6 @@ impl<T> From<Vec<T>> for NonEmptyVec<T> {
             panic!("Vector must not be empty")
         } else {
             NonEmptyVec(v)
-        }
-    }
-}
-
-impl From<u8> for GlecDataQualityIndex {
-    fn from(v: u8) -> GlecDataQualityIndex {
-        if v > 4 {
-            panic!("Glec Data Quality Index must be between 0 and 4")
-        } else {
-            GlecDataQualityIndex(v)
         }
     }
 }
