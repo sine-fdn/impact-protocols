@@ -57,8 +57,6 @@ impl Arbitrary for ShipmentFootprint {
             tces: NonEmptyVec::<Tce>::arbitrary(g),
             // Currently None for simplicity.
             volume: None,
-            number_of_items: None,
-            type_of_items: None,
         }
     }
 }

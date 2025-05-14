@@ -17,18 +17,6 @@
         "null"
       ]
     },
-    "numberOfItems": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "typeOfItems": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "shipmentId": {
       "type": "string"
     },

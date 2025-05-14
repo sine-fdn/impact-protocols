@@ -35,10 +35,6 @@ pub struct ShipmentFootprint {
     pub mass: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub volume: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub number_of_items: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_of_items: Option<String>,
     pub shipment_id: String,
     pub tces: NonEmptyVec<Tce>,
 }

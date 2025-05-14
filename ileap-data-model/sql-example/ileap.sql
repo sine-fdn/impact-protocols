@@ -8,8 +8,6 @@
 CREATE TABLE shipmentfootprint(
     mass varchar(255) NOT NULL,
     volume varchar(255),
-    number_of_items varchar(255),
-    type_of_items varchar(255),
     shipment_id varchar(255) PRIMARY KEY
 );
 

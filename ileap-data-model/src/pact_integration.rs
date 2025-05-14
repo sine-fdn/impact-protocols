@@ -343,8 +343,6 @@ fn ship_foot_to_pfc() {
         .into(),
         mass: "40000".to_string(),
         volume: None,
-        number_of_items: None,
-        type_of_items: None,
     };
 
     let pfc = to_pcf(

@@ -91,8 +91,6 @@ fn test_ship_foot_deser() {
         ShipmentFootprint {
             mass: "87".to_string(),
             volume: None,
-            number_of_items: None,
-            type_of_items: None,
             shipment_id: "1237890".to_string(),
             tces: NonEmptyVec::<Tce>::from(vec![Tce {
                 tce_id: "abcdef".to_string(),

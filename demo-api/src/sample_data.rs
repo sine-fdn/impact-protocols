@@ -1150,8 +1150,6 @@ fn shipment_footprint(
     ShipmentFootprint {
         mass,
         volume: None,
-        number_of_items: None,
-        type_of_items: None,
         shipment_id,
         tces,
     }
