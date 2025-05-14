@@ -114,8 +114,6 @@
         "co2eIntensityThroughput",
         "co2eIntensityWTW",
         "energyCarriers",
-        "isAccredited",
-        "isVerified",
         "mode",
         "tocId"
       ],
@@ -123,11 +121,15 @@
         "tocId": {
           "type": "string"
         },
-        "isVerified": {
-          "type": "boolean"
-        },
-        "isAccredited": {
-          "type": "boolean"
+        "certifications": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/NonEmptyVec_for_Certification"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "description": {
           "type": [
@@ -203,6 +205,21 @@
           "$ref": "#/definitions/TocCo2eIntensityThroughput"
         }
       }
+    },
+    "NonEmptyVec_for_Certification": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Certification"
+      }
+    },
+    "Certification": {
+      "type": "string",
+      "enum": [
+        "ISO14083:2023",
+        "GLECv2",
+        "GLECv3",
+        "GLECv3.1"
+      ]
     },
     "TransportMode": {
       "type": "string",

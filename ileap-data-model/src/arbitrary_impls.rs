@@ -110,8 +110,7 @@ impl Arbitrary for Hoc {
 
         Hoc {
             hoc_id: formatted_arbitrary_string("hoc-", g),
-            is_verified: bool::arbitrary(g),
-            is_accredited: bool::arbitrary(g),
+            certifications: Option::<NonEmptyVec<Certification>>::arbitrary(g),
             hub_type,
             temperature_control: Option::<TemperatureControl>::arbitrary(g),
             inbound_transport_mode,
@@ -166,6 +165,19 @@ impl Arbitrary for PackagingOrTrEqType {
     }
 }
 
+impl Arbitrary for Certification {
+    fn arbitrary(g: &mut quickcheck::Gen) -> Self {
+        let certification = &[
+            Certification::ISO14083_2023,
+            Certification::GlecV2,
+            Certification::GlecV3,
+            Certification::GlecV3_1,
+        ];
+
+        g.choose(certification).unwrap().to_owned()
+    }
+}
+
 fn arbitrary_option_factor(g: &mut quickcheck::Gen) -> Option<String> {
     let rand_num = u8::arbitrary(g) % 10 + 1;
     let rand_factor: Decimal = Decimal::new(rand_num as i64, 1);
@@ -187,8 +199,7 @@ impl Arbitrary for Toc {
 
         Toc {
             toc_id: formatted_arbitrary_string("toc-", g),
-            is_verified: bool::arbitrary(g),
-            is_accredited: bool::arbitrary(g),
+            certifications: Option::<NonEmptyVec<Certification>>::arbitrary(g),
             mode,
             load_factor: arbitrary_option_factor(g),
             empty_distance_factor: arbitrary_option_factor(g),

@@ -1182,8 +1182,7 @@ fn toc(
 ) -> Toc {
     Toc {
         toc_id,
-        is_verified: true,
-        is_accredited: true,
+        certifications: None,
         description: None,
         mode,
         load_factor,
@@ -1219,8 +1218,7 @@ fn hoc(
     Hoc {
         hoc_id,
         description: None,
-        is_verified: true,
-        is_accredited: true,
+        certifications: None,
         hub_type,
         temperature_control,
         hub_location: None,

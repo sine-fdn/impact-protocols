@@ -51,8 +51,7 @@ fn test_toc_deser() {
         r#"{"tocId":"4561230","isVerified":true,"isAccredited":true,"mode":"Road","temperatureControl":"refrigerated","truckLoadingSequence":"FTL","energyCarriers":[{"energyCarrier":"Diesel","emissionFactorWTW":"3.6801","emissionFactorTTW":"3.2801"}],"co2eIntensityWTW":"3.6801","co2eIntensityTTW":"3.2801","co2eIntensityThroughput":"tkm"}"#,
         Toc {
             toc_id: "4561230".to_string(),
-            is_verified: true,
-            is_accredited: true,
+            certifications: None,
             mode: TransportMode::Road,
             temperature_control: Some(TemperatureControl::Refrigerated),
             truck_loading_sequence: Some(TruckLoadingSequence::Ftl),

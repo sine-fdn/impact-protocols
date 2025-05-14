@@ -112,11 +112,23 @@ pub enum Incoterms {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+pub enum Certification {
+    #[serde(rename = "ISO14083:2023")]
+    ISO14083_2023,
+    #[serde(rename = "GLECv2")]
+    GlecV2,
+    #[serde(rename = "GLECv3")]
+    GlecV3,
+    #[serde(rename = "GLECv3.1")]
+    GlecV3_1,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase", rename = "TOC")]
 pub struct Toc {
     pub toc_id: String,
-    pub is_verified: bool,
-    pub is_accredited: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub certifications: Option<NonEmptyVec<Certification>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     pub mode: TransportMode,
@@ -186,8 +198,8 @@ pub struct Hoc {
     pub hoc_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    pub is_verified: bool,
-    pub is_accredited: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub certifications: Option<NonEmptyVec<Certification>>,
     pub hub_type: HubType,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub temperature_control: Option<TemperatureControl>,

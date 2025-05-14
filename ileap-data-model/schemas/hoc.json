@@ -8,9 +8,7 @@
     "co2eIntensityWTW",
     "energyCarriers",
     "hocId",
-    "hubType",
-    "isAccredited",
-    "isVerified"
+    "hubType"
   ],
   "properties": {
     "hocId": {
@@ -22,11 +20,15 @@
         "null"
       ]
     },
-    "isVerified": {
-      "type": "boolean"
-    },
-    "isAccredited": {
-      "type": "boolean"
+    "certifications": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/NonEmptyVec_for_Certification"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "hubType": {
       "$ref": "#/definitions/HubType"
@@ -103,6 +105,21 @@
     }
   },
   "definitions": {
+    "NonEmptyVec_for_Certification": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Certification"
+      }
+    },
+    "Certification": {
+      "type": "string",
+      "enum": [
+        "ISO14083:2023",
+        "GLECv2",
+        "GLECv3",
+        "GLECv3.1"
+      ]
+    },
     "HubType": {
       "type": "string",
       "enum": [
