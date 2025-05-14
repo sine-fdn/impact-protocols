@@ -263,7 +263,8 @@
       "required": [
         "emissionFactorTTW",
         "emissionFactorWTW",
-        "energyCarrier"
+        "energyCarrier",
+        "relativeShare"
       ],
       "properties": {
         "energyCarrier": {
@@ -302,6 +303,9 @@
           "$ref": "#/definitions/Decimal"
         },
         "emissionFactorTTW": {
+          "$ref": "#/definitions/Decimal"
+        },
+        "relativeShare": {
           "$ref": "#/definitions/Decimal"
         }
       }

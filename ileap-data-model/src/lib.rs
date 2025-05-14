@@ -348,6 +348,7 @@ pub struct EnergyCarrier {
     pub emission_factor_wtw: WrappedDecimal,
     #[serde(rename = "emissionFactorTTW")]
     pub emission_factor_ttw: WrappedDecimal,
+    pub relative_share: WrappedDecimal,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]

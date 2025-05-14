@@ -48,7 +48,7 @@ fn test_temperature_control_deser() {
 #[test]
 fn test_toc_deser() {
     let (json, expected) = (
-        r#"{"tocId":"4561230","isVerified":true,"isAccredited":true,"mode":"Road","temperatureControl":"refrigerated","truckLoadingSequence":"FTL","energyCarriers":[{"energyCarrier":"Diesel","emissionFactorWTW":"3.6801","emissionFactorTTW":"3.2801"}],"co2eIntensityWTW":"3.6801","co2eIntensityTTW":"3.2801","transportActivityUnit":"tkm"}"#,
+        r#"{"tocId":"4561230","isVerified":true,"isAccredited":true,"mode":"Road","temperatureControl":"refrigerated","truckLoadingSequence":"FTL","energyCarriers":[{"energyCarrier":"Diesel","emissionFactorWTW":"3.6801","emissionFactorTTW":"3.2801", "relativeShare": "1"}],"co2eIntensityWTW":"3.6801","co2eIntensityTTW":"3.2801","transportActivityUnit":"tkm"}"#,
         Toc {
             toc_id: "4561230".to_string(),
             certifications: None,
@@ -62,6 +62,7 @@ fn test_toc_deser() {
                 feedstocks: None,
                 energy_consumption: None,
                 energy_consumption_unit: None,
+                relative_share: dec!(1).into(),
             }]
             .into(),
             co2e_intensity_wtw: dec!(3.6801).into(),

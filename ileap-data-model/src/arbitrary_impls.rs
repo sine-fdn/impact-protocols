@@ -63,6 +63,20 @@ impl Arbitrary for ShipmentFootprint {
     }
 }
 
+fn energy_carriers(g: &mut quickcheck::Gen) -> NonEmptyVec<EnergyCarrier> {
+    let mut carriers = NonEmptyVec::<EnergyCarrier>::arbitrary(g);
+    while carriers
+        .0
+        .iter()
+        .map(|ec| ec.relative_share.0)
+        .sum::<Decimal>()
+        > Decimal::from(1)
+    {
+        carriers = NonEmptyVec::<EnergyCarrier>::arbitrary(g);
+    }
+    carriers
+}
+
 impl Arbitrary for Hoc {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
         fn gen_diff_transport_modes(
@@ -116,7 +130,7 @@ impl Arbitrary for Hoc {
             inbound_transport_mode,
             outbound_transport_mode,
             packaging_or_tr_eq_type: Option::<PackagingOrTrEqType>::arbitrary(g),
-            energy_carriers: NonEmptyVec::<EnergyCarrier>::arbitrary(g),
+            energy_carriers: energy_carriers(g),
             co2e_intensity_wtw: arbitrary_wrapped_decimal(g),
             co2e_intensity_ttw: arbitrary_wrapped_decimal(g),
             hub_activity_unit: HubActivityUnit::arbitrary(g),
@@ -182,6 +196,13 @@ fn arbitrary_option_factor(g: &mut quickcheck::Gen) -> Option<String> {
     Some(rand_factor.to_string())
 }
 
+fn arbitrary_share(g: &mut quickcheck::Gen) -> WrappedDecimal {
+    let rand_num = u8::arbitrary(g) % 10 + 1;
+    let rand_factor: Decimal = Decimal::new(rand_num as i64, 1);
+
+    WrappedDecimal::from(rand_factor)
+}
+
 impl Arbitrary for Toc {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
         let mode = TransportMode::arbitrary(g);
@@ -204,7 +225,7 @@ impl Arbitrary for Toc {
             truck_loading_sequence: Option::<TruckLoadingSequence>::arbitrary(g),
             air_shipping_option,
             flight_length,
-            energy_carriers: NonEmptyVec::<EnergyCarrier>::arbitrary(g),
+            energy_carriers: energy_carriers(g),
             co2e_intensity_wtw: arbitrary_wrapped_decimal(g),
             co2e_intensity_ttw: arbitrary_wrapped_decimal(g),
             transport_activity_unit: TransportActivityUnit::arbitrary(g),
@@ -381,6 +402,7 @@ impl Arbitrary for EnergyCarrier {
             energy_consumption_unit: Option::<EnergyConsumptionUnit>::arbitrary(g),
             emission_factor_wtw: arbitrary_wrapped_decimal(g),
             emission_factor_ttw: arbitrary_wrapped_decimal(g),
+            relative_share: arbitrary_share(g),
         }
     }
 }

@@ -391,6 +391,7 @@ fn toc_to_pcf() {
             energy_consumption_unit: Some(crate::EnergyConsumptionUnit::MJ),
             emission_factor_wtw: dec!(97).into(),
             emission_factor_ttw: dec!(0).into(),
+            relative_share: dec!(1).into(),
         }]
         .into(),
         co2e_intensity_wtw: dec!(0.007).into(),
@@ -443,6 +444,7 @@ fn hoc_to_pfc() {
                 energy_consumption_unit: Some(crate::EnergyConsumptionUnit::Kg),
                 emission_factor_wtw: dec!(4.13).into(),
                 emission_factor_ttw: dec!(3.17).into(),
+                relative_share: dec!(0.5).into(),
             },
             EnergyCarrier {
                 energy_carrier: EnergyCarrierType::Electric,
@@ -451,6 +453,7 @@ fn hoc_to_pfc() {
                 energy_consumption_unit: Some(crate::EnergyConsumptionUnit::MJ),
                 emission_factor_wtw: dec!(97).into(),
                 emission_factor_ttw: dec!(0).into(),
+                relative_share: dec!(0.5).into(),
             },
         ]
         .into(),

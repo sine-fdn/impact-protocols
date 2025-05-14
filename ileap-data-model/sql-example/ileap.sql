@@ -144,7 +144,8 @@ CREATE TABLE energycarrier(
     energy_consumption DECIMAL(18, 6),
     energy_consumption_unit varchar(255),
     emission_factor_wtw DECIMAL(18, 6) NOT NULL,
-    emission_factor_ttw DECIMAL(18, 6) NOT NULL
+    emission_factor_ttw DECIMAL(18, 6) NOT NULL,
+    relative_share DECIMAL(5, 2) CHECK (relative_share > 0 AND relative_share <= 1.00) NOT NULL
 );
 
 -- Table for Feedstock (assuming the existing structure for Feedstock)
