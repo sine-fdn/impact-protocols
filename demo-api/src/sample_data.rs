@@ -1379,6 +1379,7 @@ fn demo_tad_base(activity_id: String, consignment_id: String, feedstock: Feedsto
             feedstock_share: Some(WrappedDecimal(Decimal::new(8, 1))),
             region_provenance: None,
         }]),
+        temperature_control: None,
     }
 }
 

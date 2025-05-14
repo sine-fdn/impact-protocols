@@ -132,7 +132,8 @@ CREATE TABLE tad(
     mode varchar(50) CHECK (mode IN ('Road', 'Rail', 'Air', 'Sea', 'InlandWaterway')),
     packaging_or_tr_eq_type varchar(255) CHECK (packaging_or_tr_eq_type IN ('Box', 'Pallet', 'Container')),
     packaging_or_tr_eq_amount int,
-    energy_carrier varchar(50) CHECK (energy_carrier IN ('Diesel', 'HVO', 'Petrol', 'CNG', 'LNG', 'LPG', 'HFO', 'MGO', 'Aviation fuel', 'Hydrogen', 'Methanol', 'Electric'))
+    energy_carrier varchar(50) CHECK (energy_carrier IN ('Diesel', 'HVO', 'Petrol', 'CNG', 'LNG', 'LPG', 'HFO', 'MGO', 'Aviation fuel', 'Hydrogen', 'Methanol', 'Electric')),
+    temperature_control varchar(50) CHECK (temperature_control IN ('ambient', 'refrigerated'))
 );
 
 -- Table for EnergyCarrier (assuming the existing structure for EnergyCarrier)

@@ -165,6 +165,13 @@ pub enum TemperatureControl {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum TadTempControl {
+    Ambient,
+    Refrigerated,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum TruckLoadingSequence {
     Ltl,
@@ -264,6 +271,8 @@ pub struct Tad {
     // "Option::is_none")] pub energy_carrier: EnergyCarrier,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub feedstocks: Option<Vec<Feedstock>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub temperature_control: Option<TadTempControl>,
 }
 
 pub type ActivityId = String;

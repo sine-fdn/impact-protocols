@@ -216,6 +216,16 @@
           "items": {
             "$ref": "#/definitions/Feedstock"
           }
+        },
+        "temperatureControl": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TadTempControl"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -408,6 +418,13 @@
         "Grid",
         "Renewable electricity",
         "Cooking oil"
+      ]
+    },
+    "TadTempControl": {
+      "type": "string",
+      "enum": [
+        "ambient",
+        "refrigerated"
       ]
     },
     "PfId": {
