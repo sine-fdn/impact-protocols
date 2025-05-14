@@ -700,7 +700,7 @@ lazy_static!(
                                 energy_carrier: EnergyCarrierType::Diesel,
                                 feedstocks: Some(vec![Feedstock {
                                     feedstock: FeedstockType::Fossil,
-                                    feedstock_percentage: None,
+                                    feedstock_share: None,
                                     region_provenance: Some("Europe".to_string()),
                                 }]),
                                 energy_consumption: None,
@@ -790,7 +790,7 @@ lazy_static!(
                                 energy_carrier: EnergyCarrierType::Diesel,
                                 feedstocks: Some(vec![Feedstock {
                                     feedstock: FeedstockType::Fossil,
-                                    feedstock_percentage: None,
+                                    feedstock_share: None,
                                     region_provenance: Some("Europe".to_string()),
                                 }]),
                                 energy_consumption: None,
@@ -880,7 +880,7 @@ lazy_static!(
                                 energy_carrier: EnergyCarrierType::Diesel,
                                 feedstocks: Some(vec![Feedstock {
                                     feedstock: FeedstockType::Fossil,
-                                    feedstock_percentage: None,
+                                    feedstock_share: None,
                                     region_provenance: Some("Europe".to_string()),
                                 }]),
                                 energy_consumption: None,
@@ -971,7 +971,7 @@ lazy_static!(
                                 energy_carrier: EnergyCarrierType::Electric,
                                 feedstocks: Some(vec![Feedstock {
                                     feedstock: FeedstockType::Grid,
-                                    feedstock_percentage: None,
+                                    feedstock_share: None,
                                     region_provenance: Some("Europe".to_string()),
                                 }]),
                                 energy_consumption: None,
@@ -1361,7 +1361,7 @@ fn demo_tad_base(activity_id: String, consignment_id: String, feedstock: Feedsto
         //     energy_carrier: "Diesel".into(),
         //     feedstocks: Some(vec![Feedstock {
         //         feedstock,
-        //         feedstock_percentage: Some(1.0),
+        //         feedstock_share: Some(1.0),
         //     }]),
         //     energy_consumption: Some(dec!(10.0).into()),
         //     energy_consumption_unit: Some("kg".into()),
@@ -1372,7 +1372,7 @@ fn demo_tad_base(activity_id: String, consignment_id: String, feedstock: Feedsto
         empty_distance_factor: Some(dec!(0.1).into()),
         feedstocks: Some(vec![Feedstock {
             feedstock,
-            feedstock_percentage: Some(WrappedDecimal(Decimal::new(8, 1))),
+            feedstock_share: Some(WrappedDecimal(Decimal::new(8, 1))),
             region_provenance: None,
         }]),
     }

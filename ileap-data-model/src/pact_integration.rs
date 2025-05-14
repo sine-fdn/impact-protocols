@@ -384,7 +384,7 @@ fn toc_to_pcf() {
             energy_carrier: EnergyCarrierType::Electric,
             feedstocks: Some(vec![Feedstock {
                 feedstock: FeedstockType::Grid,
-                feedstock_percentage: None,
+                feedstock_share: None,
                 region_provenance: Some("Europe".to_string()),
             }]),
             energy_consumption: None,

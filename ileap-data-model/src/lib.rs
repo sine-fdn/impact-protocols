@@ -384,7 +384,7 @@ pub enum EnergyConsumptionUnit {
 pub struct Feedstock {
     pub feedstock: FeedstockType,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub feedstock_percentage: Option<WrappedDecimal>,
+    pub feedstock_share: Option<WrappedDecimal>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub region_provenance: Option<String>,
 }

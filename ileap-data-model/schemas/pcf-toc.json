@@ -340,7 +340,7 @@
         "feedstock": {
           "$ref": "#/definitions/FeedstockType"
         },
-        "feedstockPercentage": {
+        "feedstockShare": {
           "anyOf": [
             {
               "$ref": "#/definitions/Decimal"

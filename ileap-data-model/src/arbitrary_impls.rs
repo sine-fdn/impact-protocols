@@ -303,7 +303,7 @@ impl Arbitrary for EnergyCarrier {
                 let total_percentage: Decimal = feedstocks
                     .iter()
                     .map(|f| {
-                        f.feedstock_percentage
+                        f.feedstock_share
                             .as_ref()
                             .map(|p| p.0)
                             .unwrap_or(Decimal::from(0))
@@ -312,7 +312,7 @@ impl Arbitrary for EnergyCarrier {
 
                 if total_percentage > Decimal::from(1) {
                     for feedstock in &mut feedstocks {
-                        feedstock.feedstock_percentage = None
+                        feedstock.feedstock_share = None
                     }
                 }
 
@@ -427,9 +427,9 @@ impl Arbitrary for EnergyConsumptionUnit {
 
 impl Arbitrary for Feedstock {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-        let feedstock_percentage = arbitrary_option_wrapped_decimal(g);
+        let feedstock_share = arbitrary_option_wrapped_decimal(g);
 
-        let feedstock_percentage = match feedstock_percentage {
+        let feedstock_share = match feedstock_share {
             None => None,
             Some(f) => {
                 let decimal = (f.0 / Decimal::from(u16::MAX)).round_dp(1);
@@ -439,7 +439,7 @@ impl Arbitrary for Feedstock {
 
         Feedstock {
             feedstock: FeedstockType::arbitrary(g),
-            feedstock_percentage,
+            feedstock_share,
             // Currently None for simplicity.
             region_provenance: None,
         }
