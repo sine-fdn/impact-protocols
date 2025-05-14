@@ -119,7 +119,7 @@ impl Arbitrary for Hoc {
             energy_carriers: NonEmptyVec::<EnergyCarrier>::arbitrary(g),
             co2e_intensity_wtw: arbitrary_wrapped_decimal(g),
             co2e_intensity_ttw: arbitrary_wrapped_decimal(g),
-            co2e_intensity_throughput: HocCo2eIntensityThroughput::arbitrary(g),
+            hub_activity_unit: HubActivityUnit::arbitrary(g),
             // Currently None for simplicity.
             description: None,
             hub_location: None,
@@ -128,14 +128,14 @@ impl Arbitrary for Hoc {
     }
 }
 
-impl Arbitrary for HocCo2eIntensityThroughput {
+impl Arbitrary for HubActivityUnit {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-        let hoc_co2e_intensity_throughput = &[
-            HocCo2eIntensityThroughput::TEU,
-            HocCo2eIntensityThroughput::Tonnes,
+        let hub_activity_unit = &[
+            HubActivityUnit::TEU,
+            HubActivityUnit::Tonnes,
         ];
 
-        g.choose(hoc_co2e_intensity_throughput).unwrap().to_owned()
+        g.choose(hub_activity_unit).unwrap().to_owned()
     }
 }
 
@@ -210,21 +210,21 @@ impl Arbitrary for Toc {
             energy_carriers: NonEmptyVec::<EnergyCarrier>::arbitrary(g),
             co2e_intensity_wtw: arbitrary_wrapped_decimal(g),
             co2e_intensity_ttw: arbitrary_wrapped_decimal(g),
-            co2e_intensity_throughput: TocCo2eIntensityThroughput::arbitrary(g),
+            transport_activity_unit: TransportActivityUnit::arbitrary(g),
             // Currently None for simplicity.
             description: None,
         }
     }
 }
 
-impl Arbitrary for TocCo2eIntensityThroughput {
+impl Arbitrary for TransportActivityUnit {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-        let toc_co2e_intensity_throughput = &[
-            TocCo2eIntensityThroughput::Tkm,
-            TocCo2eIntensityThroughput::TEUkm,
+        let transport_activity_unit = &[
+            TransportActivityUnit::Tkm,
+            TransportActivityUnit::TEUkm,
         ];
 
-        g.choose(toc_co2e_intensity_throughput).unwrap().to_owned()
+        g.choose(transport_activity_unit).unwrap().to_owned()
     }
 }
 

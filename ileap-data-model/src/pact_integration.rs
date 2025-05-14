@@ -10,7 +10,7 @@ use schemars::JsonSchema;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::{Hoc, HocCo2eIntensityThroughput, ShipmentFootprint, Toc};
+use crate::{Hoc, HubActivityUnit, ShipmentFootprint, Toc};
 
 /*pub enum HocTeuContainerSize {
     Normal,
@@ -74,11 +74,11 @@ impl From<&Hoc> for PactMappedFields {
             product_name_company: format!("HOC with ID {}", hoc.hoc_id),
             declared_unit: DeclaredUnit::Kilogram,
             unitary_product_amount: Decimal::from(1000),
-            p_cf_excluding_biogenic: match hoc.co2e_intensity_throughput {
-                HocCo2eIntensityThroughput::TEU => {
+            p_cf_excluding_biogenic: match hoc.hub_activity_unit {
+                HubActivityUnit::TEU => {
                     panic!("HOC with TEU throughput is not supported, yet")
                 }
-                HocCo2eIntensityThroughput::Tonnes => hoc.co2e_intensity_wtw.0,
+                HubActivityUnit::Tonnes => hoc.co2e_intensity_wtw.0,
             },
         }
     }
@@ -369,7 +369,7 @@ fn ship_foot_to_pfc() {
 fn toc_to_pcf() {
     use crate::{
         EnergyCarrier, EnergyCarrierType, Feedstock, FeedstockType, TemperatureControl, Toc,
-        TocCo2eIntensityThroughput, TransportMode,
+        TransportActivityUnit, TransportMode,
     };
     use rust_decimal_macros::dec;
 
@@ -395,7 +395,7 @@ fn toc_to_pcf() {
         .into(),
         co2e_intensity_wtw: dec!(0.007).into(),
         co2e_intensity_ttw: dec!(0).into(),
-        co2e_intensity_throughput: TocCo2eIntensityThroughput::Tkm,
+        transport_activity_unit: TransportActivityUnit::Tkm,
         certifications: None,
         description: None,
         air_shipping_option: None,
@@ -456,7 +456,7 @@ fn hoc_to_pfc() {
         .into(),
         co2e_intensity_wtw: dec!(33).into(),
         co2e_intensity_ttw: dec!(10).into(),
-        co2e_intensity_throughput: HocCo2eIntensityThroughput::Tonnes,
+        hub_activity_unit: HubActivityUnit::Tonnes,
     };
 
     let pfc = to_pcf(

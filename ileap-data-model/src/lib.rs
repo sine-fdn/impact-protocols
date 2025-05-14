@@ -149,12 +149,12 @@ pub struct Toc {
     pub co2e_intensity_wtw: WrappedDecimal,
     #[serde(rename = "co2eIntensityTTW")]
     pub co2e_intensity_ttw: WrappedDecimal,
-    pub co2e_intensity_throughput: TocCo2eIntensityThroughput,
+    pub transport_activity_unit: TransportActivityUnit,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub enum TocCo2eIntensityThroughput {
+pub enum TransportActivityUnit {
     #[serde(rename = "TEUkm")]
     TEUkm,
     Tkm,
@@ -218,12 +218,12 @@ pub struct Hoc {
     pub co2e_intensity_wtw: WrappedDecimal,
     #[serde(rename = "co2eIntensityTTW")]
     pub co2e_intensity_ttw: WrappedDecimal,
-    pub co2e_intensity_throughput: HocCo2eIntensityThroughput,
+    pub hub_activity_unit: HubActivityUnit,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub enum HocCo2eIntensityThroughput {
+pub enum HubActivityUnit {
     #[serde(rename = "TEU")]
     TEU,
     Tonnes,

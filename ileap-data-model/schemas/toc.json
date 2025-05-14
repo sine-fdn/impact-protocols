@@ -4,11 +4,11 @@
   "type": "object",
   "required": [
     "co2eIntensityTTW",
-    "co2eIntensityThroughput",
     "co2eIntensityWTW",
     "energyCarriers",
     "mode",
-    "tocId"
+    "tocId",
+    "transportActivityUnit"
   ],
   "properties": {
     "tocId": {
@@ -94,8 +94,8 @@
     "co2eIntensityTTW": {
       "$ref": "#/definitions/Decimal"
     },
-    "co2eIntensityThroughput": {
-      "$ref": "#/definitions/TocCo2eIntensityThroughput"
+    "transportActivityUnit": {
+      "$ref": "#/definitions/TransportActivityUnit"
     }
   },
   "definitions": {
@@ -274,7 +274,7 @@
         "MJ"
       ]
     },
-    "TocCo2eIntensityThroughput": {
+    "TransportActivityUnit": {
       "type": "string",
       "enum": [
         "TEUkm",

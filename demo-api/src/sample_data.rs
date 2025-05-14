@@ -710,7 +710,7 @@ lazy_static!(
                             }].into(),
                             co2e_intensity_wtw: dec!(0.116).into(),
                             co2e_intensity_ttw: dec!(0.089).into(),
-                            co2e_intensity_throughput: TocCo2eIntensityThroughput::Tkm
+                            transport_activity_unit: TransportActivityUnit::Tkm
                         },
                     )
                 ),
@@ -800,7 +800,7 @@ lazy_static!(
                             }].into(),
                             co2e_intensity_wtw: dec!(0.116).into(),
                             co2e_intensity_ttw: dec!(0.089).into(),
-                            co2e_intensity_throughput: TocCo2eIntensityThroughput::Tkm
+                            transport_activity_unit: TransportActivityUnit::Tkm
                         },
                     )
                 ),
@@ -890,7 +890,7 @@ lazy_static!(
                             }].into(),
                             co2e_intensity_wtw: dec!(0.793).into(),
                             co2e_intensity_ttw: dec!(0.609).into(),
-                            co2e_intensity_throughput: TocCo2eIntensityThroughput::Tkm
+                            transport_activity_unit: TransportActivityUnit::Tkm
                         },
                     )
                 ),
@@ -981,7 +981,7 @@ lazy_static!(
                             }].into(),
                             co2e_intensity_wtw: dec!(0.007).into(),
                             co2e_intensity_ttw: dec!(0).into(),
-                            co2e_intensity_throughput: TocCo2eIntensityThroughput::Tkm
+                            transport_activity_unit: TransportActivityUnit::Tkm
                         }
                     )),
             }
@@ -1163,7 +1163,7 @@ struct TocArgs {
     energy_carriers: NonEmptyVec<EnergyCarrier>,
     co2e_intensity_wtw: WrappedDecimal,
     co2e_intensity_ttw: WrappedDecimal,
-    co2e_intensity_throughput: TocCo2eIntensityThroughput,
+    transport_activity_unit: TransportActivityUnit,
 }
 
 fn toc(
@@ -1177,7 +1177,7 @@ fn toc(
         energy_carriers,
         co2e_intensity_wtw,
         co2e_intensity_ttw,
-        co2e_intensity_throughput,
+        transport_activity_unit,
     }: TocArgs,
 ) -> Toc {
     Toc {
@@ -1194,7 +1194,7 @@ fn toc(
         energy_carriers,
         co2e_intensity_wtw,
         co2e_intensity_ttw,
-        co2e_intensity_throughput,
+        transport_activity_unit,
     }
 }
 
@@ -1247,7 +1247,7 @@ fn hoc(
         .into(),
         co2e_intensity_wtw: dec!(33).into(),
         co2e_intensity_ttw: dec!(10).into(),
-        co2e_intensity_throughput: HocCo2eIntensityThroughput::Tonnes,
+        hub_activity_unit: HubActivityUnit::Tonnes,
     }
 }
 

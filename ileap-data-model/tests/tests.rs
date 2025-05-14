@@ -66,7 +66,7 @@ fn test_toc_deser() {
             .into(),
             co2e_intensity_wtw: dec!(3.6801).into(),
             co2e_intensity_ttw: dec!(3.2801).into(),
-            co2e_intensity_throughput: TocCo2eIntensityThroughput::Tkm,
+            transport_activity_unit: TransportActivityUnit::Tkm,
             description: None,
             load_factor: None,
             empty_distance_factor: None,
