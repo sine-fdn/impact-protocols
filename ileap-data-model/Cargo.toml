@@ -17,4 +17,4 @@ rust_decimal_macros = "^1.37"
 regex = "1.11.1"
 quickcheck = "1"
 quickcheck_macros = "1"
-uuid = { version = "1.16", features = ["v4", "serde"] }
+uuid = { version = "1.17", features = ["v4", "serde"] }
