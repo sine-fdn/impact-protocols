@@ -471,6 +471,7 @@ fn post_event(
     println!("data = {event:#?}");
 
     let res = if let Some(event) = event {
+
         match event.data {
             PathfinderEventData::PFUpdateEvent(_) => EventsApiResponse::Ok(()),
             PathfinderEventData::PFRequestEvent(_) => EventsApiResponse::Ok(()),
