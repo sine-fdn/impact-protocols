@@ -461,7 +461,7 @@ fn get_pcf_unauth(_id: &str) -> error::BadRequest {
 }
 
 #[openapi]
-#[post("/2/events", data = "<event>", format = "json")]
+#[post("/2/events", data = "<event>", format = "application/cloudevents+json")]
 fn post_event(
     auth: UserToken,
     event: Option<rocket::serde::json::Json<PathfinderEvent>>,
