@@ -676,7 +676,7 @@ fn create_server(key_pair: KeyPair) -> rocket::Rocket<rocket::Build> {
 }
 
 #[rocket::main]
-async fn main() -> Result<(), RocketError> {
+async fn main() -> Result<(), Box<RocketError>> {
     let rocket = create_server(load_keys());
     let _ = rocket.launch().await?;
     Ok(())
