@@ -1,11 +1,14 @@
 app = "ileap-preview"
 kill_signal = "SIGINT"
 kill_timeout = "5s"
-primary_region = "ams"
+primary_region = "fra"
 
 [env]
 PORT = "8000"
-PRIMARY_REGION = "ams"
+PRIMARY_REGION = "fra"
+
+[build]
+  dockerfile = "Dockerfile"
 
 [[services]]
 internal_port = 8_000

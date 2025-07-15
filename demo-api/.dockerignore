@@ -1,10 +1,54 @@
-# flyctl launch added from .gitignore
+# Build artifacts
 **/target
 **/target_lambda
+
+# Environment and secrets
 **/.env
+**/.env.*
 **/keypair.pem
 
-# flyctl launch added from venv/.gitignore
-# created by virtualenv automatically
+# Virtual environments
 venv/**/*
+
+# Config files
 fly.toml
+fly.*.toml
+
+# Version control
+.git
+.gitignore
+
+# Editor files
+*.swp
+*.swo
+*.swn
+*.bak
+*.tmp
+*.log
+.vscode
+.idea
+.DS_Store
+*~
+
+# Documentation and non-essential files
+README.md
+BACKLOG.md
+LICENSE
+**/*.md
+!Cargo.toml
+!**/Cargo.toml
+
+# Test files
+**/tests
+**/*_test.rs
+**/*_tests.rs
+
+# Scripts
+scripts/
+Makefile
+
+# Other
+*.orig
+.coverage
+.pytest_cache
+node_modules
