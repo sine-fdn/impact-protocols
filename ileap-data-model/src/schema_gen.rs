@@ -77,7 +77,7 @@ pub fn gen_pcf_with_extension<T: schemars::JsonSchema>(type_name: &str) -> RootS
                     "data".to_string(),
                     Schema::Object(SchemaObject {
                         instance_type: None,
-                        reference: Some(format!("#/definitions/{}", type_name)),
+                        reference: Some(format!("#/definitions/{type_name}")),
                         ..Default::default()
                     }),
                 ),
@@ -94,8 +94,8 @@ pub fn gen_pcf_with_extension<T: schemars::JsonSchema>(type_name: &str) -> RootS
         .insert("DataModelExtension".to_string(), Schema::Object(dme_schema));
 
     if let Some(ref mut metadata) = pcf_schema.schema.metadata {
-        metadata.title = Some(format!("ProductFootprint_with_{}_Extension", type_name));
-        metadata.description = Some(format!("Data Type \"ProductFootprint\" of PACT Tech Spec Version 2 with {} as a DataModelExtension", type_name));
+        metadata.title = Some(format!("ProductFootprint_with_{type_name}_Extension"));
+        metadata.description = Some(format!("Data Type \"ProductFootprint\" of PACT Tech Spec Version 2 with {type_name} as a DataModelExtension"));
     };
 
     pcf_schema
