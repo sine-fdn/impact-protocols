@@ -507,7 +507,7 @@ fn flatten_json(map: Map<String, Value>) -> HashMap<String, String> {
             Value::Object(inner_map) => {
                 let inner_flattened = flatten_json(inner_map);
                 for (inner_key, inner_value) in inner_flattened {
-                    let new_key = format!("{}.{}", key, inner_key);
+                    let new_key = format!("{key}.{inner_key}");
                     flattened_map.insert(new_key, inner_value.to_lowercase());
                 }
             }
@@ -523,7 +523,7 @@ fn flatten_json(map: Map<String, Value>) -> HashMap<String, String> {
                     let inner_flattened = flatten_json(e.as_object().unwrap().clone());
 
                     for (inner_key, inner_value) in inner_flattened {
-                        let new_key = format!("{}[{}].{}", key, i, inner_key);
+                        let new_key = format!("{key}[{i}].{inner_key}");
                         flattened_map.insert(new_key, inner_value.to_lowercase());
                     }
                 }
@@ -693,7 +693,7 @@ lazy_static! {
 // tests the /auth/token endpoint
 #[test]
 fn post_auth_action_test() {
-    use base64::engine::general_purpose::STANDARD;
+    use base64::{engine::general_purpose::STANDARD, Engine as _};
     use std::collections::HashMap;
 
     let auth_uri = "/auth/token";
@@ -736,8 +736,7 @@ fn post_auth_action_test() {
 
     // valid credentials
     {
-        let credentials =
-            STANDARD.encode(format!("{}:{}", DEMO_GLOBAL_USERNAME, DEMO_GLOBAL_PASSWORD));
+        let credentials = STANDARD.encode(format!("{DEMO_GLOBAL_USERNAME}:{DEMO_GLOBAL_PASSWORD}"));
         let basic_auth = format!("Basic {credentials}");
 
         let resp = client
