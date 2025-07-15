@@ -693,7 +693,7 @@ lazy_static! {
 // tests the /auth/token endpoint
 #[test]
 fn post_auth_action_test() {
-    use base64::engine::general_purpose::STANDARD;
+    use base64::{engine::general_purpose::STANDARD, Engine as _};
     use std::collections::HashMap;
 
     let auth_uri = "/auth/token";
@@ -736,8 +736,7 @@ fn post_auth_action_test() {
 
     // valid credentials
     {
-        let credentials =
-            STANDARD.encode(format!("{DEMO_GLOBAL_USERNAME}:{DEMO_GLOBAL_PASSWORD}"));
+        let credentials = STANDARD.encode(format!("{DEMO_GLOBAL_USERNAME}:{DEMO_GLOBAL_PASSWORD}"));
         let basic_auth = format!("Basic {credentials}");
 
         let resp = client
