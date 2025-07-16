@@ -35,10 +35,6 @@ pub struct ShipmentFootprint {
     pub mass: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub volume: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub number_of_items: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_of_items: Option<String>,
     pub shipment_id: String,
     pub tces: NonEmptyVec<Tce>,
 }
@@ -112,11 +108,23 @@ pub enum Incoterms {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+pub enum Certification {
+    #[serde(rename = "ISO14083:2023")]
+    ISO14083_2023,
+    #[serde(rename = "GLECv2")]
+    GlecV2,
+    #[serde(rename = "GLECv3")]
+    GlecV3,
+    #[serde(rename = "GLECv3.1")]
+    GlecV3_1,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase", rename = "TOC")]
 pub struct Toc {
     pub toc_id: String,
-    pub is_verified: bool,
-    pub is_accredited: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub certifications: Option<NonEmptyVec<Certification>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     pub mode: TransportMode,
@@ -137,14 +145,12 @@ pub struct Toc {
     pub co2e_intensity_wtw: WrappedDecimal,
     #[serde(rename = "co2eIntensityTTW")]
     pub co2e_intensity_ttw: WrappedDecimal,
-    pub co2e_intensity_throughput: TocCo2eIntensityThroughput,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub glec_data_quality_index: Option<GlecDataQualityIndex>,
+    pub transport_activity_unit: TransportActivityUnit,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub enum TocCo2eIntensityThroughput {
+pub enum TransportActivityUnit {
     #[serde(rename = "TEUkm")]
     TEUkm,
     Tkm,
@@ -156,6 +162,13 @@ pub enum TemperatureControl {
     Ambient,
     Refrigerated,
     Mixed,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum TadTempControl {
+    Ambient,
+    Refrigerated,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
@@ -183,18 +196,13 @@ pub enum FlightLength {
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
-#[serde(rename_all = "camelCase")]
-// TODO: use a floating point or a decimal instead.
-pub struct GlecDataQualityIndex(pub u8);
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
 #[serde(rename_all = "camelCase", rename = "HOC")]
 pub struct Hoc {
     pub hoc_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    pub is_verified: bool,
-    pub is_accredited: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub certifications: Option<NonEmptyVec<Certification>>,
     pub hub_type: HubType,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub temperature_control: Option<TemperatureControl>,
@@ -213,12 +221,12 @@ pub struct Hoc {
     pub co2e_intensity_wtw: WrappedDecimal,
     #[serde(rename = "co2eIntensityTTW")]
     pub co2e_intensity_ttw: WrappedDecimal,
-    pub co2e_intensity_throughput: HocCo2eIntensityThroughput,
+    pub hub_activity_unit: HubActivityUnit,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub enum HocCo2eIntensityThroughput {
+pub enum HubActivityUnit {
     #[serde(rename = "TEU")]
     TEU,
     Tonnes,
@@ -263,6 +271,8 @@ pub struct Tad {
     // "Option::is_none")] pub energy_carrier: EnergyCarrier,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub feedstocks: Option<Vec<Feedstock>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub temperature_control: Option<TadTempControl>,
 }
 
 pub type ActivityId = String;
@@ -322,6 +332,10 @@ pub enum TransportMode {
 pub enum PackagingOrTrEqType {
     Box,
     Pallet,
+    #[serde(rename = "Container-TEU")]
+    ContainerTEU,
+    #[serde(rename = "Container-FEU")]
+    ContainerFEU,
     Container,
 }
 
@@ -339,6 +353,7 @@ pub struct EnergyCarrier {
     pub emission_factor_wtw: WrappedDecimal,
     #[serde(rename = "emissionFactorTTW")]
     pub emission_factor_ttw: WrappedDecimal,
+    pub relative_share: WrappedDecimal,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
@@ -379,7 +394,7 @@ pub enum EnergyConsumptionUnit {
 pub struct Feedstock {
     pub feedstock: FeedstockType,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub feedstock_percentage: Option<WrappedDecimal>,
+    pub feedstock_share: Option<WrappedDecimal>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub region_provenance: Option<String>,
 }
@@ -447,16 +462,6 @@ impl<T> From<Vec<T>> for NonEmptyVec<T> {
             panic!("Vector must not be empty")
         } else {
             NonEmptyVec(v)
-        }
-    }
-}
-
-impl From<u8> for GlecDataQualityIndex {
-    fn from(v: u8) -> GlecDataQualityIndex {
-        if v > 4 {
-            panic!("Glec Data Quality Index must be between 0 and 4")
-        } else {
-            GlecDataQualityIndex(v)
         }
     }
 }
