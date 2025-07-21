@@ -10,7 +10,7 @@ use schemars::JsonSchema;
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::{Hoc, HocCo2eIntensityThroughput, ShipmentFootprint, Toc};
+use crate::{Hoc, HubActivityUnit, ShipmentFootprint, Toc};
 
 /*pub enum HocTeuContainerSize {
     Normal,
@@ -74,11 +74,11 @@ impl From<&Hoc> for PactMappedFields {
             product_name_company: format!("HOC with ID {}", hoc.hoc_id),
             declared_unit: DeclaredUnit::Kilogram,
             unitary_product_amount: Decimal::from(1000),
-            p_cf_excluding_biogenic: match hoc.co2e_intensity_throughput {
-                HocCo2eIntensityThroughput::TEU => {
+            p_cf_excluding_biogenic: match hoc.hub_activity_unit {
+                HubActivityUnit::TEU => {
                     panic!("HOC with TEU throughput is not supported, yet")
                 }
-                HocCo2eIntensityThroughput::Tonnes => hoc.co2e_intensity_wtw.0,
+                HubActivityUnit::Tonnes => hoc.co2e_intensity_wtw.0,
             },
         }
     }
@@ -343,8 +343,6 @@ fn ship_foot_to_pfc() {
         .into(),
         mass: "40000".to_string(),
         volume: None,
-        number_of_items: None,
-        type_of_items: None,
     };
 
     let pfc = to_pcf(
@@ -369,7 +367,7 @@ fn ship_foot_to_pfc() {
 fn toc_to_pcf() {
     use crate::{
         EnergyCarrier, EnergyCarrierType, Feedstock, FeedstockType, TemperatureControl, Toc,
-        TocCo2eIntensityThroughput, TransportMode,
+        TransportActivityUnit, TransportMode,
     };
     use rust_decimal_macros::dec;
 
@@ -384,24 +382,23 @@ fn toc_to_pcf() {
             energy_carrier: EnergyCarrierType::Electric,
             feedstocks: Some(vec![Feedstock {
                 feedstock: FeedstockType::Grid,
-                feedstock_percentage: None,
+                feedstock_share: None,
                 region_provenance: Some("Europe".to_string()),
             }]),
             energy_consumption: None,
             energy_consumption_unit: Some(crate::EnergyConsumptionUnit::MJ),
             emission_factor_wtw: dec!(97).into(),
             emission_factor_ttw: dec!(0).into(),
+            relative_share: dec!(1).into(),
         }]
         .into(),
         co2e_intensity_wtw: dec!(0.007).into(),
         co2e_intensity_ttw: dec!(0).into(),
-        co2e_intensity_throughput: TocCo2eIntensityThroughput::Tkm,
-        is_verified: true,
-        is_accredited: true,
+        transport_activity_unit: TransportActivityUnit::Tkm,
+        certifications: None,
         description: None,
         air_shipping_option: None,
         flight_length: None,
-        glec_data_quality_index: None,
     };
 
     let pfc = to_pcf(
@@ -432,8 +429,7 @@ fn hoc_to_pfc() {
         temperature_control: Some(TemperatureControl::Refrigerated),
         inbound_transport_mode: Some(TransportMode::Road),
         outbound_transport_mode: Some(TransportMode::Rail),
-        is_verified: true,
-        is_accredited: true,
+        certifications: None,
         hub_location: None,
         packaging_or_tr_eq_type: None,
         packaging_or_tr_eq_amount: None,
@@ -446,6 +442,7 @@ fn hoc_to_pfc() {
                 energy_consumption_unit: Some(crate::EnergyConsumptionUnit::Kg),
                 emission_factor_wtw: dec!(4.13).into(),
                 emission_factor_ttw: dec!(3.17).into(),
+                relative_share: dec!(0.5).into(),
             },
             EnergyCarrier {
                 energy_carrier: EnergyCarrierType::Electric,
@@ -454,12 +451,13 @@ fn hoc_to_pfc() {
                 energy_consumption_unit: Some(crate::EnergyConsumptionUnit::MJ),
                 emission_factor_wtw: dec!(97).into(),
                 emission_factor_ttw: dec!(0).into(),
+                relative_share: dec!(0.5).into(),
             },
         ]
         .into(),
         co2e_intensity_wtw: dec!(33).into(),
         co2e_intensity_ttw: dec!(10).into(),
-        co2e_intensity_throughput: HocCo2eIntensityThroughput::Tonnes,
+        hub_activity_unit: HubActivityUnit::Tonnes,
     };
 
     let pfc = to_pcf(
