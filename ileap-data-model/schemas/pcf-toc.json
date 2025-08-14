@@ -111,23 +111,25 @@
       "type": "object",
       "required": [
         "co2eIntensityTTW",
-        "co2eIntensityThroughput",
         "co2eIntensityWTW",
         "energyCarriers",
-        "isAccredited",
-        "isVerified",
         "mode",
-        "tocId"
+        "tocId",
+        "transportActivityUnit"
       ],
       "properties": {
         "tocId": {
           "type": "string"
         },
-        "isVerified": {
-          "type": "boolean"
-        },
-        "isAccredited": {
-          "type": "boolean"
+        "certifications": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/NonEmptyVec_for_Certification"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "description": {
           "type": [
@@ -199,20 +201,25 @@
         "co2eIntensityTTW": {
           "$ref": "#/definitions/Decimal"
         },
-        "co2eIntensityThroughput": {
-          "$ref": "#/definitions/TocCo2eIntensityThroughput"
-        },
-        "glecDataQualityIndex": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/GlecDataQualityIndex"
-            },
-            {
-              "type": "null"
-            }
-          ]
+        "transportActivityUnit": {
+          "$ref": "#/definitions/TransportActivityUnit"
         }
       }
+    },
+    "NonEmptyVec_for_Certification": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Certification"
+      }
+    },
+    "Certification": {
+      "type": "string",
+      "enum": [
+        "ISO14083:2023",
+        "GLECv2",
+        "GLECv3",
+        "GLECv3.1"
+      ]
     },
     "TransportMode": {
       "type": "string",
@@ -264,7 +271,8 @@
       "required": [
         "emissionFactorTTW",
         "emissionFactorWTW",
-        "energyCarrier"
+        "energyCarrier",
+        "relativeShare"
       ],
       "properties": {
         "energyCarrier": {
@@ -304,6 +312,9 @@
         },
         "emissionFactorTTW": {
           "$ref": "#/definitions/Decimal"
+        },
+        "relativeShare": {
+          "$ref": "#/definitions/Decimal"
         }
       }
     },
@@ -333,7 +344,7 @@
         "feedstock": {
           "$ref": "#/definitions/FeedstockType"
         },
-        "feedstockPercentage": {
+        "feedstockShare": {
           "anyOf": [
             {
               "$ref": "#/definitions/Decimal"
@@ -374,17 +385,12 @@
         "MJ"
       ]
     },
-    "TocCo2eIntensityThroughput": {
+    "TransportActivityUnit": {
       "type": "string",
       "enum": [
         "TEUkm",
         "tkm"
       ]
-    },
-    "GlecDataQualityIndex": {
-      "type": "integer",
-      "format": "uint8",
-      "minimum": 0.0
     },
     "PfId": {
       "type": "string",

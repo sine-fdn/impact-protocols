@@ -216,6 +216,16 @@
           "items": {
             "$ref": "#/definitions/Feedstock"
           }
+        },
+        "temperatureControl": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TadTempControl"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -368,6 +378,8 @@
       "enum": [
         "Box",
         "Pallet",
+        "Container-TEU",
+        "Container-FEU",
         "Container"
       ]
     },
@@ -380,7 +392,7 @@
         "feedstock": {
           "$ref": "#/definitions/FeedstockType"
         },
-        "feedstockPercentage": {
+        "feedstockShare": {
           "anyOf": [
             {
               "$ref": "#/definitions/Decimal"
@@ -406,6 +418,13 @@
         "Grid",
         "Renewable electricity",
         "Cooking oil"
+      ]
+    },
+    "TadTempControl": {
+      "type": "string",
+      "enum": [
+        "ambient",
+        "refrigerated"
       ]
     },
     "PfId": {

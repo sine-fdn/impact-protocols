@@ -700,17 +700,18 @@ lazy_static!(
                                 energy_carrier: EnergyCarrierType::Diesel,
                                 feedstocks: Some(vec![Feedstock {
                                     feedstock: FeedstockType::Fossil,
-                                    feedstock_percentage: None,
+                                    feedstock_share: None,
                                     region_provenance: Some("Europe".to_string()),
                                 }]),
                                 energy_consumption: None,
                                 energy_consumption_unit: Some(EnergyConsumptionUnit::Kg),
                                 emission_factor_wtw: dec!(4.13).into(),
                                 emission_factor_ttw: dec!(3.17).into(),
+                                relative_share: dec!(1.0).into(),
                             }].into(),
                             co2e_intensity_wtw: dec!(0.116).into(),
                             co2e_intensity_ttw: dec!(0.089).into(),
-                            co2e_intensity_throughput: TocCo2eIntensityThroughput::Tkm
+                            transport_activity_unit: TransportActivityUnit::Tkm
                         },
                     )
                 ),
@@ -790,17 +791,18 @@ lazy_static!(
                                 energy_carrier: EnergyCarrierType::Diesel,
                                 feedstocks: Some(vec![Feedstock {
                                     feedstock: FeedstockType::Fossil,
-                                    feedstock_percentage: None,
+                                    feedstock_share: None,
                                     region_provenance: Some("Europe".to_string()),
                                 }]),
                                 energy_consumption: None,
                                 energy_consumption_unit: Some(EnergyConsumptionUnit::Kg),
                                 emission_factor_wtw: dec!(4.13).into(),
                                 emission_factor_ttw: dec!(3.17).into(),
+                                relative_share: dec!(1.0).into(),
                             }].into(),
                             co2e_intensity_wtw: dec!(0.116).into(),
                             co2e_intensity_ttw: dec!(0.089).into(),
-                            co2e_intensity_throughput: TocCo2eIntensityThroughput::Tkm
+                            transport_activity_unit: TransportActivityUnit::Tkm
                         },
                     )
                 ),
@@ -880,17 +882,18 @@ lazy_static!(
                                 energy_carrier: EnergyCarrierType::Diesel,
                                 feedstocks: Some(vec![Feedstock {
                                     feedstock: FeedstockType::Fossil,
-                                    feedstock_percentage: None,
+                                    feedstock_share: None,
                                     region_provenance: Some("Europe".to_string()),
                                 }]),
                                 energy_consumption: None,
                                 energy_consumption_unit: Some(EnergyConsumptionUnit::Kg),
                                 emission_factor_wtw: dec!(4.13).into(),
                                 emission_factor_ttw: dec!(3.17).into(),
+                                relative_share: dec!(1.0).into(),
                             }].into(),
                             co2e_intensity_wtw: dec!(0.793).into(),
                             co2e_intensity_ttw: dec!(0.609).into(),
-                            co2e_intensity_throughput: TocCo2eIntensityThroughput::Tkm
+                            transport_activity_unit: TransportActivityUnit::Tkm
                         },
                     )
                 ),
@@ -971,17 +974,18 @@ lazy_static!(
                                 energy_carrier: EnergyCarrierType::Electric,
                                 feedstocks: Some(vec![Feedstock {
                                     feedstock: FeedstockType::Grid,
-                                    feedstock_percentage: None,
+                                    feedstock_share: None,
                                     region_provenance: Some("Europe".to_string()),
                                 }]),
                                 energy_consumption: None,
                                 energy_consumption_unit: Some(EnergyConsumptionUnit::MJ),
                                 emission_factor_wtw: dec!(97).into(),
                                 emission_factor_ttw: dec!(0).into(),
+                                relative_share: dec!(1.0).into(),
                             }].into(),
                             co2e_intensity_wtw: dec!(0.007).into(),
                             co2e_intensity_ttw: dec!(0).into(),
-                            co2e_intensity_throughput: TocCo2eIntensityThroughput::Tkm
+                            transport_activity_unit: TransportActivityUnit::Tkm
                         }
                     )),
             }
@@ -1146,8 +1150,6 @@ fn shipment_footprint(
     ShipmentFootprint {
         mass,
         volume: None,
-        number_of_items: None,
-        type_of_items: None,
         shipment_id,
         tces,
     }
@@ -1163,7 +1165,7 @@ struct TocArgs {
     energy_carriers: NonEmptyVec<EnergyCarrier>,
     co2e_intensity_wtw: WrappedDecimal,
     co2e_intensity_ttw: WrappedDecimal,
-    co2e_intensity_throughput: TocCo2eIntensityThroughput,
+    transport_activity_unit: TransportActivityUnit,
 }
 
 fn toc(
@@ -1177,13 +1179,12 @@ fn toc(
         energy_carriers,
         co2e_intensity_wtw,
         co2e_intensity_ttw,
-        co2e_intensity_throughput,
+        transport_activity_unit,
     }: TocArgs,
 ) -> Toc {
     Toc {
         toc_id,
-        is_verified: true,
-        is_accredited: true,
+        certifications: None,
         description: None,
         mode,
         load_factor,
@@ -1195,8 +1196,7 @@ fn toc(
         energy_carriers,
         co2e_intensity_wtw,
         co2e_intensity_ttw,
-        co2e_intensity_throughput,
-        glec_data_quality_index: None,
+        transport_activity_unit,
     }
 }
 
@@ -1220,8 +1220,7 @@ fn hoc(
     Hoc {
         hoc_id,
         description: None,
-        is_verified: true,
-        is_accredited: true,
+        certifications: None,
         hub_type,
         temperature_control,
         hub_location: None,
@@ -1237,6 +1236,7 @@ fn hoc(
                 energy_consumption_unit: Some(EnergyConsumptionUnit::Kg),
                 emission_factor_wtw: dec!(4.13).into(),
                 emission_factor_ttw: dec!(3.17).into(),
+                relative_share: dec!(0.5).into(),
             },
             EnergyCarrier {
                 energy_carrier: EnergyCarrierType::Electric,
@@ -1245,12 +1245,13 @@ fn hoc(
                 energy_consumption_unit: Some(EnergyConsumptionUnit::MJ),
                 emission_factor_wtw: dec!(97).into(),
                 emission_factor_ttw: dec!(0).into(),
+                relative_share: dec!(0.5).into(),
             },
         ]
         .into(),
         co2e_intensity_wtw: dec!(33).into(),
         co2e_intensity_ttw: dec!(10).into(),
-        co2e_intensity_throughput: HocCo2eIntensityThroughput::Tonnes,
+        hub_activity_unit: HubActivityUnit::Tonnes,
     }
 }
 
@@ -1364,7 +1365,7 @@ fn demo_tad_base(activity_id: String, consignment_id: String, feedstock: Feedsto
         //     energy_carrier: "Diesel".into(),
         //     feedstocks: Some(vec![Feedstock {
         //         feedstock,
-        //         feedstock_percentage: Some(1.0),
+        //         feedstock_share: Some(1.0),
         //     }]),
         //     energy_consumption: Some(dec!(10.0).into()),
         //     energy_consumption_unit: Some("kg".into()),
@@ -1375,9 +1376,10 @@ fn demo_tad_base(activity_id: String, consignment_id: String, feedstock: Feedsto
         empty_distance_factor: Some(dec!(0.1).into()),
         feedstocks: Some(vec![Feedstock {
             feedstock,
-            feedstock_percentage: Some(WrappedDecimal(Decimal::new(8, 1))),
+            feedstock_share: Some(WrappedDecimal(Decimal::new(8, 1))),
             region_provenance: None,
         }]),
+        temperature_control: None,
     }
 }
 
