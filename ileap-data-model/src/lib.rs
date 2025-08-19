@@ -12,7 +12,7 @@
 
 use chrono::{DateTime, Utc};
 
-use pact_data_model::{WrappedDecimal, ISO3166CC};
+use pact_data_model::{PositiveDecimal, WrappedDecimal, ISO3166CC};
 use rust_decimal::Decimal;
 
 use schemars::JsonSchema;
@@ -35,10 +35,6 @@ pub struct ShipmentFootprint {
     pub mass: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub volume: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub number_of_items: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_of_items: Option<String>,
     pub shipment_id: String,
     pub tces: NonEmptyVec<Tce>,
 }
@@ -64,7 +60,7 @@ pub struct Tce {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub packaging_or_tr_eq_type: Option<PackagingOrTrEqType>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub packaging_or_tr_eq_amount: Option<usize>,
+    pub packaging_or_tr_eq_amount: Option<PositiveDecimal>,
     pub distance: GlecDistance,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub origin: Option<Location>,
@@ -112,11 +108,23 @@ pub enum Incoterms {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+pub enum Certification {
+    #[serde(rename = "ISO14083:2023")]
+    ISO14083_2023,
+    #[serde(rename = "GLECv2")]
+    GlecV2,
+    #[serde(rename = "GLECv3")]
+    GlecV3,
+    #[serde(rename = "GLECv3.1")]
+    GlecV3_1,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase", rename = "TOC")]
 pub struct Toc {
     pub toc_id: String,
-    pub is_verified: bool,
-    pub is_accredited: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub certifications: Option<NonEmptyVec<Certification>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     pub mode: TransportMode,
@@ -137,14 +145,12 @@ pub struct Toc {
     pub co2e_intensity_wtw: WrappedDecimal,
     #[serde(rename = "co2eIntensityTTW")]
     pub co2e_intensity_ttw: WrappedDecimal,
-    pub co2e_intensity_throughput: TocCo2eIntensityThroughput,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub glec_data_quality_index: Option<GlecDataQualityIndex>,
+    pub transport_activity_unit: TransportActivityUnit,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub enum TocCo2eIntensityThroughput {
+pub enum TransportActivityUnit {
     #[serde(rename = "TEUkm")]
     TEUkm,
     Tkm,
@@ -156,6 +162,13 @@ pub enum TemperatureControl {
     Ambient,
     Refrigerated,
     Mixed,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum TadTempControl {
+    Ambient,
+    Refrigerated,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
@@ -183,18 +196,13 @@ pub enum FlightLength {
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
-#[serde(rename_all = "camelCase")]
-// TODO: use a floating point or a decimal instead.
-pub struct GlecDataQualityIndex(pub u8);
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
 #[serde(rename_all = "camelCase", rename = "HOC")]
 pub struct Hoc {
     pub hoc_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    pub is_verified: bool,
-    pub is_accredited: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub certifications: Option<NonEmptyVec<Certification>>,
     pub hub_type: HubType,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub temperature_control: Option<TemperatureControl>,
@@ -213,25 +221,24 @@ pub struct Hoc {
     pub co2e_intensity_wtw: WrappedDecimal,
     #[serde(rename = "co2eIntensityTTW")]
     pub co2e_intensity_ttw: WrappedDecimal,
-    pub co2e_intensity_throughput: HocCo2eIntensityThroughput,
+    pub hub_activity_unit: HubActivityUnit,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub enum HocCo2eIntensityThroughput {
+pub enum HubActivityUnit {
     #[serde(rename = "TEU")]
     TEU,
     Tonnes,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
-#[serde(rename_all = "camelCase")]
 pub enum HubType {
     Transshipment,
     StorageAndTransshipment,
     Warehouse,
     LiquidBulkTerminal,
-    MaritimeContainerterminal,
+    MaritimeContainerTerminal,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
@@ -249,20 +256,17 @@ pub struct Tad {
     pub empty_distance_factor: Option<WrappedDecimal>, // TODO replace with propoer type
     pub origin: Location,
     pub destination: Location,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub departure_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub arrival_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub mode: Option<TransportMode>,
+    pub departure_at: DateTime<Utc>,
+    pub arrival_at: DateTime<Utc>,
+    pub mode: TransportMode,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub packaging_or_tr_eq_type: Option<PackagingOrTrEqType>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub packaging_or_tr_eq_amount: Option<usize>,
-    // TODO: verify whether the absence of this property is intended. #[serde(skip_serializing_if =
-    // "Option::is_none")] pub energy_carrier: EnergyCarrier,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub feedstocks: Option<Vec<Feedstock>>,
+    pub energy_carriers: Option<NonEmptyVec<EnergyCarrier>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub temperature_control: Option<TadTempControl>,
 }
 
 pub type ActivityId = String;
@@ -322,6 +326,10 @@ pub enum TransportMode {
 pub enum PackagingOrTrEqType {
     Box,
     Pallet,
+    #[serde(rename = "Container-TEU")]
+    ContainerTEU,
+    #[serde(rename = "Container-FEU")]
+    ContainerFEU,
     Container,
 }
 
@@ -339,6 +347,7 @@ pub struct EnergyCarrier {
     pub emission_factor_wtw: WrappedDecimal,
     #[serde(rename = "emissionFactorTTW")]
     pub emission_factor_ttw: WrappedDecimal,
+    pub relative_share: WrappedDecimal,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
@@ -379,7 +388,7 @@ pub enum EnergyConsumptionUnit {
 pub struct Feedstock {
     pub feedstock: FeedstockType,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub feedstock_percentage: Option<WrappedDecimal>,
+    pub feedstock_share: Option<WrappedDecimal>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub region_provenance: Option<String>,
 }
@@ -451,12 +460,232 @@ impl<T> From<Vec<T>> for NonEmptyVec<T> {
     }
 }
 
-impl From<u8> for GlecDataQualityIndex {
-    fn from(v: u8) -> GlecDataQualityIndex {
-        if v > 4 {
-            panic!("Glec Data Quality Index must be between 0 and 4")
-        } else {
-            GlecDataQualityIndex(v)
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json;
+
+    #[test]
+    fn test_transportactivityunit_deser() {
+        let tests = [
+            ("\"TEUkm\"", TransportActivityUnit::TEUkm),
+            ("\"tkm\"", TransportActivityUnit::Tkm),
+        ];
+
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+            let deserialized: TransportActivityUnit = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_temperaturecontrol_deser() {
+        let tests = [
+            ("\"ambient\"", TemperatureControl::Ambient),
+            ("\"refrigerated\"", TemperatureControl::Refrigerated),
+            ("\"mixed\"", TemperatureControl::Mixed),
+        ];
+
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+            let deserialized: TemperatureControl = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_tad_tempcontrol_deser() {
+        let tests = [
+            ("\"ambient\"", TadTempControl::Ambient),
+            ("\"refrigerated\"", TadTempControl::Refrigerated),
+        ];
+
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+            let deserialized: TadTempControl = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_tls_deser() {
+        let tests = [
+            ("\"LTL\"", TruckLoadingSequence::Ltl),
+            ("\"FTL\"", TruckLoadingSequence::Ftl),
+        ];
+
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+            let deserialized: TruckLoadingSequence = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_airshippingoption_deser() {
+        let tests = [
+            ("\"belly freight\"", AirShippingOption::BellyFreight),
+            ("\"freighter\"", AirShippingOption::Freighter),
+        ];
+
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+            let deserialized: AirShippingOption = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_flightlength_deser() {
+        let tests = [
+            ("\"short-haul\"", FlightLength::ShortHaul),
+            ("\"long-haul\"", FlightLength::LongHaul),
+        ];
+
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+            let deserialized: FlightLength = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_hubtype_deser() {
+        let tests = [
+            ("\"Transshipment\"", HubType::Transshipment),
+            (
+                "\"StorageAndTransshipment\"",
+                HubType::StorageAndTransshipment,
+            ),
+            ("\"Warehouse\"", HubType::Warehouse),
+            ("\"LiquidBulkTerminal\"", HubType::LiquidBulkTerminal),
+            (
+                "\"MaritimeContainerTerminal\"",
+                HubType::MaritimeContainerTerminal,
+            ),
+        ];
+
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+            let deserialized: HubType = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_certifications_deser() {
+        let tests = [
+            ("\"ISO14083:2023\"", Certification::ISO14083_2023),
+            ("\"GLECv2\"", Certification::GlecV2),
+            ("\"GLECv3\"", Certification::GlecV3),
+            ("\"GLECv3.1\"", Certification::GlecV3_1),
+        ];
+
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+            let deserialized: Certification = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_transportmode_deser() {
+        let tests = [
+            ("\"Road\"", TransportMode::Road),
+            ("\"Rail\"", TransportMode::Rail),
+            ("\"Air\"", TransportMode::Air),
+            ("\"Sea\"", TransportMode::Sea),
+            ("\"InlandWaterway\"", TransportMode::InlandWaterway),
+        ];
+
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+            let deserialized: TransportMode = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_hubactivityunit_deser() {
+        let tests = [
+            ("\"TEU\"", HubActivityUnit::TEU),
+            ("\"tonnes\"", HubActivityUnit::Tonnes),
+        ];
+
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+            let deserialized: HubActivityUnit = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_energyconsumption_unit_deser() {
+        let tests = [
+            ("\"l\"", EnergyConsumptionUnit::L),
+            ("\"kg\"", EnergyConsumptionUnit::Kg),
+            ("\"kWh\"", EnergyConsumptionUnit::KWh),
+            ("\"MJ\"", EnergyConsumptionUnit::MJ),
+        ];
+
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+            let deserialized: EnergyConsumptionUnit = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_energycarriertype_deser() {
+        let tests = [
+            ("\"Diesel\"", EnergyCarrierType::Diesel),
+            ("\"HVO\"", EnergyCarrierType::Hvo),
+            ("\"Petrol\"", EnergyCarrierType::Petrol),
+            ("\"CNG\"", EnergyCarrierType::Cng),
+            ("\"LNG\"", EnergyCarrierType::Lng),
+            ("\"LPG\"", EnergyCarrierType::Lpg),
+            ("\"HFO\"", EnergyCarrierType::Hfo),
+            ("\"MGO\"", EnergyCarrierType::Mgo),
+            ("\"Aviation fuel\"", EnergyCarrierType::AviationFuel),
+            ("\"Hydrogen\"", EnergyCarrierType::Hydrogen),
+            ("\"Methanol\"", EnergyCarrierType::Methanol),
+            ("\"Electric\"", EnergyCarrierType::Electric),
+        ];
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+            let deserialized: EnergyCarrierType = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_packging_or_tr_eq_type_deser() {
+        let tests = [
+            ("\"Box\"", PackagingOrTrEqType::Box),
+            ("\"Pallet\"", PackagingOrTrEqType::Pallet),
+            ("\"Container-TEU\"", PackagingOrTrEqType::ContainerTEU),
+            ("\"Container-FEU\"", PackagingOrTrEqType::ContainerFEU),
+            ("\"Container\"", PackagingOrTrEqType::Container),
+        ];
+
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+            let deserialized: PackagingOrTrEqType = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
         }
     }
 }

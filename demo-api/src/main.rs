@@ -1301,7 +1301,7 @@ fn get_tad_with_filter_test() {
                 .clone()
                 .into_iter()
                 .filter(|tad| tad.activity_id == "4"
-                    || tad.mode == Some(ileap_data_model::TransportMode::Road))
+                    || tad.mode == ileap_data_model::TransportMode::Road)
                 .collect()
         })
         .unwrap(),

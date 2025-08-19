@@ -111,13 +111,11 @@
       "type": "object",
       "required": [
         "co2eIntensityTTW",
-        "co2eIntensityThroughput",
         "co2eIntensityWTW",
         "energyCarriers",
         "hocId",
-        "hubType",
-        "isAccredited",
-        "isVerified"
+        "hubActivityUnit",
+        "hubType"
       ],
       "properties": {
         "hocId": {
@@ -129,11 +127,15 @@
             "null"
           ]
         },
-        "isVerified": {
-          "type": "boolean"
-        },
-        "isAccredited": {
-          "type": "boolean"
+        "certifications": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/NonEmptyVec_for_Certification"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "hubType": {
           "$ref": "#/definitions/HubType"
@@ -205,19 +207,34 @@
         "co2eIntensityTTW": {
           "$ref": "#/definitions/Decimal"
         },
-        "co2eIntensityThroughput": {
-          "$ref": "#/definitions/HocCo2eIntensityThroughput"
+        "hubActivityUnit": {
+          "$ref": "#/definitions/HubActivityUnit"
         }
       }
+    },
+    "NonEmptyVec_for_Certification": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Certification"
+      }
+    },
+    "Certification": {
+      "type": "string",
+      "enum": [
+        "ISO14083:2023",
+        "GLECv2",
+        "GLECv3",
+        "GLECv3.1"
+      ]
     },
     "HubType": {
       "type": "string",
       "enum": [
-        "transshipment",
-        "storageAndTransshipment",
-        "warehouse",
-        "liquidBulkTerminal",
-        "maritimeContainerterminal"
+        "Transshipment",
+        "StorageAndTransshipment",
+        "Warehouse",
+        "LiquidBulkTerminal",
+        "MaritimeContainerTerminal"
       ]
     },
     "TemperatureControl": {
@@ -337,6 +354,8 @@
       "enum": [
         "Box",
         "Pallet",
+        "Container-TEU",
+        "Container-FEU",
         "Container"
       ]
     },
@@ -351,7 +370,8 @@
       "required": [
         "emissionFactorTTW",
         "emissionFactorWTW",
-        "energyCarrier"
+        "energyCarrier",
+        "relativeShare"
       ],
       "properties": {
         "energyCarrier": {
@@ -391,6 +411,9 @@
         },
         "emissionFactorTTW": {
           "$ref": "#/definitions/Decimal"
+        },
+        "relativeShare": {
+          "$ref": "#/definitions/Decimal"
         }
       }
     },
@@ -420,7 +443,7 @@
         "feedstock": {
           "$ref": "#/definitions/FeedstockType"
         },
-        "feedstockPercentage": {
+        "feedstockShare": {
           "anyOf": [
             {
               "$ref": "#/definitions/Decimal"
@@ -457,7 +480,7 @@
         "MJ"
       ]
     },
-    "HocCo2eIntensityThroughput": {
+    "HubActivityUnit": {
       "type": "string",
       "enum": [
         "TEU",

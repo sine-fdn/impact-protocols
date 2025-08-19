@@ -48,11 +48,10 @@ fn test_temperature_control_deser() {
 #[test]
 fn test_toc_deser() {
     let (json, expected) = (
-        r#"{"tocId":"4561230","isVerified":true,"isAccredited":true,"mode":"Road","temperatureControl":"refrigerated","truckLoadingSequence":"FTL","energyCarriers":[{"energyCarrier":"Diesel","emissionFactorWTW":"3.6801","emissionFactorTTW":"3.2801"}],"co2eIntensityWTW":"3.6801","co2eIntensityTTW":"3.2801","co2eIntensityThroughput":"tkm"}"#,
+        r#"{"tocId":"4561230","isVerified":true,"isAccredited":true,"mode":"Road","temperatureControl":"refrigerated","truckLoadingSequence":"FTL","energyCarriers":[{"energyCarrier":"Diesel","emissionFactorWTW":"3.6801","emissionFactorTTW":"3.2801", "relativeShare": "1"}],"co2eIntensityWTW":"3.6801","co2eIntensityTTW":"3.2801","transportActivityUnit":"tkm"}"#,
         Toc {
             toc_id: "4561230".to_string(),
-            is_verified: true,
-            is_accredited: true,
+            certifications: None,
             mode: TransportMode::Road,
             temperature_control: Some(TemperatureControl::Refrigerated),
             truck_loading_sequence: Some(TruckLoadingSequence::Ftl),
@@ -63,12 +62,12 @@ fn test_toc_deser() {
                 feedstocks: None,
                 energy_consumption: None,
                 energy_consumption_unit: None,
+                relative_share: dec!(1).into(),
             }]
             .into(),
             co2e_intensity_wtw: dec!(3.6801).into(),
             co2e_intensity_ttw: dec!(3.2801).into(),
-            co2e_intensity_throughput: TocCo2eIntensityThroughput::Tkm,
-            glec_data_quality_index: None,
+            transport_activity_unit: TransportActivityUnit::Tkm,
             description: None,
             load_factor: None,
             empty_distance_factor: None,
@@ -92,8 +91,6 @@ fn test_ship_foot_deser() {
         ShipmentFootprint {
             mass: "87".to_string(),
             volume: None,
-            number_of_items: None,
-            type_of_items: None,
             shipment_id: "1237890".to_string(),
             tces: NonEmptyVec::<Tce>::from(vec![Tce {
                 tce_id: "abcdef".to_string(),

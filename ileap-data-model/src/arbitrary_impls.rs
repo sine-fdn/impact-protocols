@@ -57,10 +57,22 @@ impl Arbitrary for ShipmentFootprint {
             tces: NonEmptyVec::<Tce>::arbitrary(g),
             // Currently None for simplicity.
             volume: None,
-            number_of_items: None,
-            type_of_items: None,
         }
     }
+}
+
+fn energy_carriers(g: &mut quickcheck::Gen) -> NonEmptyVec<EnergyCarrier> {
+    let mut carriers = NonEmptyVec::<EnergyCarrier>::arbitrary(g);
+    while carriers
+        .0
+        .iter()
+        .map(|ec| ec.relative_share.0)
+        .sum::<Decimal>()
+        > Decimal::from(1)
+    {
+        carriers = NonEmptyVec::<EnergyCarrier>::arbitrary(g);
+    }
+    carriers
 }
 
 impl Arbitrary for Hoc {
@@ -90,7 +102,7 @@ impl Arbitrary for Hoc {
                 Some(TransportMode::arbitrary(g)),
                 Some(TransportMode::arbitrary(g)),
             ),
-            HubType::MaritimeContainerterminal => {
+            HubType::MaritimeContainerTerminal => {
                 let inbound = Option::<TransportMode>::arbitrary(g);
                 let outbound = Option::<TransportMode>::arbitrary(g);
 
@@ -110,17 +122,16 @@ impl Arbitrary for Hoc {
 
         Hoc {
             hoc_id: formatted_arbitrary_string("hoc-", g),
-            is_verified: bool::arbitrary(g),
-            is_accredited: bool::arbitrary(g),
+            certifications: Option::<NonEmptyVec<Certification>>::arbitrary(g),
             hub_type,
             temperature_control: Option::<TemperatureControl>::arbitrary(g),
             inbound_transport_mode,
             outbound_transport_mode,
             packaging_or_tr_eq_type: Option::<PackagingOrTrEqType>::arbitrary(g),
-            energy_carriers: NonEmptyVec::<EnergyCarrier>::arbitrary(g),
+            energy_carriers: energy_carriers(g),
             co2e_intensity_wtw: arbitrary_wrapped_decimal(g),
             co2e_intensity_ttw: arbitrary_wrapped_decimal(g),
-            co2e_intensity_throughput: HocCo2eIntensityThroughput::arbitrary(g),
+            hub_activity_unit: HubActivityUnit::arbitrary(g),
             // Currently None for simplicity.
             description: None,
             hub_location: None,
@@ -129,14 +140,11 @@ impl Arbitrary for Hoc {
     }
 }
 
-impl Arbitrary for HocCo2eIntensityThroughput {
+impl Arbitrary for HubActivityUnit {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-        let hoc_co2e_intensity_throughput = &[
-            HocCo2eIntensityThroughput::TEU,
-            HocCo2eIntensityThroughput::Tonnes,
-        ];
+        let hub_activity_unit = &[HubActivityUnit::TEU, HubActivityUnit::Tonnes];
 
-        g.choose(hoc_co2e_intensity_throughput).unwrap().to_owned()
+        g.choose(hub_activity_unit).unwrap().to_owned()
     }
 }
 
@@ -147,7 +155,7 @@ impl Arbitrary for HubType {
             HubType::StorageAndTransshipment,
             HubType::Warehouse,
             HubType::LiquidBulkTerminal,
-            HubType::MaritimeContainerterminal,
+            HubType::MaritimeContainerTerminal,
         ];
 
         g.choose(hub_type).unwrap().to_owned()
@@ -166,11 +174,31 @@ impl Arbitrary for PackagingOrTrEqType {
     }
 }
 
+impl Arbitrary for Certification {
+    fn arbitrary(g: &mut quickcheck::Gen) -> Self {
+        let certification = &[
+            Certification::ISO14083_2023,
+            Certification::GlecV2,
+            Certification::GlecV3,
+            Certification::GlecV3_1,
+        ];
+
+        g.choose(certification).unwrap().to_owned()
+    }
+}
+
 fn arbitrary_option_factor(g: &mut quickcheck::Gen) -> Option<String> {
     let rand_num = u8::arbitrary(g) % 10 + 1;
     let rand_factor: Decimal = Decimal::new(rand_num as i64, 1);
 
     Some(rand_factor.to_string())
+}
+
+fn arbitrary_share(g: &mut quickcheck::Gen) -> WrappedDecimal {
+    let rand_num = u8::arbitrary(g) % 10 + 1;
+    let rand_factor: Decimal = Decimal::new(rand_num as i64, 1);
+
+    WrappedDecimal::from(rand_factor)
 }
 
 impl Arbitrary for Toc {
@@ -187,8 +215,7 @@ impl Arbitrary for Toc {
 
         Toc {
             toc_id: formatted_arbitrary_string("toc-", g),
-            is_verified: bool::arbitrary(g),
-            is_accredited: bool::arbitrary(g),
+            certifications: Option::<NonEmptyVec<Certification>>::arbitrary(g),
             mode,
             load_factor: arbitrary_option_factor(g),
             empty_distance_factor: arbitrary_option_factor(g),
@@ -196,25 +223,21 @@ impl Arbitrary for Toc {
             truck_loading_sequence: Option::<TruckLoadingSequence>::arbitrary(g),
             air_shipping_option,
             flight_length,
-            energy_carriers: NonEmptyVec::<EnergyCarrier>::arbitrary(g),
+            energy_carriers: energy_carriers(g),
             co2e_intensity_wtw: arbitrary_wrapped_decimal(g),
             co2e_intensity_ttw: arbitrary_wrapped_decimal(g),
-            co2e_intensity_throughput: TocCo2eIntensityThroughput::arbitrary(g),
+            transport_activity_unit: TransportActivityUnit::arbitrary(g),
             // Currently None for simplicity.
             description: None,
-            glec_data_quality_index: None,
         }
     }
 }
 
-impl Arbitrary for TocCo2eIntensityThroughput {
+impl Arbitrary for TransportActivityUnit {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-        let toc_co2e_intensity_throughput = &[
-            TocCo2eIntensityThroughput::Tkm,
-            TocCo2eIntensityThroughput::TEUkm,
-        ];
+        let transport_activity_unit = &[TransportActivityUnit::Tkm, TransportActivityUnit::TEUkm];
 
-        g.choose(toc_co2e_intensity_throughput).unwrap().to_owned()
+        g.choose(transport_activity_unit).unwrap().to_owned()
     }
 }
 
@@ -293,7 +316,7 @@ impl Arbitrary for EnergyCarrier {
                 let total_percentage: Decimal = feedstocks
                     .iter()
                     .map(|f| {
-                        f.feedstock_percentage
+                        f.feedstock_share
                             .as_ref()
                             .map(|p| p.0)
                             .unwrap_or(Decimal::from(0))
@@ -302,7 +325,7 @@ impl Arbitrary for EnergyCarrier {
 
                 if total_percentage > Decimal::from(1) {
                     for feedstock in &mut feedstocks {
-                        feedstock.feedstock_percentage = None
+                        feedstock.feedstock_share = None
                     }
                 }
 
@@ -377,6 +400,7 @@ impl Arbitrary for EnergyCarrier {
             energy_consumption_unit: Option::<EnergyConsumptionUnit>::arbitrary(g),
             emission_factor_wtw: arbitrary_wrapped_decimal(g),
             emission_factor_ttw: arbitrary_wrapped_decimal(g),
+            relative_share: arbitrary_share(g),
         }
     }
 }
@@ -417,9 +441,9 @@ impl Arbitrary for EnergyConsumptionUnit {
 
 impl Arbitrary for Feedstock {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-        let feedstock_percentage = arbitrary_option_wrapped_decimal(g);
+        let feedstock_share = arbitrary_option_wrapped_decimal(g);
 
-        let feedstock_percentage = match feedstock_percentage {
+        let feedstock_share = match feedstock_share {
             None => None,
             Some(f) => {
                 let decimal = (f.0 / Decimal::from(u16::MAX)).round_dp(1);
@@ -429,7 +453,7 @@ impl Arbitrary for Feedstock {
 
         Feedstock {
             feedstock: FeedstockType::arbitrary(g),
-            feedstock_percentage,
+            feedstock_share,
             // Currently None for simplicity.
             region_provenance: None,
         }
@@ -447,12 +471,6 @@ impl Arbitrary for FeedstockType {
         ];
 
         g.choose(feedstock).unwrap().to_owned()
-    }
-}
-
-impl Arbitrary for GlecDataQualityIndex {
-    fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-        GlecDataQualityIndex(u8::arbitrary(g) % 5)
     }
 }
 
@@ -504,7 +522,7 @@ impl Arbitrary for Tce {
             consignment_id: Some(formatted_arbitrary_string("consignment-", g)),
             mass,
             packaging_or_tr_eq_type: Option::<PackagingOrTrEqType>::arbitrary(g),
-            packaging_or_tr_eq_amount: Option::<usize>::arbitrary(g),
+            packaging_or_tr_eq_amount: gen_opt_pos_decimal(g),
             distance: glec_distance,
             // TODO: origin and destination are currently None to avoid an inconsistencies with the
             // distance field. In order to fix this, we need to ensure that either the distance is
@@ -542,6 +560,22 @@ impl Arbitrary for GlecDistance {
 
         g.choose(glec_distance).unwrap().to_owned()
     }
+}
+/*
+fn gen_wrapped_decimal(g: &mut quickcheck::Gen) -> WrappedDecimal {
+    let decimal = Decimal::new(u16::arbitrary(g) as i64, u16::arbitrary(g) as u32).round_dp(2);
+    WrappedDecimal::from(decimal)
+}
+ */
+fn gen_pos_decimal(g: &mut quickcheck::Gen) -> PositiveDecimal {
+    let decimal = Decimal::new(u16::arbitrary(g) as i64, 2);
+    PositiveDecimal::from(decimal)
+}
+
+fn gen_opt_pos_decimal(g: &mut quickcheck::Gen) -> Option<PositiveDecimal> {
+    let option = &[Some(gen_pos_decimal(g)), None];
+
+    g.choose(option).unwrap().to_owned()
 }
 
 impl Arbitrary for Location {

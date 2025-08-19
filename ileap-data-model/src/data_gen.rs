@@ -6,8 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::pact_integration::to_pcf;
 use crate::{
-    GlecDistance, Hoc, HocCo2eIntensityThroughput, NonEmptyVec, PactMappedFields,
-    ShipmentFootprint, Tce, Toc,
+    GlecDistance, Hoc, HubActivityUnit, NonEmptyVec, PactMappedFields, ShipmentFootprint, Tce, Toc,
 };
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
@@ -73,7 +72,7 @@ pub fn gen_rnd_demo_data(size: u8) -> Vec<ProductFootprint<ILeapType>> {
                 // Avoids having an HOC as the first or the last TCE
 
                 let mut hoc = Hoc::arbitrary(&mut og);
-                hoc.co2e_intensity_throughput = HocCo2eIntensityThroughput::Tonnes;
+                hoc.hub_activity_unit = HubActivityUnit::Tonnes;
 
                 hoc.hoc_id = tce.hoc_id.clone().unwrap();
 

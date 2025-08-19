@@ -5,9 +5,12 @@
   "type": "object",
   "required": [
     "activityId",
+    "arrivalAt",
     "consignmentIds",
+    "departureAt",
     "destination",
     "distance",
+    "mode",
     "origin"
   ],
   "properties": {
@@ -60,28 +63,15 @@
       "$ref": "#/definitions/Location"
     },
     "departureAt": {
-      "type": [
-        "string",
-        "null"
-      ],
+      "type": "string",
       "format": "date-time"
     },
     "arrivalAt": {
-      "type": [
-        "string",
-        "null"
-      ],
+      "type": "string",
       "format": "date-time"
     },
     "mode": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/TransportMode"
-        },
-        {
-          "type": "null"
-        }
-      ]
+      "$ref": "#/definitions/TransportMode"
     },
     "packagingOrTrEqType": {
       "anyOf": [
@@ -101,14 +91,25 @@
       "format": "uint",
       "minimum": 0.0
     },
-    "feedstocks": {
-      "type": [
-        "array",
-        "null"
-      ],
-      "items": {
-        "$ref": "#/definitions/Feedstock"
-      }
+    "energyCarriers": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/NonEmptyVec_for_EnergyCarrier"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "temperatureControl": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/TadTempControl"
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "definitions": {
@@ -261,7 +262,84 @@
       "enum": [
         "Box",
         "Pallet",
+        "Container-TEU",
+        "Container-FEU",
         "Container"
+      ]
+    },
+    "NonEmptyVec_for_EnergyCarrier": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EnergyCarrier"
+      }
+    },
+    "EnergyCarrier": {
+      "type": "object",
+      "required": [
+        "emissionFactorTTW",
+        "emissionFactorWTW",
+        "energyCarrier",
+        "relativeShare"
+      ],
+      "properties": {
+        "energyCarrier": {
+          "$ref": "#/definitions/EnergyCarrierType"
+        },
+        "feedstocks": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/Feedstock"
+          }
+        },
+        "energyConsumption": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "energyConsumptionUnit": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EnergyConsumptionUnit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "emissionFactorWTW": {
+          "$ref": "#/definitions/Decimal"
+        },
+        "emissionFactorTTW": {
+          "$ref": "#/definitions/Decimal"
+        },
+        "relativeShare": {
+          "$ref": "#/definitions/Decimal"
+        }
+      }
+    },
+    "EnergyCarrierType": {
+      "type": "string",
+      "enum": [
+        "Diesel",
+        "HVO",
+        "Petrol",
+        "CNG",
+        "LNG",
+        "LPG",
+        "HFO",
+        "MGO",
+        "Aviation fuel",
+        "Hydrogen",
+        "Methanol",
+        "Electric"
       ]
     },
     "Feedstock": {
@@ -273,7 +351,7 @@
         "feedstock": {
           "$ref": "#/definitions/FeedstockType"
         },
-        "feedstockPercentage": {
+        "feedstockShare": {
           "anyOf": [
             {
               "$ref": "#/definitions/Decimal"
@@ -299,6 +377,22 @@
         "Grid",
         "Renewable electricity",
         "Cooking oil"
+      ]
+    },
+    "EnergyConsumptionUnit": {
+      "type": "string",
+      "enum": [
+        "l",
+        "kg",
+        "kWh",
+        "MJ"
+      ]
+    },
+    "TadTempControl": {
+      "type": "string",
+      "enum": [
+        "ambient",
+        "refrigerated"
       ]
     }
   }

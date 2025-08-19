@@ -17,18 +17,6 @@
         "null"
       ]
     },
-    "numberOfItems": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "typeOfItems": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "shipmentId": {
       "type": "string"
     },
@@ -102,12 +90,14 @@
           ]
         },
         "packagingOrTrEqAmount": {
-          "type": [
-            "integer",
-            "null"
-          ],
-          "format": "uint",
-          "minimum": 0.0
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "distance": {
           "$ref": "#/definitions/GlecDistance"
@@ -228,8 +218,14 @@
       "enum": [
         "Box",
         "Pallet",
+        "Container-TEU",
+        "Container-FEU",
         "Container"
       ]
+    },
+    "PositiveDecimal": {
+      "type": "string",
+      "pattern": "^\\d+(\\.\\d+)?$"
     },
     "GlecDistance": {
       "oneOf": [
