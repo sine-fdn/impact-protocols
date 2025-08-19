@@ -90,12 +90,14 @@
           ]
         },
         "packagingOrTrEqAmount": {
-          "type": [
-            "integer",
-            "null"
-          ],
-          "format": "uint",
-          "minimum": 0.0
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "distance": {
           "$ref": "#/definitions/GlecDistance"
@@ -220,6 +222,10 @@
         "Container-FEU",
         "Container"
       ]
+    },
+    "PositiveDecimal": {
+      "type": "string",
+      "pattern": "^\\d+(\\.\\d+)?$"
     },
     "GlecDistance": {
       "oneOf": [

@@ -123,11 +123,11 @@
     "HubType": {
       "type": "string",
       "enum": [
-        "transshipment",
-        "storageAndTransshipment",
-        "warehouse",
-        "liquidBulkTerminal",
-        "maritimeContainerterminal"
+        "Transshipment",
+        "StorageAndTransshipment",
+        "Warehouse",
+        "LiquidBulkTerminal",
+        "MaritimeContainerTerminal"
       ]
     },
     "TemperatureControl": {
