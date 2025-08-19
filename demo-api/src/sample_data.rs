@@ -8,7 +8,6 @@ use chrono::prelude::*;
 use chrono::Duration;
 use ileap_data_model::*;
 use pact_data_model::*;
-use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use uuid::uuid;
 
