@@ -24,11 +24,6 @@ use rocket_okapi::OpenApiError;
 use schemars::JsonSchema;
 use uuid::Uuid;
 
-#[derive(FromForm)]
-pub(crate) struct FilterString<'r> {
-    _filter: &'r str,
-}
-
 #[derive(Debug, Responder)]
 pub(crate) enum PfListingResponse {
     Finished(Json<PfListingResponseInner>),
@@ -165,34 +160,6 @@ fn openapi_link_header() -> okapi::openapi3::Header {
         deprecated: false,
         allow_empty_value: false,
         extensions: Default::default(),
-    }
-}
-
-impl schemars::JsonSchema for FilterString<'_> {
-    fn schema_name() -> String {
-        "FilterString".to_owned()
-    }
-
-    fn json_schema(_: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
-        let mut schema = schemars::schema::SchemaObject::default();
-        schema.instance_type = Some(schemars::schema::InstanceType::String.into());
-        schema.string = Some(
-            schemars::schema::StringValidation {
-                min_length: Some(1),
-                ..Default::default()
-            }
-            .into(),
-        );
-        schema.metadata = Some(
-            schemars::schema::Metadata {
-                description: Some(
-                    "OData V4 conforming filter string. See Action ListFootprints's Request Syntax chapter".to_owned(),
-                ),
-                ..Default::default()
-            }
-            .into(),
-        );
-        schema.into()
     }
 }
 

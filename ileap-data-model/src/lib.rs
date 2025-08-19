@@ -12,7 +12,7 @@
 
 use chrono::{DateTime, Utc};
 
-use pact_data_model::{WrappedDecimal, ISO3166CC};
+use pact_data_model::{PositiveDecimal, WrappedDecimal, ISO3166CC};
 use rust_decimal::Decimal;
 
 use schemars::JsonSchema;
@@ -60,7 +60,7 @@ pub struct Tce {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub packaging_or_tr_eq_type: Option<PackagingOrTrEqType>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub packaging_or_tr_eq_amount: Option<usize>,
+    pub packaging_or_tr_eq_amount: Option<PositiveDecimal>,
     pub distance: GlecDistance,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub origin: Option<Location>,
@@ -233,13 +233,12 @@ pub enum HubActivityUnit {
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
-#[serde(rename_all = "camelCase")]
 pub enum HubType {
     Transshipment,
     StorageAndTransshipment,
     Warehouse,
     LiquidBulkTerminal,
-    MaritimeContainerterminal,
+    MaritimeContainerTerminal,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
@@ -257,20 +256,15 @@ pub struct Tad {
     pub empty_distance_factor: Option<WrappedDecimal>, // TODO replace with propoer type
     pub origin: Location,
     pub destination: Location,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub departure_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub arrival_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub mode: Option<TransportMode>,
+    pub departure_at: DateTime<Utc>,
+    pub arrival_at: DateTime<Utc>,
+    pub mode: TransportMode,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub packaging_or_tr_eq_type: Option<PackagingOrTrEqType>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub packaging_or_tr_eq_amount: Option<usize>,
-    // TODO: verify whether the absence of this property is intended. #[serde(skip_serializing_if =
-    // "Option::is_none")] pub energy_carrier: EnergyCarrier,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub feedstocks: Option<Vec<Feedstock>>,
+    pub energy_carriers: Option<NonEmptyVec<EnergyCarrier>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub temperature_control: Option<TadTempControl>,
 }
@@ -463,5 +457,229 @@ impl<T> From<Vec<T>> for NonEmptyVec<T> {
         } else {
             NonEmptyVec(v)
         }
+    }
+}
+
+#[test]
+fn test_transportactivityunit_deser() {
+    let tests = [
+        ("\"TEUkm\"", TransportActivityUnit::TEUkm),
+        ("\"tkm\"", TransportActivityUnit::Tkm),
+    ];
+
+    for (input, expected) in tests {
+        assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+        let deserialized: TransportActivityUnit = serde_json::from_str(input).unwrap();
+        assert_eq!(deserialized, expected);
+    }
+}
+
+#[test]
+fn test_temperaturecontrol_deser() {
+    let tests = [
+        ("\"ambient\"", TemperatureControl::Ambient),
+        ("\"refrigerated\"", TemperatureControl::Refrigerated),
+        ("\"mixed\"", TemperatureControl::Mixed),
+    ];
+
+    for (input, expected) in tests {
+        assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+        let deserialized: TemperatureControl = serde_json::from_str(input).unwrap();
+        assert_eq!(deserialized, expected);
+    }
+}
+
+#[test]
+fn test_tad_tempcontrol_deser() {
+    let tests = [
+        ("\"ambient\"", TadTempControl::Ambient),
+        ("\"refrigerated\"", TadTempControl::Refrigerated),
+    ];
+
+    for (input, expected) in tests {
+        assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+        let deserialized: TadTempControl = serde_json::from_str(input).unwrap();
+        assert_eq!(deserialized, expected);
+    }
+}
+
+#[test]
+fn test_tls_deser() {
+    let tests = [
+        ("\"LTL\"", TruckLoadingSequence::Ltl),
+        ("\"FTL\"", TruckLoadingSequence::Ftl),
+    ];
+
+    for (input, expected) in tests {
+        assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+        let deserialized: TruckLoadingSequence = serde_json::from_str(input).unwrap();
+        assert_eq!(deserialized, expected);
+    }
+}
+
+#[test]
+fn test_airshippingoption_deser() {
+    let tests = [
+        ("\"belly freight\"", AirShippingOption::BellyFreight),
+        ("\"freighter\"", AirShippingOption::Freighter),
+    ];
+
+    for (input, expected) in tests {
+        assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+        let deserialized: AirShippingOption = serde_json::from_str(input).unwrap();
+        assert_eq!(deserialized, expected);
+    }
+}
+
+#[test]
+fn test_flightlength_deser() {
+    let tests = [
+        ("\"short-haul\"", FlightLength::ShortHaul),
+        ("\"long-haul\"", FlightLength::LongHaul),
+    ];
+
+    for (input, expected) in tests {
+        assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+        let deserialized: FlightLength = serde_json::from_str(input).unwrap();
+        assert_eq!(deserialized, expected);
+    }
+}
+
+#[test]
+fn test_hubtype_deser() {
+    let tests = [
+        ("\"Transshipment\"", HubType::Transshipment),
+        (
+            "\"StorageAndTransshipment\"",
+            HubType::StorageAndTransshipment,
+        ),
+        ("\"Warehouse\"", HubType::Warehouse),
+        ("\"LiquidBulkTerminal\"", HubType::LiquidBulkTerminal),
+        (
+            "\"MaritimeContainerTerminal\"",
+            HubType::MaritimeContainerTerminal,
+        ),
+    ];
+
+    for (input, expected) in tests {
+        assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+        let deserialized: HubType = serde_json::from_str(input).unwrap();
+        assert_eq!(deserialized, expected);
+    }
+}
+
+#[test]
+fn test_certifications_deser() {
+    let tests = [
+        ("\"ISO14083:2023\"", Certification::ISO14083_2023),
+        ("\"GLECv2\"", Certification::GlecV2),
+        ("\"GLECv3\"", Certification::GlecV3),
+        ("\"GLECv3.1\"", Certification::GlecV3_1),
+    ];
+
+    for (input, expected) in tests {
+        assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+        let deserialized: Certification = serde_json::from_str(input).unwrap();
+        assert_eq!(deserialized, expected);
+    }
+}
+
+#[test]
+fn test_transportmode_deser() {
+    let tests = [
+        ("\"Road\"", TransportMode::Road),
+        ("\"Rail\"", TransportMode::Rail),
+        ("\"Air\"", TransportMode::Air),
+        ("\"Sea\"", TransportMode::Sea),
+        ("\"InlandWaterway\"", TransportMode::InlandWaterway),
+    ];
+
+    for (input, expected) in tests {
+        assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+        let deserialized: TransportMode = serde_json::from_str(input).unwrap();
+        assert_eq!(deserialized, expected);
+    }
+}
+
+#[test]
+fn test_hubactivityunit_deser() {
+    let tests = [
+        ("\"TEU\"", HubActivityUnit::TEU),
+        ("\"tonnes\"", HubActivityUnit::Tonnes),
+    ];
+
+    for (input, expected) in tests {
+        assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+        let deserialized: HubActivityUnit = serde_json::from_str(input).unwrap();
+        assert_eq!(deserialized, expected);
+    }
+}
+
+#[test]
+fn test_energyconsumption_unit_deser() {
+    let tests = [
+        ("\"l\"", EnergyConsumptionUnit::L),
+        ("\"kg\"", EnergyConsumptionUnit::Kg),
+        ("\"kWh\"", EnergyConsumptionUnit::KWh),
+        ("\"MJ\"", EnergyConsumptionUnit::MJ),
+    ];
+
+    for (input, expected) in tests {
+        assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+        let deserialized: EnergyConsumptionUnit = serde_json::from_str(input).unwrap();
+        assert_eq!(deserialized, expected);
+    }
+}
+
+#[test]
+fn test_energycarriertype_deser() {
+    let tests = [
+        ("\"Diesel\"", EnergyCarrierType::Diesel),
+        ("\"HVO\"", EnergyCarrierType::Hvo),
+        ("\"Petrol\"", EnergyCarrierType::Petrol),
+        ("\"CNG\"", EnergyCarrierType::Cng),
+        ("\"LNG\"", EnergyCarrierType::Lng),
+        ("\"LPG\"", EnergyCarrierType::Lpg),
+        ("\"HFO\"", EnergyCarrierType::Hfo),
+        ("\"MGO\"", EnergyCarrierType::Mgo),
+        ("\"Aviation fuel\"", EnergyCarrierType::AviationFuel),
+        ("\"Hydrogen\"", EnergyCarrierType::Hydrogen),
+        ("\"Methanol\"", EnergyCarrierType::Methanol),
+        ("\"Electric\"", EnergyCarrierType::Electric),
+    ];
+    for (input, expected) in tests {
+        assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+        let deserialized: EnergyCarrierType = serde_json::from_str(input).unwrap();
+        assert_eq!(deserialized, expected);
+    }
+}
+
+#[test]
+fn test_packging_or_tr_eq_type_deser() {
+    let tests = [
+        ("\"Box\"", PackagingOrTrEqType::Box),
+        ("\"Pallet\"", PackagingOrTrEqType::Pallet),
+        ("\"Container-TEU\"", PackagingOrTrEqType::ContainerTEU),
+        ("\"Container-FEU\"", PackagingOrTrEqType::ContainerFEU),
+        ("\"Container\"", PackagingOrTrEqType::Container),
+    ];
+
+    for (input, expected) in tests {
+        assert_eq!(input, serde_json::to_string(&expected).unwrap());
+
+        let deserialized: PackagingOrTrEqType = serde_json::from_str(input).unwrap();
+        assert_eq!(deserialized, expected);
     }
 }

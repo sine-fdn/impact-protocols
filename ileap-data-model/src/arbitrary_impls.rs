@@ -102,7 +102,7 @@ impl Arbitrary for Hoc {
                 Some(TransportMode::arbitrary(g)),
                 Some(TransportMode::arbitrary(g)),
             ),
-            HubType::MaritimeContainerterminal => {
+            HubType::MaritimeContainerTerminal => {
                 let inbound = Option::<TransportMode>::arbitrary(g);
                 let outbound = Option::<TransportMode>::arbitrary(g);
 
@@ -155,7 +155,7 @@ impl Arbitrary for HubType {
             HubType::StorageAndTransshipment,
             HubType::Warehouse,
             HubType::LiquidBulkTerminal,
-            HubType::MaritimeContainerterminal,
+            HubType::MaritimeContainerTerminal,
         ];
 
         g.choose(hub_type).unwrap().to_owned()
@@ -522,7 +522,7 @@ impl Arbitrary for Tce {
             consignment_id: Some(formatted_arbitrary_string("consignment-", g)),
             mass,
             packaging_or_tr_eq_type: Option::<PackagingOrTrEqType>::arbitrary(g),
-            packaging_or_tr_eq_amount: Option::<usize>::arbitrary(g),
+            packaging_or_tr_eq_amount: gen_opt_pos_decimal(g),
             distance: glec_distance,
             // TODO: origin and destination are currently None to avoid an inconsistencies with the
             // distance field. In order to fix this, we need to ensure that either the distance is
@@ -560,6 +560,22 @@ impl Arbitrary for GlecDistance {
 
         g.choose(glec_distance).unwrap().to_owned()
     }
+}
+/*
+fn gen_wrapped_decimal(g: &mut quickcheck::Gen) -> WrappedDecimal {
+    let decimal = Decimal::new(u16::arbitrary(g) as i64, u16::arbitrary(g) as u32).round_dp(2);
+    WrappedDecimal::from(decimal)
+}
+ */
+fn gen_pos_decimal(g: &mut quickcheck::Gen) -> PositiveDecimal {
+    let decimal = Decimal::new(u16::arbitrary(g) as i64, 2);
+    PositiveDecimal::from(decimal)
+}
+
+fn gen_opt_pos_decimal(g: &mut quickcheck::Gen) -> Option<PositiveDecimal> {
+    let option = &[Some(gen_pos_decimal(g)), None];
+
+    g.choose(option).unwrap().to_owned()
 }
 
 impl Arbitrary for Location {

@@ -676,7 +676,7 @@ fn create_server(key_pair: KeyPair) -> rocket::Rocket<rocket::Build> {
 }
 
 #[rocket::main]
-async fn main() -> Result<(), RocketError> {
+async fn main() -> Result<(), Box<RocketError>> {
     let rocket = create_server(load_keys());
     let _ = rocket.launch().await?;
     Ok(())
@@ -1302,7 +1302,7 @@ fn get_tad_with_filter_test() {
                 .clone()
                 .into_iter()
                 .filter(|tad| tad.activity_id == "4"
-                    || tad.mode == Some(ileap_data_model::TransportMode::Road))
+                    || tad.mode == ileap_data_model::TransportMode::Road)
                 .collect()
         })
         .unwrap(),

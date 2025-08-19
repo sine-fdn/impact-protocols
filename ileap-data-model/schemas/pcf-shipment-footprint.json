@@ -197,12 +197,14 @@
           ]
         },
         "packagingOrTrEqAmount": {
-          "type": [
-            "integer",
-            "null"
-          ],
-          "format": "uint",
-          "minimum": 0.0
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "distance": {
           "$ref": "#/definitions/GlecDistance"
@@ -327,6 +329,10 @@
         "Container-FEU",
         "Container"
       ]
+    },
+    "PositiveDecimal": {
+      "type": "string",
+      "pattern": "^\\d+(\\.\\d+)?$"
     },
     "GlecDistance": {
       "oneOf": [
@@ -826,10 +832,6 @@
     "StrictlyPositiveDecimal": {
       "type": "string",
       "pattern": "^(\\d*[1-9]\\d*([\\.]\\d+)?|\\d+(\\.\\d*[1-9]\\d*)?)$"
-    },
-    "PositiveDecimal": {
-      "type": "string",
-      "pattern": "^\\d+(\\.\\d+)?$"
     },
     "NegativeDecimal": {
       "type": "string",
