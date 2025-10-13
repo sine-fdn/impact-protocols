@@ -17,6 +17,7 @@ use rocket_okapi::{JsonSchema, OpenApiError};
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
+#[allow(dead_code)] // TODO: remove struct if not used
 /// Response with an error code of `NoSuchFootprint`. See Chapter "Error Codes" of the Tech Specs for mor details.
 pub(crate) struct NoSuchFootprint {
     pub(crate) message: &'static str,
@@ -57,6 +58,7 @@ pub(crate) struct NotImplemented {
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
+#[allow(dead_code)] // TODO: remove struct if not used
 /// Response with an error code of `Unauthorized`, used for iLEAP TransportActivityData
 pub(crate) struct Unauthorized {
     pub(crate) message: &'static str,
