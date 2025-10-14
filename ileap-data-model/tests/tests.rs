@@ -122,7 +122,13 @@ fn test_ship_foot_deser() {
     );
 
     let ship_foot: ShipmentFootprint = serde_json::from_str(json).unwrap();
-    assert_eq!(ship_foot, expected)
+    assert_eq!(ship_foot, expected);
+
+    let json = r#"{"mass":"87","shipmentId":"1237890","tces":[{"tceId":"abcdef", "prevTceIds": [], "tocId":"truck-40t-euro5-de","shipmentId":"1237890","mass":87,"distance":{"actual":423},"transportActivity":"36.801","co2eWTW":"36.801","co2eTTW":"3.2801"}]}"#;
+
+    let nok_ship_foot: Result<ShipmentFootprint, serde_json::Error> = serde_json::from_str(json);
+
+    assert!(nok_ship_foot.is_err());
 }
 
 #[test]
