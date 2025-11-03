@@ -1,6 +1,7 @@
 use pact_data_model::{CharacterizationFactors, ProductFootprint, WrappedDecimal};
 use quickcheck::*;
 use rust_decimal::Decimal;
+use rust_decimal_macros::dec;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -78,7 +79,11 @@ pub fn gen_rnd_demo_data(size: u8) -> Vec<ProductFootprint<ILeapType>> {
 
                 tce.hoc_id = Some(hoc.hoc_id.clone());
 
-                tce.distance = GlecDistance::Actual(Decimal::from(0).into());
+                tce.distance = GlecDistance {
+                    actual: Some(dec!(0).into()),
+                    gcd: None,
+                    sfd: None,
+                };
                 tce.transport_activity = Decimal::from(0).into();
 
                 tce.co2e_wtw =

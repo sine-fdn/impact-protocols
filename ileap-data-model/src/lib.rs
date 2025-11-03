@@ -275,18 +275,25 @@ pub type ShipmentId = String;
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub enum GlecDistance {
-    Actual(WrappedDecimal),
-    Gcd(WrappedDecimal),
-    Sfd(WrappedDecimal),
+pub struct GlecDistance {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub actual: Option<WrappedDecimal>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gcd: Option<WrappedDecimal>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sfd: Option<WrappedDecimal>,
 }
 
 impl GlecDistance {
     pub fn get_distance(&self) -> Decimal {
-        match self {
-            GlecDistance::Actual(decimal) => decimal.0,
-            GlecDistance::Gcd(decimal) => decimal.0,
-            GlecDistance::Sfd(decimal) => decimal.0,
+        if let Some(actual) = &self.actual {
+            actual.0
+        } else if let Some(gcd) = &self.gcd {
+            gcd.0
+        } else if let Some(sfd) = &self.sfd {
+            sfd.0
+        } else {
+            Decimal::from(0)
         }
     }
 }

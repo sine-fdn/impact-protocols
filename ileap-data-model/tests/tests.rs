@@ -102,7 +102,11 @@ fn test_ship_foot_deser() {
                 mass: dec!(87).into(),
                 packaging_or_tr_eq_type: None,
                 packaging_or_tr_eq_amount: None,
-                distance: GlecDistance::Actual(dec!(423).into()),
+                distance: GlecDistance {
+                    actual: Some(dec!(423).into()),
+                    gcd: None,
+                    sfd: None,
+                },
                 origin: None,
                 destination: None,
                 transport_activity: dec!(36.801).into(),

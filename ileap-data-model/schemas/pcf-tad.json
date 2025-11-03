@@ -221,44 +221,39 @@
       }
     },
     "GlecDistance": {
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "actual"
-          ],
-          "properties": {
-            "actual": {
+      "type": "object",
+      "properties": {
+        "actual": {
+          "anyOf": [
+            {
               "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
             }
-          },
-          "additionalProperties": false
+          ]
         },
-        {
-          "type": "object",
-          "required": [
-            "gcd"
-          ],
-          "properties": {
-            "gcd": {
+        "gcd": {
+          "anyOf": [
+            {
               "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
             }
-          },
-          "additionalProperties": false
+          ]
         },
-        {
-          "type": "object",
-          "required": [
-            "sfd"
-          ],
-          "properties": {
-            "sfd": {
+        "sfd": {
+          "anyOf": [
+            {
               "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
             }
-          },
-          "additionalProperties": false
+          ]
         }
-      ]
+      }
     },
     "Decimal": {
       "type": "string",

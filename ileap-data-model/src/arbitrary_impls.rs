@@ -490,10 +490,14 @@ impl Arbitrary for Tce {
         let mass = arbitrary_wrapped_decimal(g);
         let glec_distance = GlecDistance::arbitrary(g);
 
-        let distance = match &glec_distance {
-            GlecDistance::Actual(d) => d,
-            GlecDistance::Gcd(d) => d,
-            GlecDistance::Sfd(d) => d,
+        let GlecDistance { actual, gcd, sfd } = &glec_distance;
+
+        let distance = match actual {
+            Some(actual) => actual,
+            None => match gcd {
+                Some(gcd) => gcd,
+                None => sfd.as_ref().unwrap(),
+            },
         };
 
         let transport_activity = WrappedDecimal::from(mass.0 * distance.0);
@@ -552,10 +556,21 @@ impl Arbitrary for Tce {
 impl Arbitrary for GlecDistance {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
         let glec_distance = &[
-            // Dividing u16 by 2 to avoid unreadably large data.
-            GlecDistance::Actual(Decimal::from(u16::arbitrary(g) / 2).into()),
-            GlecDistance::Gcd(Decimal::from(u16::arbitrary(g) / 2).into()),
-            GlecDistance::Sfd(Decimal::from(u16::arbitrary(g) / 2).into()),
+            GlecDistance {
+                actual: Some(Decimal::from(u16::arbitrary(g) / 2).into()),
+                gcd: None,
+                sfd: None,
+            },
+            GlecDistance {
+                actual: None,
+                gcd: Some(Decimal::from(u16::arbitrary(g) / 2).into()),
+                sfd: None,
+            },
+            GlecDistance {
+                actual: None,
+                gcd: None,
+                sfd: Some(Decimal::from(u16::arbitrary(g) / 2).into()),
+            },
         ];
 
         g.choose(glec_distance).unwrap().to_owned()
