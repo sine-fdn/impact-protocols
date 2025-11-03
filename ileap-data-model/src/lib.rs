@@ -285,16 +285,12 @@ pub struct GlecDistance {
 }
 
 impl GlecDistance {
-    pub fn get_distance(&self) -> Decimal {
-        if let Some(actual) = &self.actual {
-            actual.0
-        } else if let Some(gcd) = &self.gcd {
-            gcd.0
-        } else if let Some(sfd) = &self.sfd {
-            sfd.0
-        } else {
-            Decimal::from(0)
-        }
+    pub(crate) fn get_distance(&self) -> Option<Decimal> {
+        self.actual
+            .as_ref()
+            .or(self.gcd.as_ref())
+            .or(self.sfd.as_ref())
+            .map(|wd| wd.0)
     }
 }
 
