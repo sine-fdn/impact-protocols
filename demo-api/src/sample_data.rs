@@ -387,11 +387,7 @@ lazy_static!(
                                     hoc_id: None,
                                     shipment_id: "shipment-1".to_string(),
                                     mass: dec!(40000).into(),
-                                    distance: GlecDistance {
-                                        actual: Some(dec!(423).into()),
-                                        gcd: None,
-                                        sfd: None
-                                    },
+                                    distance: GlecDistance::new_actual(dec!(423).into()),
                                     transport_activity: dec!(16920).into(),
                                     co2e_wtw: dec!(1962.72).into(),
                                     co2e_ttw: dec!(1505.88).into()
@@ -476,11 +472,7 @@ lazy_static!(
                                     toc_id: Some("toc-rail-1".to_string()),
                                     shipment_id: "shipment-multi-modal-1".to_string(),
                                     mass: dec!(40000).into(),
-                                    distance: GlecDistance {
-                                        actual: Some(dec!(423).into()),
-                                        gcd: None,
-                                        sfd: None
-                                    },
+                                    distance: GlecDistance::new_actual(dec!(423).into()),
                                     transport_activity:  dec!(16920).into(),
                                     co2e_wtw:  dec!(118.44).into(),
                                     co2e_ttw: dec!(0).into() },
@@ -493,11 +485,7 @@ lazy_static!(
                                     hoc_id: Some("hoc-transshipment-1".to_string()),
                                     shipment_id: "shipment-multi-modal-1".to_string(),
                                     mass: dec!(40000).into(),
-                                    distance: GlecDistance {
-                                        actual: Some(dec!(0).into()),
-                                        gcd: None,
-                                        sfd: None
-                                    },
+                                    distance: GlecDistance::new_actual(dec!(0).into()),
                                     transport_activity: dec!(0).into(),
                                     co2e_wtw: dec!(1320).into(),
                                     co2e_ttw: dec!(400).into()
@@ -511,11 +499,7 @@ lazy_static!(
                                     hoc_id: None,
                                     shipment_id: "shipment-multi-modal-1".to_string(),
                                     mass: dec!(40000).into(),
-                                    distance: GlecDistance {
-                                        actual: Some(dec!(423).into()),
-                                        gcd: None,
-                                        sfd: None
-                                    },
+                                    distance: GlecDistance::new_actual(dec!(423).into()),
                                     transport_activity: dec!(16920).into(),
                                     co2e_wtw: dec!(1692.62).into(),
                                     co2e_ttw: dec!(1505.88).into() },
@@ -600,11 +584,7 @@ lazy_static!(
                                         hoc_id: None,
                                         shipment_id: "pre-and-post-legs-1".to_string(),
                                         mass: dec!(4000).into(),
-                                        distance: GlecDistance {
-                                            actual: Some(dec!(30).into()),
-                                            gcd: None,
-                                            sfd: None
-                                        },
+                                        distance: GlecDistance::new_actual(dec!(30).into()),
                                         transport_activity: dec!(120).into(),
                                         co2e_wtw: dec!(95.16).into(),
                                         co2e_ttw: dec!(73.08).into(),
@@ -618,11 +598,7 @@ lazy_static!(
                                         hoc_id: Some("hoc-warehouse-1".to_string()),
                                         shipment_id: "pre-and-post-legs-1".to_string(),
                                         mass: dec!(4000).into(),
-                                        distance: GlecDistance {
-                                            actual: Some(dec!(0).into()),
-                                            gcd: None,
-                                            sfd: None
-                                        },
+                                        distance: GlecDistance::new_actual(dec!(0).into()),
                                         transport_activity: dec!(0).into(),
                                         co2e_wtw: dec!(132).into(),
                                         co2e_ttw: dec!(40).into(),
@@ -636,11 +612,7 @@ lazy_static!(
                                         hoc_id: None,
                                         shipment_id: "pre-and-post-legs-1".to_string(),
                                         mass: dec!(4000).into(),
-                                        distance: GlecDistance {
-                                            actual: Some(dec!(50).into()),
-                                            gcd: None,
-                                            sfd: None
-                                        },
+                                        distance: GlecDistance::new_actual(dec!(50).into()),
                                         transport_activity: dec!(200).into(),
                                         co2e_wtw: dec!(158.6).into(),
                                         co2e_ttw: dec!(121.8).into(),
@@ -1359,11 +1331,7 @@ fn demo_tad_base(activity_id: String, consignment_id: String, feedstock: Feedsto
     Tad {
         activity_id,
         consignment_ids: vec![consignment_id],
-        distance: GlecDistance {
-            actual: Some(dec!(656.0).into()),
-            gcd: None,
-            sfd: None,
-        },
+        distance: GlecDistance::new_actual(dec!(656.0).into()),
         mass: Some(dec!(1000.0).into()),
         origin: Location {
             street: Some("Bredowstraße".into()),
