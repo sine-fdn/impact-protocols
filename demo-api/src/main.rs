@@ -1345,6 +1345,12 @@ fn get_tad_with_limit_and_filter_test() {
 
 #[test]
 fn schema_jsons_test() {
+    use serde_json::{to_value, Value};
+
+    fn normalize_schema(schema: RootSchema) -> Value {
+        to_value(schema).unwrap()
+    }
+
     let endpoints = vec![
         ("/shipment-footprint.json", schema_for!(ShipmentFootprint)),
         ("/toc.json", schema_for!(Toc)),
@@ -1358,8 +1364,11 @@ fn schema_jsons_test() {
 
         assert_eq!(schema_resp.status(), rocket::http::Status::Ok);
 
-        let fetched_schema = schema_resp.into_json::<RootSchema>();
+        let fetched_schema = schema_resp.into_json::<RootSchema>().unwrap();
 
-        assert_eq!(fetched_schema.unwrap(), schema);
+        assert_eq!(
+            normalize_schema(fetched_schema),
+            normalize_schema(schema)
+        );
     }
 }
