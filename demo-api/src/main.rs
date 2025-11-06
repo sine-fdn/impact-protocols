@@ -1366,9 +1366,6 @@ fn schema_jsons_test() {
 
         let fetched_schema = schema_resp.into_json::<RootSchema>().unwrap();
 
-        assert_eq!(
-            normalize_schema(fetched_schema),
-            normalize_schema(schema)
-        );
+        assert_eq!(normalize_schema(fetched_schema), normalize_schema(schema));
     }
 }

@@ -255,9 +255,9 @@ fn to_char_factors(
 
 #[test]
 fn ship_foot_to_pfc() {
+    use crate::GlecDistanceKind;
     use crate::{GlecDistance, Tce};
     use rust_decimal_macros::dec;
-    use crate::GlecDistanceKind;
 
     let ship_foot = ShipmentFootprint {
         shipment_id: "shipment-test".to_string(),
