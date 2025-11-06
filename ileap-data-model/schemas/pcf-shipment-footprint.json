@@ -336,38 +336,101 @@
     },
     "GlecDistance": {
       "type": "object",
-      "properties": {
-        "actual": {
-          "anyOf": [
-            {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "actual"
+          ],
+          "properties": {
+            "actual": {
               "$ref": "#/definitions/Decimal"
             },
-            {
-              "type": "null"
+            "gcd": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Decimal"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sfd": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Decimal"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
-          ]
+          }
         },
-        "gcd": {
-          "anyOf": [
-            {
+        {
+          "type": "object",
+          "required": [
+            "gcd"
+          ],
+          "properties": {
+            "actual": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Decimal"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gcd": {
               "$ref": "#/definitions/Decimal"
             },
-            {
-              "type": "null"
+            "sfd": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Decimal"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
-          ]
+          }
         },
-        "sfd": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Decimal"
+        {
+          "type": "object",
+          "required": [
+            "sfd"
+          ],
+          "properties": {
+            "actual": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Decimal"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
-            {
-              "type": "null"
+            "gcd": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Decimal"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sfd": {
+              "$ref": "#/definitions/Decimal"
             }
-          ]
+          }
         }
-      }
+      ]
     },
     "Location": {
       "type": "object",
