@@ -490,17 +490,9 @@ impl Arbitrary for Tce {
         let mass = arbitrary_wrapped_decimal(g);
         let glec_distance = GlecDistance::arbitrary(g);
 
-        let GlecDistance { actual, gcd, sfd } = &glec_distance;
+        let distance = glec_distance.get_distance();
 
-        let distance = match actual {
-            Some(actual) => actual,
-            None => match gcd {
-                Some(gcd) => gcd,
-                None => sfd.as_ref().unwrap(),
-            },
-        };
-
-        let transport_activity = WrappedDecimal::from(mass.0 * distance.0);
+        let transport_activity = WrappedDecimal::from(mass.0 * distance);
 
         let departure_at =
             Option::<DateTime<Utc>>::from(Utc::now() + Duration::days(u8::arbitrary(g) as i64));
@@ -510,7 +502,7 @@ impl Arbitrary for Tce {
             Some(departure) => {
                 // Assuming an average speed of 100 km/h, calculate the arrival time based on the
                 // distance, rounded.
-                let hours = (distance.0 / Decimal::from(100)).round().to_i64().unwrap();
+                let hours = (distance / Decimal::from(100)).round().to_i64().unwrap();
 
                 Some(departure + Duration::hours(hours))
             }
@@ -556,20 +548,20 @@ impl Arbitrary for Tce {
 impl Arbitrary for GlecDistance {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
         let glec_distance = &[
-            GlecDistance {
-                actual: Some(Decimal::from(u16::arbitrary(g) / 2).into()),
+            GlecDistance::Actual {
+                actual: Decimal::from(u16::arbitrary(g) / 2).into(),
                 gcd: None,
                 sfd: None,
             },
-            GlecDistance {
+            GlecDistance::Gcd {
                 actual: None,
-                gcd: Some(Decimal::from(u16::arbitrary(g) / 2).into()),
+                gcd: Decimal::from(u16::arbitrary(g) / 2).into(),
                 sfd: None,
             },
-            GlecDistance {
+            GlecDistance::Sfd {
                 actual: None,
                 gcd: None,
-                sfd: Some(Decimal::from(u16::arbitrary(g) / 2).into()),
+                sfd: Decimal::from(u16::arbitrary(g) / 2).into(),
             },
         ];
 

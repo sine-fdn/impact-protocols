@@ -79,8 +79,8 @@ pub fn gen_rnd_demo_data(size: u8) -> Vec<ProductFootprint<ILeapType>> {
 
                 tce.hoc_id = Some(hoc.hoc_id.clone());
 
-                tce.distance = GlecDistance {
-                    actual: Some(dec!(0).into()),
+                tce.distance = GlecDistance::Actual {
+                    actual: dec!(0).into(),
                     gcd: None,
                     sfd: None,
                 };
@@ -107,7 +107,7 @@ pub fn gen_rnd_demo_data(size: u8) -> Vec<ProductFootprint<ILeapType>> {
                 let mut toc = Toc::arbitrary(&mut og);
                 toc.toc_id = tce.toc_id.clone().unwrap();
 
-                let distance = tce.distance.get_distance().unwrap_or(dec!(0));
+                let distance = tce.distance.get_distance();
                 tce.transport_activity = (tce.mass.0 * distance).round_dp(2).into();
 
                 tce.toc_id = Some(toc.toc_id.clone());

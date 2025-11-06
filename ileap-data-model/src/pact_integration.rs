@@ -268,8 +268,8 @@ fn ship_foot_to_pfc() {
                 hoc_id: None,
                 shipment_id: "shipment-test".to_string(),
                 mass: dec!(40000).into(),
-                distance: GlecDistance {
-                    actual: Some(dec!(423).into()),
+                distance: GlecDistance::Actual {
+                    actual: dec!(423).into(),
                     gcd: None,
                     sfd: None,
                 },
@@ -298,8 +298,8 @@ fn ship_foot_to_pfc() {
                 hoc_id: Some("hoc-transshipment-1".to_string()),
                 shipment_id: "shipment-test".to_string(),
                 mass: dec!(40000).into(),
-                distance: GlecDistance {
-                    actual: Some(dec!(0).into()),
+                distance: GlecDistance::Actual {
+                    actual: dec!(0).into(),
                     gcd: None,
                     sfd: None,
                 },
@@ -328,8 +328,8 @@ fn ship_foot_to_pfc() {
                 hoc_id: None,
                 shipment_id: "shipment-test".to_string(),
                 mass: dec!(40000).into(),
-                distance: GlecDistance {
-                    actual: Some(dec!(423).into()),
+                distance: GlecDistance::Actual {
+                    actual: dec!(423).into(),
                     gcd: None,
                     sfd: None,
                 },
