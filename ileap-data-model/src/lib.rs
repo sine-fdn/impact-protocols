@@ -303,6 +303,7 @@ impl GlecDistance {
         }
     }
 
+    /// construct a new GLEC distance with only SFD distance set
     pub fn new_sfd(distance: WrappedDecimal) -> Self {
         GlecDistance {
             actual: None,
@@ -323,7 +324,6 @@ impl GlecDistance {
         self.sfd.as_ref().map(|wd| wd.0)
     }
 
-    /// construct a new GLEC distance with only SFD distance set
     pub(crate) fn get_distance(&self) -> Option<Decimal> {
         self.actual
             .as_ref()
