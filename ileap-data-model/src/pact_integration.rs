@@ -257,6 +257,7 @@ fn to_char_factors(
 fn ship_foot_to_pfc() {
     use crate::{GlecDistance, Tce};
     use rust_decimal_macros::dec;
+    use crate::GlecDistanceKind;
 
     let ship_foot = ShipmentFootprint {
         shipment_id: "shipment-test".to_string(),
@@ -268,10 +269,12 @@ fn ship_foot_to_pfc() {
                 hoc_id: None,
                 shipment_id: "shipment-test".to_string(),
                 mass: dec!(40000).into(),
-                distance: GlecDistance::Actual {
-                    actual: dec!(423).into(),
-                    gcd: None,
-                    sfd: None,
+                distance: GlecDistance {
+                    inner: GlecDistanceKind::Actual {
+                        actual: dec!(423).into(),
+                        gcd: None,
+                        sfd: None,
+                    },
                 },
                 transport_activity: dec!(16920).into(),
                 co2e_wtw: dec!(118.44).into(),
@@ -298,10 +301,12 @@ fn ship_foot_to_pfc() {
                 hoc_id: Some("hoc-transshipment-1".to_string()),
                 shipment_id: "shipment-test".to_string(),
                 mass: dec!(40000).into(),
-                distance: GlecDistance::Actual {
-                    actual: dec!(0).into(),
-                    gcd: None,
-                    sfd: None,
+                distance: GlecDistance {
+                    inner: GlecDistanceKind::Actual {
+                        actual: dec!(0).into(),
+                        gcd: None,
+                        sfd: None,
+                    },
                 },
                 transport_activity: dec!(0).into(),
                 co2e_wtw: dec!(1320).into(),
@@ -328,10 +333,12 @@ fn ship_foot_to_pfc() {
                 hoc_id: None,
                 shipment_id: "shipment-test".to_string(),
                 mass: dec!(40000).into(),
-                distance: GlecDistance::Actual {
-                    actual: dec!(423).into(),
-                    gcd: None,
-                    sfd: None,
+                distance: GlecDistance {
+                    inner: GlecDistanceKind::Actual {
+                        actual: dec!(423).into(),
+                        gcd: None,
+                        sfd: None,
+                    },
                 },
                 transport_activity: dec!(16920).into(),
                 co2e_wtw: dec!(1692.62).into(),

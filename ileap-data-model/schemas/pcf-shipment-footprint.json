@@ -335,6 +335,7 @@
       "pattern": "^\\d+(\\.\\d+)?$"
     },
     "GlecDistance": {
+      "type": "object",
       "anyOf": [
         {
           "type": "object",

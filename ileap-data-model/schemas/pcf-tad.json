@@ -221,6 +221,7 @@
       }
     },
     "GlecDistance": {
+      "type": "object",
       "anyOf": [
         {
           "type": "object",
