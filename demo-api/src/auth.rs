@@ -41,7 +41,7 @@ pub struct KeyPair {
     dec_key: DecodingKey,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde", rename_all = "camelCase")]
 pub struct UserToken {
     pub username: String,

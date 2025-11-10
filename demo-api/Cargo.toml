@@ -12,7 +12,7 @@ path = "src/main.rs"
 ileap-data-model = { path = "../ileap-data-model" }
 pact-data-model = { path = "../pact-data-model" }
 lazy_static = "1.4.0"
-jsonwebtoken = "9.3.1"
+jsonwebtoken = { version = "10.1.0", features = ["rust_crypto"] }
 rocket_okapi = { version = "0.9.0", features = ["swagger", "secrets"] }
 chrono = { version = "0.4", features = ["serde"] }
 schemars = { version = "0.8", features = ["chrono"] }
