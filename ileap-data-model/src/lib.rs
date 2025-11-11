@@ -801,4 +801,67 @@ mod tests {
             Decimal::new(300, 0)
         );
     }
+
+    #[test]
+    fn test_glecdistance_deser() {
+        let tests = [
+            (
+                r#"{"actual":"150","gcd":"140","sfd":"160"}"#,
+                GlecDistance {
+                    inner: GlecDistanceKind::Actual {
+                        actual: WrappedDecimal(Decimal::new(150, 0)),
+                        gcd: Some(WrappedDecimal(Decimal::new(140, 0))),
+                        sfd: Some(WrappedDecimal(Decimal::new(160, 0))),
+                    },
+                },
+            ),
+            (
+                r#"{"actual":"150","gcd":"140"}"#,
+                GlecDistance {
+                    inner: GlecDistanceKind::Actual {
+                        actual: WrappedDecimal(Decimal::new(150, 0)),
+                        gcd: Some(WrappedDecimal(Decimal::new(140, 0))),
+                        sfd: None,
+                    },
+                },
+            ),
+            (
+                r#"{"actual":"150","sfd":"160"}"#,
+                GlecDistance {
+                    inner: GlecDistanceKind::Actual {
+                        actual: WrappedDecimal(Decimal::new(150, 0)),
+                        gcd: None,
+                        sfd: Some(WrappedDecimal(Decimal::new(160, 0))),
+                    },
+                },
+            ),
+            (
+                r#"{"gcd":"140","sfd":"160"}"#,
+                GlecDistance {
+                    inner: GlecDistanceKind::Gcd {
+                        actual: None,
+                        gcd: WrappedDecimal(Decimal::new(140, 0)),
+                        sfd: Some(WrappedDecimal(Decimal::new(160, 0))),
+                    },
+                },
+            ),
+            (
+                r#"{"actual":"150"}"#,
+                GlecDistance::new_actual(Decimal::new(150, 0).into()),
+            ),
+            (
+                r#"{"gcd":"140"}"#,
+                GlecDistance::new_gcd(Decimal::new(140, 0).into()),
+            ),
+            (
+                r#"{"sfd":"160"}"#,
+                GlecDistance::new_sfd(Decimal::new(160, 0).into()),
+            ),
+        ];
+
+        for (input, expected) in tests {
+            let deserialized: GlecDistance = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
 }

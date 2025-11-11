@@ -548,27 +548,9 @@ impl Arbitrary for Tce {
 impl Arbitrary for GlecDistance {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
         let glec_distance = &[
-            GlecDistance {
-                inner: GlecDistanceKind::Actual {
-                    actual: Decimal::from(u16::arbitrary(g) / 2).into(),
-                    gcd: None,
-                    sfd: None,
-                },
-            },
-            GlecDistance {
-                inner: GlecDistanceKind::Gcd {
-                    actual: None,
-                    gcd: Decimal::from(u16::arbitrary(g) / 2).into(),
-                    sfd: None,
-                },
-            },
-            GlecDistance {
-                inner: GlecDistanceKind::Sfd {
-                    actual: None,
-                    gcd: None,
-                    sfd: Decimal::from(u16::arbitrary(g) / 2).into(),
-                },
-            },
+            GlecDistance::new_actual(Decimal::from(u16::arbitrary(g) / 2).into()),
+            GlecDistance::new_gcd(Decimal::from(u16::arbitrary(g) / 2).into()),
+            GlecDistance::new_sfd(Decimal::from(u16::arbitrary(g) / 2).into()),
         ];
 
         g.choose(glec_distance).unwrap().to_owned()
