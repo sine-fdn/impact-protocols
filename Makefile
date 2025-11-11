@@ -5,6 +5,7 @@ help:
 rebuild-schemas:
 	@echo "Rebuilding schemas..."
 	cargo run --bin ileap-data-model
+	cargo run --bin pact-data-model
 
 build:
 	cargo build
