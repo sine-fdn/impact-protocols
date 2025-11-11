@@ -273,20 +273,87 @@ pub type ActivityId = String;
 pub type ConsignementId = String;
 pub type ShipmentId = String;
 
+#[derive(Serialize, Deserialize, Debug, JsonSchema, PartialEq, Clone)]
+pub struct GlecDistance {
+    #[serde(flatten)]
+    inner: GlecDistanceKind,
+}
+
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub enum GlecDistance {
-    Actual(WrappedDecimal),
-    Gcd(WrappedDecimal),
-    Sfd(WrappedDecimal),
+#[serde(untagged)]
+enum GlecDistanceKind {
+    Actual {
+        actual: WrappedDecimal,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        gcd: Option<WrappedDecimal>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        sfd: Option<WrappedDecimal>,
+    },
+    Gcd {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        actual: Option<WrappedDecimal>,
+        gcd: WrappedDecimal,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        sfd: Option<WrappedDecimal>,
+    },
+    Sfd {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        actual: Option<WrappedDecimal>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        gcd: Option<WrappedDecimal>,
+        sfd: WrappedDecimal,
+    },
 }
 
 impl GlecDistance {
-    pub fn get_distance(&self) -> Decimal {
-        match self {
-            GlecDistance::Actual(decimal) => decimal.0,
-            GlecDistance::Gcd(decimal) => decimal.0,
-            GlecDistance::Sfd(decimal) => decimal.0,
+    /// construct a new GLEC distance with only actual distance set
+    pub fn new_actual(distance: WrappedDecimal) -> Self {
+        GlecDistance {
+            inner: GlecDistanceKind::Actual {
+                actual: distance,
+                gcd: None,
+                sfd: None,
+            },
+        }
+    }
+
+    /// construct a new GLEC distance with only GCD distance set
+    pub fn new_gcd(distance: WrappedDecimal) -> Self {
+        GlecDistance {
+            inner: GlecDistanceKind::Gcd {
+                actual: None,
+                gcd: distance,
+                sfd: None,
+            },
+        }
+    }
+
+    /// construct a new GLEC distance with only SFD distance set
+    pub fn new_sfd(distance: WrappedDecimal) -> Self {
+        GlecDistance {
+            inner: GlecDistanceKind::Sfd {
+                actual: None,
+                gcd: None,
+                sfd: distance,
+            },
+        }
+    }
+
+    pub(crate) fn get_distance(&self) -> Decimal {
+        let distance = self.inner.clone();
+        match distance {
+            GlecDistanceKind::Actual { actual, .. }
+            | GlecDistanceKind::Gcd {
+                actual: Some(actual),
+                ..
+            }
+            | GlecDistanceKind::Sfd {
+                actual: Some(actual),
+                ..
+            } => actual.0,
+            GlecDistanceKind::Gcd { gcd, .. } => gcd.0,
+            GlecDistanceKind::Sfd { sfd, .. } => sfd.0,
         }
     }
 }
@@ -685,6 +752,115 @@ mod tests {
             assert_eq!(input, serde_json::to_string(&expected).unwrap());
 
             let deserialized: PackagingOrTrEqType = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_glecdistance_construction() {
+        assert_eq!(
+            GlecDistance::new_actual(WrappedDecimal(Decimal::new(100, 0))),
+            GlecDistance {
+                inner: GlecDistanceKind::Actual {
+                    actual: WrappedDecimal(Decimal::new(100, 0)),
+                    gcd: None,
+                    sfd: None
+                }
+            }
+        );
+        assert_eq!(
+            GlecDistance::new_actual(WrappedDecimal(Decimal::new(100, 0))).get_distance(),
+            Decimal::new(100, 0)
+        );
+        assert_eq!(
+            GlecDistance::new_gcd(WrappedDecimal(Decimal::new(200, 0))),
+            GlecDistance {
+                inner: GlecDistanceKind::Gcd {
+                    actual: None,
+                    gcd: WrappedDecimal(Decimal::new(200, 0)),
+                    sfd: None
+                }
+            }
+        );
+        assert_eq!(
+            GlecDistance::new_gcd(WrappedDecimal(Decimal::new(200, 0))).get_distance(),
+            Decimal::new(200, 0)
+        );
+        assert_eq!(
+            GlecDistance::new_sfd(WrappedDecimal(Decimal::new(300, 0))),
+            GlecDistance {
+                inner: GlecDistanceKind::Sfd {
+                    actual: None,
+                    gcd: None,
+                    sfd: WrappedDecimal(Decimal::new(300, 0))
+                }
+            }
+        );
+        assert_eq!(
+            GlecDistance::new_sfd(WrappedDecimal(Decimal::new(300, 0))).get_distance(),
+            Decimal::new(300, 0)
+        );
+    }
+
+    #[test]
+    fn test_glecdistance_deser() {
+        let tests = [
+            (
+                r#"{"actual":"150","gcd":"140","sfd":"160"}"#,
+                GlecDistance {
+                    inner: GlecDistanceKind::Actual {
+                        actual: WrappedDecimal(Decimal::new(150, 0)),
+                        gcd: Some(WrappedDecimal(Decimal::new(140, 0))),
+                        sfd: Some(WrappedDecimal(Decimal::new(160, 0))),
+                    },
+                },
+            ),
+            (
+                r#"{"actual":"150","gcd":"140"}"#,
+                GlecDistance {
+                    inner: GlecDistanceKind::Actual {
+                        actual: WrappedDecimal(Decimal::new(150, 0)),
+                        gcd: Some(WrappedDecimal(Decimal::new(140, 0))),
+                        sfd: None,
+                    },
+                },
+            ),
+            (
+                r#"{"actual":"150","sfd":"160"}"#,
+                GlecDistance {
+                    inner: GlecDistanceKind::Actual {
+                        actual: WrappedDecimal(Decimal::new(150, 0)),
+                        gcd: None,
+                        sfd: Some(WrappedDecimal(Decimal::new(160, 0))),
+                    },
+                },
+            ),
+            (
+                r#"{"gcd":"140","sfd":"160"}"#,
+                GlecDistance {
+                    inner: GlecDistanceKind::Gcd {
+                        actual: None,
+                        gcd: WrappedDecimal(Decimal::new(140, 0)),
+                        sfd: Some(WrappedDecimal(Decimal::new(160, 0))),
+                    },
+                },
+            ),
+            (
+                r#"{"actual":"150"}"#,
+                GlecDistance::new_actual(Decimal::new(150, 0).into()),
+            ),
+            (
+                r#"{"gcd":"140"}"#,
+                GlecDistance::new_gcd(Decimal::new(140, 0).into()),
+            ),
+            (
+                r#"{"sfd":"160"}"#,
+                GlecDistance::new_sfd(Decimal::new(160, 0).into()),
+            ),
+        ];
+
+        for (input, expected) in tests {
+            let deserialized: GlecDistance = serde_json::from_str(input).unwrap();
             assert_eq!(deserialized, expected);
         }
     }

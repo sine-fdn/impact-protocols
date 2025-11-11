@@ -490,13 +490,9 @@ impl Arbitrary for Tce {
         let mass = arbitrary_wrapped_decimal(g);
         let glec_distance = GlecDistance::arbitrary(g);
 
-        let distance = match &glec_distance {
-            GlecDistance::Actual(d) => d,
-            GlecDistance::Gcd(d) => d,
-            GlecDistance::Sfd(d) => d,
-        };
+        let distance = glec_distance.get_distance();
 
-        let transport_activity = WrappedDecimal::from(mass.0 * distance.0);
+        let transport_activity = WrappedDecimal::from(mass.0 * distance);
 
         let departure_at =
             Option::<DateTime<Utc>>::from(Utc::now() + Duration::days(u8::arbitrary(g) as i64));
@@ -506,7 +502,7 @@ impl Arbitrary for Tce {
             Some(departure) => {
                 // Assuming an average speed of 100 km/h, calculate the arrival time based on the
                 // distance, rounded.
-                let hours = (distance.0 / Decimal::from(100)).round().to_i64().unwrap();
+                let hours = (distance / Decimal::from(100)).round().to_i64().unwrap();
 
                 Some(departure + Duration::hours(hours))
             }
@@ -552,10 +548,9 @@ impl Arbitrary for Tce {
 impl Arbitrary for GlecDistance {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
         let glec_distance = &[
-            // Dividing u16 by 2 to avoid unreadably large data.
-            GlecDistance::Actual(Decimal::from(u16::arbitrary(g) / 2).into()),
-            GlecDistance::Gcd(Decimal::from(u16::arbitrary(g) / 2).into()),
-            GlecDistance::Sfd(Decimal::from(u16::arbitrary(g) / 2).into()),
+            GlecDistance::new_actual(Decimal::from(u16::arbitrary(g) / 2).into()),
+            GlecDistance::new_gcd(Decimal::from(u16::arbitrary(g) / 2).into()),
+            GlecDistance::new_sfd(Decimal::from(u16::arbitrary(g) / 2).into()),
         ];
 
         g.choose(glec_distance).unwrap().to_owned()

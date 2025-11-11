@@ -255,6 +255,7 @@ fn to_char_factors(
 
 #[test]
 fn ship_foot_to_pfc() {
+    use crate::GlecDistanceKind;
     use crate::{GlecDistance, Tce};
     use rust_decimal_macros::dec;
 
@@ -268,7 +269,13 @@ fn ship_foot_to_pfc() {
                 hoc_id: None,
                 shipment_id: "shipment-test".to_string(),
                 mass: dec!(40000).into(),
-                distance: GlecDistance::Actual(dec!(423).into()),
+                distance: GlecDistance {
+                    inner: GlecDistanceKind::Actual {
+                        actual: dec!(423).into(),
+                        gcd: None,
+                        sfd: None,
+                    },
+                },
                 transport_activity: dec!(16920).into(),
                 co2e_wtw: dec!(118.44).into(),
                 co2e_ttw: dec!(0).into(),
@@ -294,7 +301,13 @@ fn ship_foot_to_pfc() {
                 hoc_id: Some("hoc-transshipment-1".to_string()),
                 shipment_id: "shipment-test".to_string(),
                 mass: dec!(40000).into(),
-                distance: GlecDistance::Actual(dec!(0).into()),
+                distance: GlecDistance {
+                    inner: GlecDistanceKind::Actual {
+                        actual: dec!(0).into(),
+                        gcd: None,
+                        sfd: None,
+                    },
+                },
                 transport_activity: dec!(0).into(),
                 co2e_wtw: dec!(1320).into(),
                 co2e_ttw: dec!(400).into(),
@@ -320,7 +333,13 @@ fn ship_foot_to_pfc() {
                 hoc_id: None,
                 shipment_id: "shipment-test".to_string(),
                 mass: dec!(40000).into(),
-                distance: GlecDistance::Actual(dec!(423).into()),
+                distance: GlecDistance {
+                    inner: GlecDistanceKind::Actual {
+                        actual: dec!(423).into(),
+                        gcd: None,
+                        sfd: None,
+                    },
+                },
                 transport_activity: dec!(16920).into(),
                 co2e_wtw: dec!(1692.62).into(),
                 co2e_ttw: dec!(1505.88).into(),
