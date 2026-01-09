@@ -864,7 +864,7 @@
       "enum": [
         "PEF",
         "ISO",
-        "GHPG",
+        "GHGP",
         "Quantis"
       ]
     },

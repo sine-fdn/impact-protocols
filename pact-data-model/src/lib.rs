@@ -218,8 +218,8 @@ pub enum BiogenicAccountingMethodology {
     Pef,
     #[serde(rename = "ISO")]
     Iso,
-    #[serde(rename = "GHPG")]
-    Ghpg,
+    #[serde(rename = "GHGP")]
+    Ghgp,
     #[serde(rename = "Quantis")]
     Quantis,
 }
