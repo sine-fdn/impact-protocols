@@ -53,7 +53,7 @@ lazy_static!(
                     rule_names: vec![String::from("The Product Carbon Footprint Guideline for the Chemical Industry, v.2.0").into()].into(),
                     other_operator_name: Some(String::from("Tfs").into())
                 }])),
-            biogenic_accounting_methodology: Some(BiogenicAccountingMethodology::Ghpg),
+            biogenic_accounting_methodology: Some(BiogenicAccountingMethodology::Ghgp),
             boundary_processes_description: String::from("1) Material acquisition and preprocessing, including growth of corn 2) Production: fuel consumption, electricity consumption, water consumption, process-generated direct emissions 3) Distribution and storage: transportation of the finished product from manufacturing site to storage site"),
             reference_period_start: Utc.with_ymd_and_hms(2021, 1, 1, 00, 00, 00).unwrap(),
             reference_period_end: Utc.with_ymd_and_hms(2022, 1, 1, 00, 00, 00).unwrap(),
@@ -123,7 +123,7 @@ lazy_static!(
                     rule_names: vec![String::from("The Product Carbon Footprint Guideline for the Chemical Industry, v.2.0").into()].into(),
                     other_operator_name: Some(String::from("Tfs").into())
                 }])),
-            biogenic_accounting_methodology: Some(BiogenicAccountingMethodology::Ghpg),
+            biogenic_accounting_methodology: Some(BiogenicAccountingMethodology::Ghgp),
             boundary_processes_description: String::from("1) Material acquisition and preprocessing, including growth of corn 2) Production: fuel consumption, electricity consumption, water consumption, process-generated direct emissions 3) Distribution and storage: transportation of the finished product from manufacturing site to storage site"),
             reference_period_start: Utc.with_ymd_and_hms(2021, 1, 1, 00, 00, 00).unwrap(),
             reference_period_end: Utc.with_ymd_and_hms(2022, 1, 1, 00, 00, 00).unwrap(),
