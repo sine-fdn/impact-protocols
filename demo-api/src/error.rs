@@ -17,43 +17,50 @@ use rocket_okapi::{JsonSchema, OpenApiError};
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
+pub(crate) enum GetPfError {
+    NoSuchFootprint(NoSuchFootprint),
+    BadRequest(BadRequest),
+}
+
+#[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
+#[serde(crate = "rocket::serde")]
 #[allow(dead_code)] // TODO: remove struct if not used
 /// Response with an error code of `NoSuchFootprint`. See Chapter "Error Codes" of the Tech Specs for mor details.
 pub(crate) struct NoSuchFootprint {
-    pub(crate) message: &'static str,
-    pub(crate) code: &'static str,
+    pub(crate) message: String,
+    pub(crate) code: String,
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
 /// Response with an error code of `AccessDenied`. See Chapter "Error Codes" of the Tech Specs for mor details.
 pub(crate) struct AccessDenied {
-    pub(crate) message: &'static str,
-    pub(crate) code: &'static str,
+    pub(crate) message: String,
+    pub(crate) code: String,
 }
 
 /// RFC 6749 OAuth 2.0 Error Response
 #[derive(Serialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
 pub(crate) struct OAuth2ErrorMessage {
-    pub(crate) error: &'static str,
-    pub(crate) error_description: &'static str,
+    pub(crate) error: String,
+    pub(crate) error_description: String,
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
 /// Response with an error code of `BadRequest`. See Chapter "Error Codes" of the Tech Specs for mor details.
 pub(crate) struct BadRequest {
-    pub(crate) message: &'static str,
-    pub(crate) code: &'static str,
+    pub(crate) message: String,
+    pub(crate) code: String,
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
 /// Response with an error code of `NotImplemented`. See Chapter "Error Codes" of the Tech Specs for mor details.
 pub(crate) struct NotImplemented {
-    pub(crate) message: &'static str,
-    pub(crate) code: &'static str,
+    pub(crate) message: String,
+    pub(crate) code: String,
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
@@ -61,15 +68,15 @@ pub(crate) struct NotImplemented {
 #[allow(dead_code)] // TODO: remove struct if not used
 /// Response with an error code of `Unauthorized`, used for iLEAP TransportActivityData
 pub(crate) struct Unauthorized {
-    pub(crate) message: &'static str,
-    pub(crate) code: &'static str,
+    pub(crate) message: String,
+    pub(crate) code: String,
 }
 
 impl Default for AccessDenied {
     fn default() -> Self {
         Self {
-            message: "Access Denied",
-            code: "AccessDenied",
+            message: "Access Denied".to_string(),
+            code: "AccessDenied".to_string(),
         }
     }
 }
@@ -77,8 +84,8 @@ impl Default for AccessDenied {
 impl Default for BadRequest {
     fn default() -> Self {
         Self {
-            message: "Bad Request",
-            code: "BadRequest",
+            message: "Bad Request".to_string(),
+            code: "BadRequest".to_string(),
         }
     }
 }
@@ -86,8 +93,8 @@ impl Default for BadRequest {
 impl Default for NoSuchFootprint {
     fn default() -> Self {
         NoSuchFootprint {
-            message: "The specified footprint does not exist",
-            code: "NoSuchFootprint",
+            message: "The specified footprint does not exist".to_string(),
+            code: "NoSuchFootprint".to_string(),
         }
     }
 }
@@ -95,8 +102,8 @@ impl Default for NoSuchFootprint {
 impl Default for NotImplemented {
     fn default() -> Self {
         NotImplemented {
-            message: "Not Implemented",
-            code: "NotImplemented",
+            message: "Not Implemented".to_string(),
+            code: "NotImplemented".to_string(),
         }
     }
 }
@@ -104,8 +111,17 @@ impl Default for NotImplemented {
 impl Default for Unauthorized {
     fn default() -> Self {
         Unauthorized {
-            message: "Unauthorized",
-            code: "Unauthorized",
+            message: "Unauthorized".to_string(),
+            code: "Unauthorized".to_string(),
+        }
+    }
+}
+
+impl<'r, 'o: 'r> Responder<'r, 'o> for GetPfError {
+    fn respond_to(self, req: &'r Request<'_>) -> response::Result<'o> {
+        match self {
+            GetPfError::BadRequest(e) => e.respond_to(req),
+            GetPfError::NoSuchFootprint(e) => e.respond_to(req),
         }
     }
 }
@@ -161,6 +177,24 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for OAuth2ErrorMessage {
             .merge(Json(self).respond_to(request)?)
             .status(Status::BadRequest)
             .ok()
+    }
+}
+
+impl OpenApiResponderInner for GetPfError {
+    fn responses(gen: &mut OpenApiGenerator) -> Result<Responses, OpenApiError> {
+        let mut responses = Responses::default();
+
+        let bad_request_responses = BadRequest::responses(gen)?;
+        for (code, resp) in bad_request_responses.responses {
+            responses.responses.insert(code, resp);
+        }
+
+        let no_such_footprint_responses = NoSuchFootprint::responses(gen)?;
+        for (code, resp) in no_such_footprint_responses.responses {
+            responses.responses.insert(code, resp);
+        }
+
+        Ok(responses)
     }
 }
 

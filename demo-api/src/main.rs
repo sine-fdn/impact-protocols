@@ -122,8 +122,8 @@ fn oauth2_create_token(
 ) -> Result<Json<auth::OAuth2TokenReply>, error::OAuth2ErrorMessage> {
     if body.grant_type != "client_credentials" {
         return Err(error::OAuth2ErrorMessage {
-            error_description: "The grant type is not supported by this server",
-            error: "unsupported_grant_type",
+            error_description: "The grant type is not supported by this server".to_string(),
+            error: "unsupported_grant_type".to_string(),
         });
     }
     if (req.id == DEMO_GLOBAL_USERNAME && req.secret == DEMO_GLOBAL_PASSWORD)
@@ -142,8 +142,8 @@ fn oauth2_create_token(
         Ok(Json(reply))
     } else {
         Err(error::OAuth2ErrorMessage {
-            error_description: "Invalid client credentials",
-            error: "invalid_client",
+            error_description: "Invalid client credentials".to_string(),
+            error: "invalid_client".to_string(),
         })
     }
 }
@@ -443,16 +443,16 @@ fn get_footprints(
 fn get_pcf(
     id: PfIdParam,
     auth: Option<UserToken>,
-) -> Result<Json<ProductFootprintResponse>, error::BadRequest> {
+) -> Result<Json<ProductFootprintResponse>, error::GetPfError> {
     let Some(auth) = auth else {
-        return Err(Default::default());
+        return Err(error::GetPfError::BadRequest(Default::default()));
     };
 
     filtered_by_auth(PCF_DEMO_DATA.to_vec(), &auth.username)
         .iter()
         .find(|pf| pf.id == id.0)
         .map(|pcf| Ok(Json(ProductFootprintResponse { data: pcf.clone() })))
-        .unwrap_or_else(|| Err(Default::default()))
+        .unwrap_or_else(|| Err(error::GetPfError::NoSuchFootprint(Default::default())))
 }
 
 #[get("/2/footprints/<_id>", format = "json", rank = 2)]
@@ -1134,7 +1134,7 @@ fn get_pcf_test() {
             .get(get_pcf_uri)
             .header(rocket::http::Header::new("Authorization", bearer_token))
             .dispatch();
-        assert_eq!(rocket::http::Status::BadRequest, resp.status());
+        assert_eq!(rocket::http::Status::NotFound, resp.status());
     }
 }
 
