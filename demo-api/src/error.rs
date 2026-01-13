@@ -15,7 +15,7 @@ use rocket_okapi::okapi::{self, schemars};
 use rocket_okapi::response::OpenApiResponderInner;
 use rocket_okapi::{JsonSchema, OpenApiError};
 
-#[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
+#[derive(Serialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
 pub(crate) enum GetPfError {
     NoSuchFootprint(NoSuchFootprint),
@@ -27,40 +27,40 @@ pub(crate) enum GetPfError {
 #[allow(dead_code)] // TODO: remove struct if not used
 /// Response with an error code of `NoSuchFootprint`. See Chapter "Error Codes" of the Tech Specs for mor details.
 pub(crate) struct NoSuchFootprint {
-    pub(crate) message: String,
-    pub(crate) code: String,
+    pub(crate) message: &'static str,
+    pub(crate) code: &'static str,
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
 /// Response with an error code of `AccessDenied`. See Chapter "Error Codes" of the Tech Specs for mor details.
 pub(crate) struct AccessDenied {
-    pub(crate) message: String,
-    pub(crate) code: String,
+    pub(crate) message: &'static str,
+    pub(crate) code: &'static str,
 }
 
 /// RFC 6749 OAuth 2.0 Error Response
 #[derive(Serialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
 pub(crate) struct OAuth2ErrorMessage {
-    pub(crate) error: String,
-    pub(crate) error_description: String,
+    pub(crate) error: &'static str,
+    pub(crate) error_description: &'static str,
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
 /// Response with an error code of `BadRequest`. See Chapter "Error Codes" of the Tech Specs for mor details.
 pub(crate) struct BadRequest {
-    pub(crate) message: String,
-    pub(crate) code: String,
+    pub(crate) message: &'static str,
+    pub(crate) code: &'static str,
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
 /// Response with an error code of `NotImplemented`. See Chapter "Error Codes" of the Tech Specs for mor details.
 pub(crate) struct NotImplemented {
-    pub(crate) message: String,
-    pub(crate) code: String,
+    pub(crate) message: &'static str,
+    pub(crate) code: &'static str,
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
@@ -68,15 +68,15 @@ pub(crate) struct NotImplemented {
 #[allow(dead_code)] // TODO: remove struct if not used
 /// Response with an error code of `Unauthorized`, used for iLEAP TransportActivityData
 pub(crate) struct Unauthorized {
-    pub(crate) message: String,
-    pub(crate) code: String,
+    pub(crate) message: &'static str,
+    pub(crate) code: &'static str,
 }
 
 impl Default for AccessDenied {
     fn default() -> Self {
         Self {
-            message: "Access Denied".to_string(),
-            code: "AccessDenied".to_string(),
+            message: "Access Denied",
+            code: "AccessDenied",
         }
     }
 }
@@ -84,8 +84,8 @@ impl Default for AccessDenied {
 impl Default for BadRequest {
     fn default() -> Self {
         Self {
-            message: "Bad Request".to_string(),
-            code: "BadRequest".to_string(),
+            message: "Bad Request",
+            code: "BadRequest",
         }
     }
 }
@@ -93,8 +93,8 @@ impl Default for BadRequest {
 impl Default for NoSuchFootprint {
     fn default() -> Self {
         NoSuchFootprint {
-            message: "The specified footprint does not exist".to_string(),
-            code: "NoSuchFootprint".to_string(),
+            message: "The specified footprint does not exist",
+            code: "NoSuchFootprint",
         }
     }
 }
@@ -102,8 +102,8 @@ impl Default for NoSuchFootprint {
 impl Default for NotImplemented {
     fn default() -> Self {
         NotImplemented {
-            message: "Not Implemented".to_string(),
-            code: "NotImplemented".to_string(),
+            message: "Not Implemented",
+            code: "NotImplemented",
         }
     }
 }
@@ -111,8 +111,8 @@ impl Default for NotImplemented {
 impl Default for Unauthorized {
     fn default() -> Self {
         Unauthorized {
-            message: "Unauthorized".to_string(),
-            code: "Unauthorized".to_string(),
+            message: "Unauthorized",
+            code: "Unauthorized",
         }
     }
 }

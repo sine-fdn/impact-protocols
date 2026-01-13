@@ -122,8 +122,8 @@ fn oauth2_create_token(
 ) -> Result<Json<auth::OAuth2TokenReply>, error::OAuth2ErrorMessage> {
     if body.grant_type != "client_credentials" {
         return Err(error::OAuth2ErrorMessage {
-            error_description: "The grant type is not supported by this server".to_string(),
-            error: "unsupported_grant_type".to_string(),
+            error_description: "The grant type is not supported by this server",
+            error: "unsupported_grant_type",
         });
     }
     if (req.id == DEMO_GLOBAL_USERNAME && req.secret == DEMO_GLOBAL_PASSWORD)
@@ -142,8 +142,8 @@ fn oauth2_create_token(
         Ok(Json(reply))
     } else {
         Err(error::OAuth2ErrorMessage {
-            error_description: "Invalid client credentials".to_string(),
-            error: "invalid_client".to_string(),
+            error_description: "Invalid client credentials",
+            error: "invalid_client",
         })
     }
 }
