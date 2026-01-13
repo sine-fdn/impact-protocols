@@ -461,7 +461,7 @@ fn get_pcf_unauth(_id: &str) -> error::BadRequest {
 }
 
 #[openapi]
-#[post("/2/events", data = "<event>", format = "json")]
+#[post("/2/events", data = "<event>", format = "application/cloudevents+json")]
 fn post_event(
     auth: UserToken,
     event: Option<rocket::serde::json::Json<PathfinderEvent>>,
@@ -1016,6 +1016,8 @@ fn get_list_with_limit_test() {
 
 #[test]
 fn post_events_test() {
+    use rocket::http::ContentType;
+
     let client = &Client::tracked(create_server(TEST_KEYPAIR.clone())).unwrap();
 
     let token = UserToken {
@@ -1069,6 +1071,7 @@ fn post_events_test() {
         };
         let resp = client
             .post(post_events_uri)
+            .header(ContentType::new("application", "cloudevents+json"))
             .header(rocket::http::Header::new("Authorization", bearer_token))
             .json(&event)
             .dispatch();
