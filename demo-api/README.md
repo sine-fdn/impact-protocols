@@ -25,8 +25,8 @@ Four user credentials are available:
 The following endpoints are available:
 
 - PACT endpoints (with iLEAP demo data when applicable)
-  - `/2/auth/token` implementing `Authenticate` action
-  - `/2/.well-known/openid-configuration`: OpenId provider configuration document
+  - `/auth/token` implementing `Authenticate` action
+  - `/.well-known/openid-configuration`: OpenId provider configuration document
   - `/2/jwks`: the JSON Web Key Set used to encode and sign the authentication token
   - `/2/footprints` implementing the `ListFootprints` action
   - `/2/footprints/<footprint-id>` implementing the `GetFootprint` action

@@ -443,16 +443,16 @@ fn get_footprints(
 fn get_pcf(
     id: PfIdParam,
     auth: Option<UserToken>,
-) -> Result<Json<ProductFootprintResponse>, error::BadRequest> {
+) -> Result<Json<ProductFootprintResponse>, error::GetPfError> {
     let Some(auth) = auth else {
-        return Err(Default::default());
+        return Err(error::GetPfError::BadRequest(Default::default()));
     };
 
     filtered_by_auth(PCF_DEMO_DATA.to_vec(), &auth.username)
         .iter()
         .find(|pf| pf.id == id.0)
         .map(|pcf| Ok(Json(ProductFootprintResponse { data: pcf.clone() })))
-        .unwrap_or_else(|| Err(Default::default()))
+        .unwrap_or_else(|| Err(error::GetPfError::NoSuchFootprint(Default::default())))
 }
 
 #[get("/2/footprints/<_id>", format = "json", rank = 2)]
@@ -1137,7 +1137,7 @@ fn get_pcf_test() {
             .get(get_pcf_uri)
             .header(rocket::http::Header::new("Authorization", bearer_token))
             .dispatch();
-        assert_eq!(rocket::http::Status::BadRequest, resp.status());
+        assert_eq!(rocket::http::Status::NotFound, resp.status());
     }
 }
 

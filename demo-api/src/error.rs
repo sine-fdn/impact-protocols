@@ -15,13 +15,55 @@ use rocket_okapi::okapi::{self, schemars};
 use rocket_okapi::response::OpenApiResponderInner;
 use rocket_okapi::{JsonSchema, OpenApiError};
 
+/// Error code enum for NoSuchFootprint responses
+#[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug, Clone, Copy)]
+#[serde(crate = "rocket::serde")]
+pub(crate) enum NoSuchFootprintCode {
+    NoSuchFootprint,
+}
+
+/// Error code enum for AccessDenied responses
+#[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug, Clone, Copy)]
+#[serde(crate = "rocket::serde")]
+pub(crate) enum AccessDeniedCode {
+    AccessDenied,
+}
+
+/// Error code enum for BadRequest responses
+#[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug, Clone, Copy)]
+#[serde(crate = "rocket::serde")]
+pub(crate) enum BadRequestCode {
+    BadRequest,
+}
+
+/// Error code enum for NotImplemented responses
+#[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug, Clone, Copy)]
+#[serde(crate = "rocket::serde")]
+pub(crate) enum NotImplementedCode {
+    NotImplemented,
+}
+
+/// Error code enum for Unauthorized responses
+#[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug, Clone, Copy)]
+#[serde(crate = "rocket::serde")]
+pub(crate) enum UnauthorizedCode {
+    Unauthorized,
+}
+
+#[derive(Serialize, JsonSchema, PartialEq, Debug)]
+#[serde(crate = "rocket::serde")]
+pub(crate) enum GetPfError {
+    NoSuchFootprint(NoSuchFootprint),
+    BadRequest(BadRequest),
+}
+
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
 #[allow(dead_code)] // TODO: remove struct if not used
 /// Response with an error code of `NoSuchFootprint`. See Chapter "Error Codes" of the Tech Specs for mor details.
 pub(crate) struct NoSuchFootprint {
     pub(crate) message: &'static str,
-    pub(crate) code: &'static str,
+    pub(crate) code: NoSuchFootprintCode,
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
@@ -29,7 +71,7 @@ pub(crate) struct NoSuchFootprint {
 /// Response with an error code of `AccessDenied`. See Chapter "Error Codes" of the Tech Specs for mor details.
 pub(crate) struct AccessDenied {
     pub(crate) message: &'static str,
-    pub(crate) code: &'static str,
+    pub(crate) code: AccessDeniedCode,
 }
 
 /// RFC 6749 OAuth 2.0 Error Response
@@ -45,7 +87,7 @@ pub(crate) struct OAuth2ErrorMessage {
 /// Response with an error code of `BadRequest`. See Chapter "Error Codes" of the Tech Specs for mor details.
 pub(crate) struct BadRequest {
     pub(crate) message: &'static str,
-    pub(crate) code: &'static str,
+    pub(crate) code: BadRequestCode,
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
@@ -53,7 +95,7 @@ pub(crate) struct BadRequest {
 /// Response with an error code of `NotImplemented`. See Chapter "Error Codes" of the Tech Specs for mor details.
 pub(crate) struct NotImplemented {
     pub(crate) message: &'static str,
-    pub(crate) code: &'static str,
+    pub(crate) code: NotImplementedCode,
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
@@ -62,14 +104,14 @@ pub(crate) struct NotImplemented {
 /// Response with an error code of `Unauthorized`, used for iLEAP TransportActivityData
 pub(crate) struct Unauthorized {
     pub(crate) message: &'static str,
-    pub(crate) code: &'static str,
+    pub(crate) code: UnauthorizedCode,
 }
 
 impl Default for AccessDenied {
     fn default() -> Self {
         Self {
             message: "Access Denied",
-            code: "AccessDenied",
+            code: AccessDeniedCode::AccessDenied,
         }
     }
 }
@@ -78,7 +120,7 @@ impl Default for BadRequest {
     fn default() -> Self {
         Self {
             message: "Bad Request",
-            code: "BadRequest",
+            code: BadRequestCode::BadRequest,
         }
     }
 }
@@ -87,7 +129,7 @@ impl Default for NoSuchFootprint {
     fn default() -> Self {
         NoSuchFootprint {
             message: "The specified footprint does not exist",
-            code: "NoSuchFootprint",
+            code: NoSuchFootprintCode::NoSuchFootprint,
         }
     }
 }
@@ -96,7 +138,7 @@ impl Default for NotImplemented {
     fn default() -> Self {
         NotImplemented {
             message: "Not Implemented",
-            code: "NotImplemented",
+            code: NotImplementedCode::NotImplemented,
         }
     }
 }
@@ -105,7 +147,16 @@ impl Default for Unauthorized {
     fn default() -> Self {
         Unauthorized {
             message: "Unauthorized",
-            code: "Unauthorized",
+            code: UnauthorizedCode::Unauthorized,
+        }
+    }
+}
+
+impl<'r, 'o: 'r> Responder<'r, 'o> for GetPfError {
+    fn respond_to(self, req: &'r Request<'_>) -> response::Result<'o> {
+        match self {
+            GetPfError::BadRequest(e) => e.respond_to(req),
+            GetPfError::NoSuchFootprint(e) => e.respond_to(req),
         }
     }
 }
@@ -164,6 +215,24 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for OAuth2ErrorMessage {
     }
 }
 
+impl OpenApiResponderInner for GetPfError {
+    fn responses(gen: &mut OpenApiGenerator) -> Result<Responses, OpenApiError> {
+        let mut responses = Responses::default();
+
+        let bad_request_responses = BadRequest::responses(gen)?;
+        for (code, resp) in bad_request_responses.responses {
+            responses.responses.insert(code, resp);
+        }
+
+        let no_such_footprint_responses = NoSuchFootprint::responses(gen)?;
+        for (code, resp) in no_such_footprint_responses.responses {
+            responses.responses.insert(code, resp);
+        }
+
+        Ok(responses)
+    }
+}
+
 impl OpenApiResponderInner for BadRequest {
     fn responses(gen: &mut OpenApiGenerator) -> Result<Responses, OpenApiError> {
         let resp = openapi_response::<BadRequest>(
@@ -181,7 +250,7 @@ impl OpenApiResponderInner for BadRequest {
 
 impl OpenApiResponderInner for NotImplemented {
     fn responses(gen: &mut OpenApiGenerator) -> Result<Responses, OpenApiError> {
-        let resp = openapi_response::<BadRequest>(
+        let resp = openapi_response::<NotImplemented>(
             gen,
             "501".to_owned(),
             "\
