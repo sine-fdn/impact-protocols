@@ -17,7 +17,7 @@ rocket_okapi = { version = "0.9.0", features = ["swagger", "secrets"] }
 chrono = { version = "0.4", features = ["serde"] }
 schemars = { version = "0.8", features = ["chrono"] }
 rust_decimal = "^1.40"
-rust_decimal_macros = "^1.39"
+rust_decimal_macros = "^1.40"
 okapi = "0.7.0-rc.1"
 base64 = "0.22.1"
 url = { version = "2.5.8", features = ["serde"] }
