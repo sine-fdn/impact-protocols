@@ -1,5 +1,5 @@
 help:
-	@echo make "<help|rebuild-schemas|build|clean|test|start-demo-api>"
+	@echo make "<help|rebuild-schemas|build|clean|test|start-demo-api|dockerize|ci>"
 
 
 rebuild-schemas:
@@ -22,9 +22,11 @@ ci:
 	cd pact-data-model && cargo test
 	make -C demo-api ci
 
-
 start-demo-api:
 	make -C demo-api run
 
+dockerize:
+	docker build -f demo-api/Dockerfile .
 
-.PHONY: help rebuild-schemas build test clean
+
+.PHONY: help rebuild-schemas build test clean dockerize ci start-demo-api
