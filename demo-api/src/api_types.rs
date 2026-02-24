@@ -63,7 +63,8 @@ pub(crate) enum EventsApiResponse {
     Ok(()),
     #[response(status = 400, content_type = "application/json")]
     NoAuth(crate::error::BadRequest),
-    #[response(status = 501, content_type = "application/json")]
+    // According to the PACT Tech Specs, NotImplemented should have status code 400
+    #[response(status = 400, content_type = "application/json")]
     _NotImpl(crate::error::NotImplemented),
     #[response(status = 400, content_type = "application/json")]
     BadReq(crate::error::BadRequest),
