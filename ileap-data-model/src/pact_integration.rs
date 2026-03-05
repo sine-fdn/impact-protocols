@@ -256,7 +256,7 @@ fn to_char_factors(
 #[test]
 fn ship_foot_to_pfc() {
     use crate::GlecDistanceKind;
-    use crate::{GlecDistance, Tce};
+    use crate::{GlecDistance, ILeapStatus, Tce};
     use rust_decimal_macros::dec;
 
     let ship_foot = ShipmentFootprint {
@@ -362,6 +362,17 @@ fn ship_foot_to_pfc() {
         .into(),
         mass: "40000".to_string(),
         volume: None,
+        spec_version: None,
+        company_name: None,
+        company_ids: None,
+        description: None,
+        created_at: None,
+        status: ILeapStatus::Active,
+        reference_period_start: None,
+        reference_period_end: None,
+        secondary_emission_factor_sources: None,
+        pact_pds: None,
+        comment: None,
     };
 
     let pfc = to_pcf(
@@ -385,7 +396,7 @@ fn ship_foot_to_pfc() {
 #[test]
 fn toc_to_pcf() {
     use crate::{
-        EnergyCarrier, EnergyCarrierType, Feedstock, FeedstockType, TemperatureControl, Toc,
+        EnergyCarrier, EnergyCarrierType, Feedstock, FeedstockType, ILeapStatus, TemperatureControl, Toc,
         TransportActivityUnit, TransportMode,
     };
     use rust_decimal_macros::dec;
@@ -418,6 +429,16 @@ fn toc_to_pcf() {
         description: None,
         air_shipping_option: None,
         flight_length: None,
+        spec_version: None,
+        company_name: None,
+        company_ids: None,
+        created_at: None,
+        status: ILeapStatus::Active,
+        reference_period_start: None,
+        reference_period_end: None,
+        secondary_emission_factor_sources: None,
+        pact_pds: None,
+        comment: None,
     };
 
     let pfc = to_pcf(
@@ -438,7 +459,7 @@ fn toc_to_pcf() {
 #[test]
 fn hoc_to_pfc() {
     use crate::{
-        EnergyCarrier, EnergyCarrierType, Hoc, HubType, TemperatureControl, TransportMode,
+        EnergyCarrier, EnergyCarrierType, Hoc, HubType, ILeapStatus, TemperatureControl, TransportMode,
     };
     use rust_decimal_macros::dec;
 
@@ -477,6 +498,16 @@ fn hoc_to_pfc() {
         co2e_intensity_wtw: dec!(33).into(),
         co2e_intensity_ttw: dec!(10).into(),
         hub_activity_unit: HubActivityUnit::Tonnes,
+        spec_version: None,
+        company_name: None,
+        company_ids: None,
+        created_at: None,
+        status: ILeapStatus::Active,
+        reference_period_start: None,
+        reference_period_end: None,
+        secondary_emission_factor_sources: None,
+        pact_pds: None,
+        comment: None,
     };
 
     let pfc = to_pcf(
