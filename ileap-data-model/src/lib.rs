@@ -29,9 +29,207 @@ pub use data_gen::*;
 pub mod schema_gen;
 pub use schema_gen::*;
 
+/// Status of an iLEAP data object (ShipmentFootprint, TOC, HOC, AggregatedReport).
+/// Mandatory for all exchanges (both standalone and PACT-based).
+/// Defaults to `Active` for backwards-compatible deserialization of pre-v1.1 data.
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq, Default)]
+pub enum ILeapStatus {
+    #[default]
+    Active,
+    Deprecated,
+}
+
+/// Secondary emission factor source, referencing a named data source and optional version.
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct SecondaryEmissionFactorSource {
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+}
+
+/// Modality enumeration used in AggregatedReport. Extends TransportMode with MultiModal.
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+pub enum Modality {
+    Road,
+    Rail,
+    Air,
+    Sea,
+    InlandWaterway,
+    MultiModal,
+}
+
+/// Hub operation types used in ModeSpecificReport (differs slightly from HubType).
+/// Note: includes generic `Hub` value absent from HubType.
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+pub enum ModeSpecificReportHubOperation {
+    Transshipment,
+    StorageAndTransshipment,
+    Warehouse,
+    LiquidBulkTerminal,
+    Hub,
+}
+
+/// Distance type values used in ModeSpecificReport.distanceTypes.
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum DistanceType {
+    #[serde(rename = "actual")]
+    Actual,
+    #[serde(rename = "gcd")]
+    Gcd,
+    #[serde(rename = "sfd")]
+    Sfd,
+}
+
+/// Mode-specific emissions sub-report within an AggregatedReport (Section 6.7.10).
+///
+/// Either `transport_mode` or `hub_operations` MUST be defined.
+///
+/// TODO: The spec example (Section 7.7 response) uses the field name `"mode"` while the
+/// data type table (Section 6.7.10) specifies `"transportMode"`. Implemented as `transportMode`
+/// per the table definition. Needs clarification.
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct ModeSpecificReport {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub transport_mode: Option<TransportMode>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hub_operations: Option<Vec<ModeSpecificReportHubOperation>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub distance_types: Option<Vec<DistanceType>>,
+    #[serde(rename = "co2eWTW")]
+    pub co2e_wtw: WrappedDecimal,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "co2eTTW")]
+    pub co2e_ttw: Option<WrappedDecimal>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "noxTTW")]
+    pub nox_ttw: Option<WrappedDecimal>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "soxTTW")]
+    pub sox_ttw: Option<WrappedDecimal>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "ch4TTW")]
+    pub ch4_ttw: Option<WrappedDecimal>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "pmTTW")]
+    pub pm_ttw: Option<WrappedDecimal>,
+}
+
+/// Aggregated Report (AR) – Data Transaction 4 (Section 6.6).
+/// Contains aggregated emissions data for one or more shipments.
+/// This type is ONLY exchanged through the iLEAP standalone API (`/v1/ileap/aed`),
+/// never as a PACT ProductFootprint extension.
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[serde(rename_all = "camelCase", rename = "AR")]
+pub struct AggregatedReport {
+    /// iLEAP spec version; MUST be "1.1.0" for this version. M
+    pub spec_version: String,
+    /// Unique report ID relative to the host system. M
+    pub report_id: String,
+    /// Non-empty set of methodological standards used. M
+    /// Each element MUST be one of: "ISO14083:2023"
+    pub standards_used: Vec<String>,
+    /// Shipment IDs covered by this report. M
+    pub shipment_ids: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tce_ids: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub toc_ids: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hoc_ids: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub report_period_start: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub report_period_end: Option<DateTime<Utc>>,
+    /// Creation timestamp of this AggregatedReport. M
+    pub created_at: DateTime<Utc>,
+    /// Status of this report. M
+    pub status: ILeapStatus,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub transport_service_user_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub transport_service_user_bu_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub consignment_ids: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub packaging_or_tr_eq_type: Option<PackagingOrTrEqType>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub packaging_or_tr_eq_amount: Option<WrappedDecimal>,
+    /// Sum of transport activity across all referenced shipments (unit: ton kilometers). M
+    pub total_transport_activity: WrappedDecimal,
+    /// Total WTW GHG emissions (unit: kgCO2e). M
+    #[serde(rename = "co2eWTW")]
+    pub co2e_wtw: WrappedDecimal,
+    /// Total TTW GHG emissions (unit: kgCO2e). O
+    #[serde(skip_serializing_if = "Option::is_none", rename = "co2eTTW")]
+    pub co2e_ttw: Option<WrappedDecimal>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "noxTTW")]
+    pub nox_ttw: Option<WrappedDecimal>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "soxTTW")]
+    pub sox_ttw: Option<WrappedDecimal>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "ch4TTW")]
+    pub ch4_ttw: Option<WrappedDecimal>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "pmTTW")]
+    pub pm_ttw: Option<WrappedDecimal>,
+    /// Per-mode emissions breakdown. MUST be defined for ISO14083 conformance. O
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub per_mode_emissions: Option<Vec<ModeSpecificReport>>,
+    /// Transport modalities included. SHOULD be defined if perModeEmissions is not. O
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub modalities: Option<Vec<Modality>>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ShipmentFootprint {
+    // --- Standalone-protocol metadata fields (M* = mandatory in standalone, optional in PACT) ---
+
+    /// iLEAP spec version; MUST be "1.1.0". M* (mandatory when exchanged via standalone protocol)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub spec_version: Option<String>,
+
+    /// Name of the company owning the data. M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub company_name: Option<String>,
+
+    /// Set of identifiers for the data owner company. O
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub company_ids: Option<Vec<String>>,
+
+    /// Description of the Shipment. O
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+
+    /// Creation timestamp of this ShipmentFootprint. M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<DateTime<Utc>>,
+
+    /// Status of this ShipmentFootprint. M (always required).
+    /// Defaults to `Active` when deserializing pre-v1.1 data that omits this field.
+    #[serde(default)]
+    pub status: ILeapStatus,
+
+    /// Reference period start (inclusive). M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference_period_start: Option<DateTime<Utc>>,
+
+    /// Reference period end (exclusive). M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference_period_end: Option<DateTime<Utc>>,
+
+    /// Secondary emission factor sources used. O
+    /// TODO: proposed attribute pending community input (spec Issue tag)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub secondary_emission_factor_sources: Option<Vec<SecondaryEmissionFactorSource>>,
+
+    /// Primary data share (0–100). O
+    /// TODO: proposed attribute pending community input (spec Issue tag)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pact_pds: Option<WrappedDecimal>,
+
+    /// Additional comment. O
+    /// TODO: proposed attribute pending community input (spec Issue tag)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub comment: Option<String>,
+
+    // --- Core fields ---
     pub mass: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub volume: Option<String>,
@@ -122,6 +320,53 @@ pub enum Certification {
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase", rename = "TOC")]
 pub struct Toc {
+    // --- Standalone-protocol metadata fields ---
+
+    /// iLEAP spec version; MUST be "1.1.0". M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub spec_version: Option<String>,
+
+    /// Name of the company owning the data. M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub company_name: Option<String>,
+
+    /// Set of identifiers for the data owner company. O
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub company_ids: Option<Vec<String>>,
+
+    /// Creation timestamp. M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<DateTime<Utc>>,
+
+    /// Status of this TOC. M (always required).
+    /// Defaults to `Active` when deserializing pre-v1.1 data that omits this field.
+    #[serde(default)]
+    pub status: ILeapStatus,
+
+    /// Reference period start (inclusive). M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference_period_start: Option<DateTime<Utc>>,
+
+    /// Reference period end (exclusive). M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference_period_end: Option<DateTime<Utc>>,
+
+    /// Secondary emission factor sources. O
+    /// TODO: proposed attribute pending community input (spec Issue tag)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub secondary_emission_factor_sources: Option<Vec<SecondaryEmissionFactorSource>>,
+
+    /// Primary data share (0–100). O
+    /// TODO: proposed attribute pending community input (spec Issue tag)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pact_pds: Option<WrappedDecimal>,
+
+    /// Additional comment. O
+    /// TODO: proposed attribute pending community input (spec Issue tag)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub comment: Option<String>,
+
+    // --- Core fields ---
     pub toc_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub certifications: Option<NonEmptyVec<Certification>>,
@@ -198,6 +443,53 @@ pub enum FlightLength {
 #[derive(Debug, Serialize, Deserialize, JsonSchema, PartialEq, Clone)]
 #[serde(rename_all = "camelCase", rename = "HOC")]
 pub struct Hoc {
+    // --- Standalone-protocol metadata fields ---
+
+    /// iLEAP spec version; MUST be "1.1.0". M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub spec_version: Option<String>,
+
+    /// Name of the company owning the data. M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub company_name: Option<String>,
+
+    /// Set of identifiers for the data owner company. O
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub company_ids: Option<Vec<String>>,
+
+    /// Creation timestamp. M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<DateTime<Utc>>,
+
+    /// Status of this HOC. M (always required).
+    /// Defaults to `Active` when deserializing pre-v1.1 data that omits this field.
+    #[serde(default)]
+    pub status: ILeapStatus,
+
+    /// Reference period start (inclusive). M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference_period_start: Option<DateTime<Utc>>,
+
+    /// Reference period end (exclusive). M*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference_period_end: Option<DateTime<Utc>>,
+
+    /// Secondary emission factor sources. O
+    /// TODO: proposed attribute pending community input (spec Issue tag)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub secondary_emission_factor_sources: Option<Vec<SecondaryEmissionFactorSource>>,
+
+    /// Primary data share (0–100). O
+    /// TODO: proposed attribute pending community input (spec Issue tag)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pact_pds: Option<WrappedDecimal>,
+
+    /// Additional comment. O
+    /// TODO: proposed attribute pending community input (spec Issue tag)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub comment: Option<String>,
+
+    // --- Core fields ---
     pub hoc_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
@@ -245,15 +537,18 @@ pub enum HubType {
 #[serde(rename_all = "camelCase", rename = "TAD")]
 /// Data Type "Transport Activity Data" of the iLEAP Technical Specifications
 pub struct Tad {
+    /// iLEAP spec version. O (optional for TAD per spec)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub spec_version: Option<String>,
     pub activity_id: ActivityId,              // Unique
     pub consignment_ids: Vec<ConsignementId>, // Unique
     pub distance: GlecDistance,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mass: Option<WrappedDecimal>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub load_factor: Option<WrappedDecimal>, // TODO replace with propoer type
+    pub load_factor: Option<WrappedDecimal>, // TODO replace with proper type
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub empty_distance_factor: Option<WrappedDecimal>, // TODO replace with propoer type
+    pub empty_distance_factor: Option<WrappedDecimal>, // TODO replace with proper type
     pub origin: Location,
     pub destination: Location,
     pub departure_at: DateTime<Utc>,
@@ -410,6 +705,10 @@ pub struct EnergyCarrier {
     pub energy_consumption: Option<WrappedDecimal>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub energy_consumption_unit: Option<EnergyConsumptionUnit>,
+    /// TODO: The spec defines emissionFactorWTW and emissionFactorTTW as O at the field level,
+    /// but states they MUST be defined when EnergyCarrier is used in the context of a TOC or HOC.
+    /// Currently kept as required (WrappedDecimal) for simplicity. Consider making them Option<>
+    /// and validating at the application layer based on context.
     #[serde(rename = "emissionFactorWTW")]
     pub emission_factor_wtw: WrappedDecimal,
     #[serde(rename = "emissionFactorTTW")]
@@ -752,6 +1051,20 @@ mod tests {
             assert_eq!(input, serde_json::to_string(&expected).unwrap());
 
             let deserialized: PackagingOrTrEqType = serde_json::from_str(input).unwrap();
+            assert_eq!(deserialized, expected);
+        }
+    }
+
+    #[test]
+    fn test_ileap_status_deser() {
+        let tests = [
+            ("\"Active\"", ILeapStatus::Active),
+            ("\"Deprecated\"", ILeapStatus::Deprecated),
+        ];
+
+        for (input, expected) in tests {
+            assert_eq!(input, serde_json::to_string(&expected).unwrap());
+            let deserialized: ILeapStatus = serde_json::from_str(input).unwrap();
             assert_eq!(deserialized, expected);
         }
     }

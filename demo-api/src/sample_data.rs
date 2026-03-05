@@ -1151,6 +1151,17 @@ fn shipment_footprint(
         volume: None,
         shipment_id,
         tces,
+        spec_version: None,
+        company_name: None,
+        company_ids: None,
+        description: None,
+        created_at: None,
+        status: ILeapStatus::Active,
+        reference_period_start: None,
+        reference_period_end: None,
+        secondary_emission_factor_sources: None,
+        pact_pds: None,
+        comment: None,
     }
 }
 
@@ -1196,6 +1207,16 @@ fn toc(
         co2e_intensity_wtw,
         co2e_intensity_ttw,
         transport_activity_unit,
+        spec_version: None,
+        company_name: None,
+        company_ids: None,
+        created_at: None,
+        status: ILeapStatus::Active,
+        reference_period_start: None,
+        reference_period_end: None,
+        secondary_emission_factor_sources: None,
+        pact_pds: None,
+        comment: None,
     }
 }
 
@@ -1227,6 +1248,16 @@ fn hoc(
         outbound_transport_mode,
         packaging_or_tr_eq_type: None,
         packaging_or_tr_eq_amount: None,
+        spec_version: None,
+        company_name: None,
+        company_ids: None,
+        created_at: None,
+        status: ILeapStatus::Active,
+        reference_period_start: None,
+        reference_period_end: None,
+        secondary_emission_factor_sources: None,
+        pact_pds: None,
+        comment: None,
         energy_carriers: vec![
             EnergyCarrier {
                 energy_carrier: EnergyCarrierType::Diesel,
@@ -1329,6 +1360,7 @@ lazy_static! {
 
 fn demo_tad_base(activity_id: String, consignment_id: String, feedstock: FeedstockType) -> Tad {
     Tad {
+        spec_version: None,
         activity_id,
         consignment_ids: vec![consignment_id],
         distance: GlecDistance::new_actual(dec!(656.0).into()),
@@ -1407,6 +1439,50 @@ lazy_static! {
         ));
         demo_data
     };
+}
+
+lazy_static! {
+    pub(crate) static ref ILEAP_AED_DEMO_DATA: Vec<AggregatedReport> = vec![
+        AggregatedReport {
+            spec_version: "1.1.0".to_string(),
+            report_id: "aed-report-1".to_string(),
+            standards_used: vec!["ISO14083:2023".to_string()],
+            shipment_ids: vec!["shipment-simple-1".to_string()],
+            tce_ids: Some(vec!["abcdef".to_string()]),
+            toc_ids: Some(vec!["truck-40t-euro5-de".to_string()]),
+            hoc_ids: None,
+            report_period_start: Some(Utc.with_ymd_and_hms(2024, 1, 1, 0, 0, 0).unwrap()),
+            report_period_end: Some(Utc.with_ymd_and_hms(2025, 1, 1, 0, 0, 0).unwrap()),
+            created_at: Utc.with_ymd_and_hms(2025, 1, 15, 10, 0, 0).unwrap(),
+            status: ILeapStatus::Active,
+            transport_service_user_id: None,
+            transport_service_user_bu_id: None,
+            consignment_ids: None,
+            packaging_or_tr_eq_type: None,
+            packaging_or_tr_eq_amount: None,
+            total_transport_activity: dec!(16920).into(),
+            co2e_wtw: dec!(1962.72).into(),
+            co2e_ttw: Some(dec!(1505.88).into()),
+            nox_ttw: None,
+            sox_ttw: None,
+            ch4_ttw: None,
+            pm_ttw: None,
+            per_mode_emissions: Some(vec![
+                ModeSpecificReport {
+                    transport_mode: Some(TransportMode::Road),
+                    hub_operations: None,
+                    distance_types: Some(vec![DistanceType::Actual]),
+                    co2e_wtw: dec!(1962.72).into(),
+                    co2e_ttw: Some(dec!(1505.88).into()),
+                    nox_ttw: None,
+                    sox_ttw: None,
+                    ch4_ttw: None,
+                    pm_ttw: None,
+                },
+            ]),
+            modalities: Some(vec![Modality::Road]),
+        },
+    ];
 }
 
 #[test]
