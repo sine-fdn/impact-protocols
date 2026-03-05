@@ -115,6 +115,98 @@
         "tces"
       ],
       "properties": {
+        "specVersion": {
+          "description": "iLEAP spec version; MUST be \"1.1.0\". M* (mandatory when exchanged via standalone protocol)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "companyName": {
+          "description": "Name of the company owning the data. M*",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "companyIds": {
+          "description": "Set of identifiers for the data owner company. O",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "description": "Description of the Shipment. O",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "createdAt": {
+          "description": "Creation timestamp of this ShipmentFootprint. M*",
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "status": {
+          "description": "Status of this ShipmentFootprint. M (always required). Defaults to `Active` when deserializing pre-v1.1 data that omits this field.",
+          "default": "Active",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ILeapStatus"
+            }
+          ]
+        },
+        "referencePeriodStart": {
+          "description": "Reference period start (inclusive). M*",
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "referencePeriodEnd": {
+          "description": "Reference period end (exclusive). M*",
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "secondaryEmissionFactorSources": {
+          "description": "Secondary emission factor sources used. O TODO: proposed attribute pending community input (spec Issue tag)",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/SecondaryEmissionFactorSource"
+          }
+        },
+        "pactPds": {
+          "description": "Primary data share (0–100). O TODO: proposed attribute pending community input (spec Issue tag)",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "comment": {
+          "description": "Additional comment. O TODO: proposed attribute pending community input (spec Issue tag)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "mass": {
           "type": "string"
         },
@@ -131,6 +223,36 @@
           "$ref": "#/definitions/NonEmptyVec_for_TCE"
         }
       }
+    },
+    "ILeapStatus": {
+      "description": "Status of an iLEAP data object (ShipmentFootprint, TOC, HOC, AggregatedReport). Mandatory for all exchanges (both standalone and PACT-based). Defaults to `Active` for backwards-compatible deserialization of pre-v1.1 data.",
+      "type": "string",
+      "enum": [
+        "Active",
+        "Deprecated"
+      ]
+    },
+    "SecondaryEmissionFactorSource": {
+      "description": "Secondary emission factor source, referencing a named data source and optional version.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "Decimal": {
+      "type": "string",
+      "pattern": "^-?\\d+(\\.\\d+)?$"
     },
     "NonEmptyVec_for_TCE": {
       "type": "array",
@@ -315,10 +437,6 @@
           ]
         }
       }
-    },
-    "Decimal": {
-      "type": "string",
-      "pattern": "^-?\\d+(\\.\\d+)?$"
     },
     "PackagingOrTrEqType": {
       "type": "string",
