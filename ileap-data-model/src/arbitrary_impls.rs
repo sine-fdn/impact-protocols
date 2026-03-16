@@ -48,9 +48,9 @@ fn formatted_arbitrary_string(fixed: &str, g: &mut quickcheck::Gen) -> String {
     fixed.to_string() + &LowerAToZNumDash::arbitrary(g).0
 }
 
-impl Arbitrary for ILeapStatus {
+impl Arbitrary for Status {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
-        let options = &[ILeapStatus::Active, ILeapStatus::Deprecated];
+        let options = &[Status::Active, Status::Deprecated];
         g.choose(options).unwrap().to_owned()
     }
 }
@@ -70,7 +70,7 @@ impl Arbitrary for ShipmentFootprint {
             company_ids: None,
             description: None,
             created_at: None,
-            status: ILeapStatus::Active,
+            status: Status::Active,
             reference_period_start: None,
             reference_period_end: None,
             secondary_emission_factor_sources: None,
@@ -160,7 +160,7 @@ impl Arbitrary for Hoc {
             company_name: None,
             company_ids: None,
             created_at: None,
-            status: ILeapStatus::Active,
+            status: Status::Active,
             reference_period_start: None,
             reference_period_end: None,
             secondary_emission_factor_sources: None,
@@ -264,7 +264,7 @@ impl Arbitrary for Toc {
             company_name: None,
             company_ids: None,
             created_at: None,
-            status: ILeapStatus::Active,
+            status: Status::Active,
             reference_period_start: None,
             reference_period_end: None,
             secondary_emission_factor_sources: None,

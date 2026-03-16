@@ -155,7 +155,7 @@
           "default": "Active",
           "allOf": [
             {
-              "$ref": "#/definitions/ILeapStatus"
+              "$ref": "#/definitions/Status"
             }
           ]
         },
@@ -291,7 +291,7 @@
         }
       }
     },
-    "ILeapStatus": {
+    "Status": {
       "description": "Status of an iLEAP data object (ShipmentFootprint, TOC, HOC, AggregatedReport). Mandatory for all exchanges (both standalone and PACT-based). Defaults to `Active` for backwards-compatible deserialization of pre-v1.1 data.",
       "type": "string",
       "enum": [

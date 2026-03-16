@@ -256,7 +256,7 @@ fn to_char_factors(
 #[test]
 fn ship_foot_to_pfc() {
     use crate::GlecDistanceKind;
-    use crate::{GlecDistance, ILeapStatus, Tce};
+    use crate::{GlecDistance, Status, Tce};
     use rust_decimal_macros::dec;
 
     let ship_foot = ShipmentFootprint {
@@ -367,7 +367,7 @@ fn ship_foot_to_pfc() {
         company_ids: None,
         description: None,
         created_at: None,
-        status: ILeapStatus::Active,
+        status: Status::Active,
         reference_period_start: None,
         reference_period_end: None,
         secondary_emission_factor_sources: None,
@@ -396,8 +396,8 @@ fn ship_foot_to_pfc() {
 #[test]
 fn toc_to_pcf() {
     use crate::{
-        EnergyCarrier, EnergyCarrierType, Feedstock, FeedstockType, ILeapStatus, TemperatureControl, Toc,
-        TransportActivityUnit, TransportMode,
+        EnergyCarrier, EnergyCarrierType, Feedstock, FeedstockType, Status, TemperatureControl,
+        Toc, TransportActivityUnit, TransportMode,
     };
     use rust_decimal_macros::dec;
 
@@ -433,7 +433,7 @@ fn toc_to_pcf() {
         company_name: None,
         company_ids: None,
         created_at: None,
-        status: ILeapStatus::Active,
+        status: Status::Active,
         reference_period_start: None,
         reference_period_end: None,
         secondary_emission_factor_sources: None,
@@ -459,7 +459,7 @@ fn toc_to_pcf() {
 #[test]
 fn hoc_to_pfc() {
     use crate::{
-        EnergyCarrier, EnergyCarrierType, Hoc, HubType, ILeapStatus, TemperatureControl, TransportMode,
+        EnergyCarrier, EnergyCarrierType, Hoc, HubType, Status, TemperatureControl, TransportMode,
     };
     use rust_decimal_macros::dec;
 
@@ -502,7 +502,7 @@ fn hoc_to_pfc() {
         company_name: None,
         company_ids: None,
         created_at: None,
-        status: ILeapStatus::Active,
+        status: Status::Active,
         reference_period_start: None,
         reference_period_end: None,
         secondary_emission_factor_sources: None,
