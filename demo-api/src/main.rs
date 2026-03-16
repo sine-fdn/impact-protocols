@@ -740,18 +740,19 @@ fn get_shipments(
     let parsed_data = serde_json::to_string(&data)
         .and_then(|s| serde_json::from_str::<Vec<Map<String, Value>>>(&s))
         .unwrap();
-    let flattened = parsed_data.into_iter().map(flatten_json).collect::<Vec<_>>();
+    let flattened = parsed_data
+        .into_iter()
+        .map(flatten_json)
+        .collect::<Vec<_>>();
 
     let result: Vec<ShipmentFootprint> = match filter {
         Some(filter) => {
             let mut filtered_ids = std::collections::HashSet::new();
             for (filter_key, filter_values) in filter.iter() {
-                for (tad, sf) in flattened.iter().zip(data.iter()) {
-                    if tad.iter().any(|(k, v)| {
+                for (flat, sf) in flattened.iter().zip(data.iter()) {
+                    if flat.iter().any(|(k, v)| {
                         k.contains(filter_key)
-                            && filter_values
-                                .iter()
-                                .any(|fv| &fv.to_lowercase() == v)
+                            && filter_values.iter().any(|fv| &fv.to_lowercase() == v)
                     }) {
                         filtered_ids.insert(sf.shipment_id.clone());
                     }
@@ -788,7 +789,10 @@ fn get_tocs(
     let parsed_data = serde_json::to_string(&data)
         .and_then(|s| serde_json::from_str::<Vec<Map<String, Value>>>(&s))
         .unwrap();
-    let flattened = parsed_data.into_iter().map(flatten_json).collect::<Vec<_>>();
+    let flattened = parsed_data
+        .into_iter()
+        .map(flatten_json)
+        .collect::<Vec<_>>();
 
     let result: Vec<Toc> = match filter {
         Some(filter) => {
@@ -863,7 +867,10 @@ fn get_hocs(
     let parsed_data = serde_json::to_string(&data)
         .and_then(|s| serde_json::from_str::<Vec<Map<String, Value>>>(&s))
         .unwrap();
-    let flattened = parsed_data.into_iter().map(flatten_json).collect::<Vec<_>>();
+    let flattened = parsed_data
+        .into_iter()
+        .map(flatten_json)
+        .collect::<Vec<_>>();
 
     let result: Vec<Hoc> = match filter {
         Some(filter) => {
@@ -922,7 +929,7 @@ fn get_hocs(
 /// `GET /v1/ileap/tad` – iLEAP standalone protocol: list TAD (same semantics as /2/ileap/tad, new path).
 #[openapi]
 #[get("/v1/ileap/tad?<limit>&<offset>&<filter..>", format = "json")]
-fn get_tad_v1(
+fn get_tad_standalone(
     auth: Option<UserToken>,
     limit: Option<usize>,
     offset: Option<usize>,
@@ -1009,8 +1016,7 @@ const OPENAPI_PATH: &str = "../openapi.json";
 
 fn create_server(key_pair: KeyPair) -> rocket::Rocket<rocket::Build> {
     let settings = OpenApiSettings::default();
-    let (mut openapi_routes, openapi_spec) =
-        openapi_get_routes_spec![settings: get_pcf, get_footprints, post_event, get_tad, get_tad_v1, get_shipments, get_tocs, get_hocs, get_aed];
+    let (mut openapi_routes, openapi_spec) = openapi_get_routes_spec![settings: get_pcf, get_footprints, post_event, get_tad, get_tad_standalone, get_shipments, get_tocs, get_hocs, get_aed];
 
     openapi_routes.push(get_openapi_route(openapi_spec, &settings));
 

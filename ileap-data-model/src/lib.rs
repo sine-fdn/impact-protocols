@@ -33,7 +33,7 @@ pub use schema_gen::*;
 /// Mandatory for all exchanges (both standalone and PACT-based).
 /// Defaults to `Active` for backwards-compatible deserialization of pre-v1.1 data.
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq, Default)]
-pub enum ILeapStatus {
+pub enum Status {
     #[default]
     Active,
     Deprecated,
@@ -141,7 +141,7 @@ pub struct AggregatedReport {
     /// Creation timestamp of this AggregatedReport. M
     pub created_at: DateTime<Utc>,
     /// Status of this report. M
-    pub status: ILeapStatus,
+    pub status: Status,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transport_service_user_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -180,7 +180,6 @@ pub struct AggregatedReport {
 #[serde(rename_all = "camelCase")]
 pub struct ShipmentFootprint {
     // --- Standalone-protocol metadata fields (M* = mandatory in standalone, optional in PACT) ---
-
     /// iLEAP spec version; MUST be "1.1.0". M* (mandatory when exchanged via standalone protocol)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub spec_version: Option<String>,
@@ -204,7 +203,7 @@ pub struct ShipmentFootprint {
     /// Status of this ShipmentFootprint. M (always required).
     /// Defaults to `Active` when deserializing pre-v1.1 data that omits this field.
     #[serde(default)]
-    pub status: ILeapStatus,
+    pub status: Status,
 
     /// Reference period start (inclusive). M*
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -321,7 +320,6 @@ pub enum Certification {
 #[serde(rename_all = "camelCase", rename = "TOC")]
 pub struct Toc {
     // --- Standalone-protocol metadata fields ---
-
     /// iLEAP spec version; MUST be "1.1.0". M*
     #[serde(skip_serializing_if = "Option::is_none")]
     pub spec_version: Option<String>,
@@ -341,7 +339,7 @@ pub struct Toc {
     /// Status of this TOC. M (always required).
     /// Defaults to `Active` when deserializing pre-v1.1 data that omits this field.
     #[serde(default)]
-    pub status: ILeapStatus,
+    pub status: Status,
 
     /// Reference period start (inclusive). M*
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -444,7 +442,6 @@ pub enum FlightLength {
 #[serde(rename_all = "camelCase", rename = "HOC")]
 pub struct Hoc {
     // --- Standalone-protocol metadata fields ---
-
     /// iLEAP spec version; MUST be "1.1.0". M*
     #[serde(skip_serializing_if = "Option::is_none")]
     pub spec_version: Option<String>,
@@ -464,7 +461,7 @@ pub struct Hoc {
     /// Status of this HOC. M (always required).
     /// Defaults to `Active` when deserializing pre-v1.1 data that omits this field.
     #[serde(default)]
-    pub status: ILeapStatus,
+    pub status: Status,
 
     /// Reference period start (inclusive). M*
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1058,13 +1055,13 @@ mod tests {
     #[test]
     fn test_ileap_status_deser() {
         let tests = [
-            ("\"Active\"", ILeapStatus::Active),
-            ("\"Deprecated\"", ILeapStatus::Deprecated),
+            ("\"Active\"", Status::Active),
+            ("\"Deprecated\"", Status::Deprecated),
         ];
 
         for (input, expected) in tests {
             assert_eq!(input, serde_json::to_string(&expected).unwrap());
-            let deserialized: ILeapStatus = serde_json::from_str(input).unwrap();
+            let deserialized: Status = serde_json::from_str(input).unwrap();
             assert_eq!(deserialized, expected);
         }
     }
