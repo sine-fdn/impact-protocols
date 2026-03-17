@@ -632,7 +632,17 @@ fn standalone_shipments() -> Vec<ShipmentFootprint> {
                     sf.spec_version = Some("1.1.0".to_string());
                     sf.company_name = Some(pcf.company_name.0.clone());
                     sf.created_at = Some(pcf.created);
-                    Some(sf)
+                    match sf.validate_standalone() {
+                        Ok(()) => Some(sf),
+                        Err(missing) => {
+                            eprintln!(
+                                "ShipmentFootprint {} omitted from standalone response: missing M* fields: {}",
+                                sf.shipment_id,
+                                missing.join(", ")
+                            );
+                            None
+                        }
+                    }
                 } else {
                     None
                 }
@@ -653,7 +663,17 @@ fn standalone_tocs() -> Vec<Toc> {
                     toc.spec_version = Some("1.1.0".to_string());
                     toc.company_name = Some(pcf.company_name.0.clone());
                     toc.created_at = Some(pcf.created);
-                    Some(toc)
+                    match toc.validate_standalone() {
+                        Ok(()) => Some(toc),
+                        Err(missing) => {
+                            eprintln!(
+                                "TOC {} omitted from standalone response: missing M* fields: {}",
+                                toc.toc_id,
+                                missing.join(", ")
+                            );
+                            None
+                        }
+                    }
                 } else {
                     None
                 }
@@ -674,7 +694,17 @@ fn standalone_hocs() -> Vec<Hoc> {
                     hoc.spec_version = Some("1.1.0".to_string());
                     hoc.company_name = Some(pcf.company_name.0.clone());
                     hoc.created_at = Some(pcf.created);
-                    Some(hoc)
+                    match hoc.validate_standalone() {
+                        Ok(()) => Some(hoc),
+                        Err(missing) => {
+                            eprintln!(
+                                "HOC {} omitted from standalone response: missing M* fields: {}",
+                                hoc.hoc_id,
+                                missing.join(", ")
+                            );
+                            None
+                        }
+                    }
                 } else {
                     None
                 }
