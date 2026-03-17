@@ -39,6 +39,23 @@ pub enum Status {
     Deprecated,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct PercentDecimal(
+    #[serde(with = "rust_decimal::serde::str")]
+    #[schemars(with = "String")]
+    Decimal,
+);
+
+impl From<Decimal> for PercentDecimal {
+    fn from(f: Decimal) -> PercentDecimal {
+        if f < Decimal::ZERO || f > Decimal::from(100) {
+            panic!("Percent value must be between 0 and 100, got {}", f);
+        }
+        PercentDecimal(f)
+    }
+}
+
 /// Secondary emission factor source, referencing a named data source and optional version.
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -221,7 +238,7 @@ pub struct ShipmentFootprint {
     /// Primary data share (0–100). O
     /// TODO: proposed attribute pending community input (spec Issue tag)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub pact_pds: Option<WrappedDecimal>,
+    pub pact_pds: Option<PercentDecimal>,
 
     /// Additional comment. O
     /// TODO: proposed attribute pending community input (spec Issue tag)
@@ -357,7 +374,7 @@ pub struct Toc {
     /// Primary data share (0–100). O
     /// TODO: proposed attribute pending community input (spec Issue tag)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub pact_pds: Option<WrappedDecimal>,
+    pub pact_pds: Option<PercentDecimal>,
 
     /// Additional comment. O
     /// TODO: proposed attribute pending community input (spec Issue tag)
@@ -479,7 +496,7 @@ pub struct Hoc {
     /// Primary data share (0–100). O
     /// TODO: proposed attribute pending community input (spec Issue tag)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub pact_pds: Option<WrappedDecimal>,
+    pub pact_pds: Option<PercentDecimal>,
 
     /// Additional comment. O
     /// TODO: proposed attribute pending community input (spec Issue tag)
