@@ -14,6 +14,13 @@
     "origin"
   ],
   "properties": {
+    "specVersion": {
+      "description": "iLEAP spec version. O (optional for TAD per spec)",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "activityId": {
       "type": "string"
     },
@@ -373,7 +380,12 @@
           ]
         },
         "emissionFactorWTW": {
-          "$ref": "#/definitions/Decimal"
+          "description": "TODO: The spec defines emissionFactorWTW and emissionFactorTTW as O at the field level, but states they MUST be defined when EnergyCarrier is used in the context of a TOC or HOC. Currently kept as required (WrappedDecimal) for simplicity. Consider making them Option<> and validating at the application layer based on context.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            }
+          ]
         },
         "emissionFactorTTW": {
           "$ref": "#/definitions/Decimal"

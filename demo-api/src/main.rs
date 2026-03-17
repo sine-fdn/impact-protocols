@@ -45,7 +45,7 @@ use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
 use openid_conf::OpenIdConfiguration;
 use pact_data_model::*;
 use rsa::traits::PublicKeyParts;
-use sample_data::{ILEAP_TAD_DEMO_DATA, PCF_DEMO_DATA};
+use sample_data::{ILEAP_AED_DEMO_DATA, ILEAP_TAD_DEMO_DATA, PCF_DEMO_DATA};
 
 #[cfg(test)]
 use rocket::local::blocking::Client;
@@ -620,6 +620,403 @@ fn get_tad(
     }
 }
 
+/// Extract ShipmentFootprint objects from PCF_DEMO_DATA and enrich with standalone metadata.
+/// TODO: In production, serve a dedicated standalone data store rather than deriving from PACT data.
+fn standalone_shipments() -> Vec<ShipmentFootprint> {
+    PCF_DEMO_DATA
+        .iter()
+        .filter_map(|pcf| {
+            pcf.extensions.as_ref()?.iter().find_map(|ext| {
+                if let ILeapType::ShipmentFootprint(sf) = &ext.data {
+                    let mut sf = sf.clone();
+                    sf.spec_version = Some("1.1.0".to_string());
+                    sf.company_name = Some(pcf.company_name.0.clone());
+                    sf.created_at = Some(pcf.created);
+                    match sf.validate_standalone() {
+                        Ok(()) => Some(sf),
+                        Err(missing) => {
+                            eprintln!(
+                                "ShipmentFootprint {} omitted from standalone response: missing M* fields: {}",
+                                sf.shipment_id,
+                                missing.join(", ")
+                            );
+                            None
+                        }
+                    }
+                } else {
+                    None
+                }
+            })
+        })
+        .collect()
+}
+
+/// Extract TOC objects from PCF_DEMO_DATA and enrich with standalone metadata.
+/// TODO: In production, serve a dedicated standalone data store rather than deriving from PACT data.
+fn standalone_tocs() -> Vec<Toc> {
+    PCF_DEMO_DATA
+        .iter()
+        .filter_map(|pcf| {
+            pcf.extensions.as_ref()?.iter().find_map(|ext| {
+                if let ILeapType::Toc(toc) = &ext.data {
+                    let mut toc = toc.clone();
+                    toc.spec_version = Some("1.1.0".to_string());
+                    toc.company_name = Some(pcf.company_name.0.clone());
+                    toc.created_at = Some(pcf.created);
+                    match toc.validate_standalone() {
+                        Ok(()) => Some(toc),
+                        Err(missing) => {
+                            eprintln!(
+                                "TOC {} omitted from standalone response: missing M* fields: {}",
+                                toc.toc_id,
+                                missing.join(", ")
+                            );
+                            None
+                        }
+                    }
+                } else {
+                    None
+                }
+            })
+        })
+        .collect()
+}
+
+/// Extract HOC objects from PCF_DEMO_DATA and enrich with standalone metadata.
+/// TODO: In production, serve a dedicated standalone data store rather than deriving from PACT data.
+fn standalone_hocs() -> Vec<Hoc> {
+    PCF_DEMO_DATA
+        .iter()
+        .filter_map(|pcf| {
+            pcf.extensions.as_ref()?.iter().find_map(|ext| {
+                if let ILeapType::Hoc(hoc) = &ext.data {
+                    let mut hoc = hoc.clone();
+                    hoc.spec_version = Some("1.1.0".to_string());
+                    hoc.company_name = Some(pcf.company_name.0.clone());
+                    hoc.created_at = Some(pcf.created);
+                    match hoc.validate_standalone() {
+                        Ok(()) => Some(hoc),
+                        Err(missing) => {
+                            eprintln!(
+                                "HOC {} omitted from standalone response: missing M* fields: {}",
+                                hoc.hoc_id,
+                                missing.join(", ")
+                            );
+                            None
+                        }
+                    }
+                } else {
+                    None
+                }
+            })
+        })
+        .collect()
+}
+
+fn paginate_and_respond_shipments(
+    data: Vec<ShipmentFootprint>,
+    limit: usize,
+    offset: usize,
+    host: &Host,
+    path: &str,
+) -> Result<ShipmentListingResponse, error::AccessDenied> {
+    if offset > data.len() {
+        return Err(Default::default());
+    }
+    let max_limit = data.len() - offset;
+    let limit = min(limit, max_limit);
+    let next_offset = offset + limit;
+    let body = Json(ShipmentListingResponseInner {
+        data: data[offset..offset + limit].to_vec(),
+    });
+    if next_offset < data.len() {
+        let host_str = host
+            .0
+            .map(|h| {
+                if h.starts_with("127.0.0.1:") || h.starts_with("localhost:") {
+                    format!("http://{h}")
+                } else {
+                    format!("https://{h}")
+                }
+            })
+            .unwrap_or_default();
+        let link = format!("<{host_str}{path}?offset={next_offset}&limit={limit}>; rel=\"next\"");
+        Ok(ShipmentListingResponse::Cont(
+            body,
+            rocket::http::Header::new("link", link),
+        ))
+    } else {
+        Ok(ShipmentListingResponse::Finished(body))
+    }
+}
+
+/// `GET /v1/ileap/shipments` – iLEAP standalone protocol: list ShipmentFootprints (Data Transaction 1).
+/// Filtering uses `$name=value` query parameters with dot notation for nested fields.
+#[openapi]
+#[get("/v1/ileap/shipments?<limit>&<offset>&<filter..>", format = "json")]
+fn get_shipments(
+    auth: Option<UserToken>,
+    limit: Option<usize>,
+    offset: Option<usize>,
+    filter: Option<HashMap<String, Vec<String>>>,
+    host: Host,
+) -> Result<ShipmentListingResponse, error::AccessDenied> {
+    if auth.is_none() {
+        return Err(error::AccessDenied::default());
+    }
+
+    let data = standalone_shipments();
+
+    let parsed_data = serde_json::to_string(&data)
+        .and_then(|s| serde_json::from_str::<Vec<Map<String, Value>>>(&s))
+        .unwrap();
+    let flattened = parsed_data
+        .into_iter()
+        .map(flatten_json)
+        .collect::<Vec<_>>();
+
+    let result: Vec<ShipmentFootprint> = match filter {
+        Some(filter) => {
+            let mut filtered_ids = std::collections::HashSet::new();
+            for (filter_key, filter_values) in filter.iter() {
+                for (flat, sf) in flattened.iter().zip(data.iter()) {
+                    if flat.iter().any(|(k, v)| {
+                        k.contains(filter_key)
+                            && filter_values.iter().any(|fv| &fv.to_lowercase() == v)
+                    }) {
+                        filtered_ids.insert(sf.shipment_id.clone());
+                    }
+                }
+            }
+            data.into_iter()
+                .filter(|sf| filtered_ids.contains(&sf.shipment_id))
+                .collect()
+        }
+        None => data,
+    };
+
+    let limit = limit.unwrap_or(10);
+    let offset = offset.unwrap_or(0);
+    paginate_and_respond_shipments(result, limit, offset, &host, "/v1/ileap/shipments")
+}
+
+/// `GET /v1/ileap/tocs` – iLEAP standalone protocol: list TOCs (Data Transaction 2).
+#[openapi]
+#[get("/v1/ileap/tocs?<limit>&<offset>&<filter..>", format = "json")]
+fn get_tocs(
+    auth: Option<UserToken>,
+    limit: Option<usize>,
+    offset: Option<usize>,
+    filter: Option<HashMap<String, Vec<String>>>,
+    host: Host,
+) -> Result<TocListingResponse, error::AccessDenied> {
+    if auth.is_none() {
+        return Err(error::AccessDenied::default());
+    }
+
+    let data = standalone_tocs();
+
+    let parsed_data = serde_json::to_string(&data)
+        .and_then(|s| serde_json::from_str::<Vec<Map<String, Value>>>(&s))
+        .unwrap();
+    let flattened = parsed_data
+        .into_iter()
+        .map(flatten_json)
+        .collect::<Vec<_>>();
+
+    let result: Vec<Toc> = match filter {
+        Some(filter) => {
+            let mut filtered_ids = std::collections::HashSet::new();
+            for (filter_key, filter_values) in filter.iter() {
+                for (flat, toc) in flattened.iter().zip(data.iter()) {
+                    if flat.iter().any(|(k, v)| {
+                        k.contains(filter_key)
+                            && filter_values.iter().any(|fv| &fv.to_lowercase() == v)
+                    }) {
+                        filtered_ids.insert(toc.toc_id.clone());
+                    }
+                }
+            }
+            data.into_iter()
+                .filter(|t| filtered_ids.contains(&t.toc_id))
+                .collect()
+        }
+        None => data,
+    };
+
+    let limit = limit.unwrap_or(10);
+    let offset = offset.unwrap_or(0);
+
+    if offset > result.len() {
+        return Err(Default::default());
+    }
+    let max_limit = result.len() - offset;
+    let limit = min(limit, max_limit);
+    let next_offset = offset + limit;
+    let body = Json(TocListingResponseInner {
+        data: result[offset..offset + limit].to_vec(),
+    });
+    if next_offset < result.len() {
+        let host_str = host
+            .0
+            .map(|h| {
+                if h.starts_with("127.0.0.1:") || h.starts_with("localhost:") {
+                    format!("http://{h}")
+                } else {
+                    format!("https://{h}")
+                }
+            })
+            .unwrap_or_default();
+        let link =
+            format!("<{host_str}/v1/ileap/tocs?offset={next_offset}&limit={limit}>; rel=\"next\"");
+        Ok(TocListingResponse::Cont(
+            body,
+            rocket::http::Header::new("link", link),
+        ))
+    } else {
+        Ok(TocListingResponse::Finished(body))
+    }
+}
+
+/// `GET /v1/ileap/hocs` – iLEAP standalone protocol: list HOCs (Data Transaction 3).
+#[openapi]
+#[get("/v1/ileap/hocs?<limit>&<offset>&<filter..>", format = "json")]
+fn get_hocs(
+    auth: Option<UserToken>,
+    limit: Option<usize>,
+    offset: Option<usize>,
+    filter: Option<HashMap<String, Vec<String>>>,
+    host: Host,
+) -> Result<HocListingResponse, error::AccessDenied> {
+    if auth.is_none() {
+        return Err(error::AccessDenied::default());
+    }
+
+    let data = standalone_hocs();
+
+    let parsed_data = serde_json::to_string(&data)
+        .and_then(|s| serde_json::from_str::<Vec<Map<String, Value>>>(&s))
+        .unwrap();
+    let flattened = parsed_data
+        .into_iter()
+        .map(flatten_json)
+        .collect::<Vec<_>>();
+
+    let result: Vec<Hoc> = match filter {
+        Some(filter) => {
+            let mut filtered_ids = std::collections::HashSet::new();
+            for (filter_key, filter_values) in filter.iter() {
+                for (flat, hoc) in flattened.iter().zip(data.iter()) {
+                    if flat.iter().any(|(k, v)| {
+                        k.contains(filter_key)
+                            && filter_values.iter().any(|fv| &fv.to_lowercase() == v)
+                    }) {
+                        filtered_ids.insert(hoc.hoc_id.clone());
+                    }
+                }
+            }
+            data.into_iter()
+                .filter(|h| filtered_ids.contains(&h.hoc_id))
+                .collect()
+        }
+        None => data,
+    };
+
+    let limit = limit.unwrap_or(10);
+    let offset = offset.unwrap_or(0);
+
+    if offset > result.len() {
+        return Err(Default::default());
+    }
+    let max_limit = result.len() - offset;
+    let limit = min(limit, max_limit);
+    let next_offset = offset + limit;
+    let body = Json(HocListingResponseInner {
+        data: result[offset..offset + limit].to_vec(),
+    });
+    if next_offset < result.len() {
+        let host_str = host
+            .0
+            .map(|h| {
+                if h.starts_with("127.0.0.1:") || h.starts_with("localhost:") {
+                    format!("http://{h}")
+                } else {
+                    format!("https://{h}")
+                }
+            })
+            .unwrap_or_default();
+        let link =
+            format!("<{host_str}/v1/ileap/hocs?offset={next_offset}&limit={limit}>; rel=\"next\"");
+        Ok(HocListingResponse::Cont(
+            body,
+            rocket::http::Header::new("link", link),
+        ))
+    } else {
+        Ok(HocListingResponse::Finished(body))
+    }
+}
+
+/// `GET /v1/ileap/tad` – iLEAP standalone protocol: list TAD (same semantics as /2/ileap/tad, new path).
+#[openapi]
+#[get("/v1/ileap/tad?<limit>&<offset>&<filter..>", format = "json")]
+fn get_tad_standalone(
+    auth: Option<UserToken>,
+    limit: Option<usize>,
+    offset: Option<usize>,
+    filter: Option<HashMap<String, Vec<String>>>,
+    host: Host,
+) -> Result<TadListingResponse, error::AccessDenied> {
+    get_tad(auth, limit, offset, filter, host)
+}
+
+/// `GET /v1/ileap/aed` – iLEAP standalone protocol: list AggregatedReports (Data Transaction 4).
+#[openapi]
+#[get("/v1/ileap/aed?<limit>&<offset>", format = "json")]
+fn get_aed(
+    auth: Option<UserToken>,
+    limit: Option<usize>,
+    offset: Option<usize>,
+    host: Host,
+) -> Result<AedListingResponse, error::AccessDenied> {
+    if auth.is_none() {
+        return Err(error::AccessDenied::default());
+    }
+
+    let data = ILEAP_AED_DEMO_DATA.clone();
+    let limit = limit.unwrap_or(10);
+    let offset = offset.unwrap_or(0);
+
+    if offset > data.len() {
+        return Err(Default::default());
+    }
+    let max_limit = data.len() - offset;
+    let limit = min(limit, max_limit);
+    let next_offset = offset + limit;
+    let body = Json(AedListingResponseInner {
+        data: data[offset..offset + limit].to_vec(),
+    });
+    if next_offset < data.len() {
+        let host_str = host
+            .0
+            .map(|h| {
+                if h.starts_with("127.0.0.1:") || h.starts_with("localhost:") {
+                    format!("http://{h}")
+                } else {
+                    format!("https://{h}")
+                }
+            })
+            .unwrap_or_default();
+        let link =
+            format!("<{host_str}/v1/ileap/aed?offset={next_offset}&limit={limit}>; rel=\"next\"");
+        Ok(AedListingResponse::Cont(
+            body,
+            rocket::http::Header::new("link", link),
+        ))
+    } else {
+        Ok(AedListingResponse::Finished(body))
+    }
+}
+
 #[get("/shipment-footprint.json")]
 fn shipment_footprint_schema() -> Json<RootSchema> {
     Json::from(schema_for!(ShipmentFootprint))
@@ -649,8 +1046,7 @@ const OPENAPI_PATH: &str = "../openapi.json";
 
 fn create_server(key_pair: KeyPair) -> rocket::Rocket<rocket::Build> {
     let settings = OpenApiSettings::default();
-    let (mut openapi_routes, openapi_spec) =
-        openapi_get_routes_spec![settings: get_pcf, get_footprints, post_event, get_tad];
+    let (mut openapi_routes, openapi_spec) = openapi_get_routes_spec![settings: get_pcf, get_footprints, post_event, get_tad, get_tad_standalone, get_shipments, get_tocs, get_hocs, get_aed];
 
     openapi_routes.push(get_openapi_route(openapi_spec, &settings));
 

@@ -48,6 +48,13 @@ fn formatted_arbitrary_string(fixed: &str, g: &mut quickcheck::Gen) -> String {
     fixed.to_string() + &LowerAToZNumDash::arbitrary(g).0
 }
 
+impl Arbitrary for Status {
+    fn arbitrary(g: &mut quickcheck::Gen) -> Self {
+        let options = &[Status::Active, Status::Deprecated];
+        g.choose(options).unwrap().to_owned()
+    }
+}
+
 impl Arbitrary for ShipmentFootprint {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
         ShipmentFootprint {
@@ -57,6 +64,18 @@ impl Arbitrary for ShipmentFootprint {
             tces: NonEmptyVec::<Tce>::arbitrary(g),
             // Currently None for simplicity.
             volume: None,
+            // New standalone-protocol metadata fields.
+            spec_version: None,
+            company_name: None,
+            company_ids: None,
+            description: None,
+            created_at: None,
+            status: Status::Active,
+            reference_period_start: None,
+            reference_period_end: None,
+            secondary_emission_factor_sources: None,
+            pact_pds: None,
+            comment: None,
         }
     }
 }
@@ -136,6 +155,17 @@ impl Arbitrary for Hoc {
             description: None,
             hub_location: None,
             packaging_or_tr_eq_amount: None,
+            // New standalone-protocol metadata fields.
+            spec_version: None,
+            company_name: None,
+            company_ids: None,
+            created_at: None,
+            status: Status::Active,
+            reference_period_start: None,
+            reference_period_end: None,
+            secondary_emission_factor_sources: None,
+            pact_pds: None,
+            comment: None,
         }
     }
 }
@@ -229,6 +259,17 @@ impl Arbitrary for Toc {
             transport_activity_unit: TransportActivityUnit::arbitrary(g),
             // Currently None for simplicity.
             description: None,
+            // New standalone-protocol metadata fields.
+            spec_version: None,
+            company_name: None,
+            company_ids: None,
+            created_at: None,
+            status: Status::Active,
+            reference_period_start: None,
+            reference_period_end: None,
+            secondary_emission_factor_sources: None,
+            pact_pds: None,
+            comment: None,
         }
     }
 }

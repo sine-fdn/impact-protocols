@@ -11,6 +11,91 @@
     "transportActivityUnit"
   ],
   "properties": {
+    "specVersion": {
+      "description": "iLEAP spec version; MUST be \"1.1.0\". M*",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "companyName": {
+      "description": "Name of the company owning the data. M*",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "companyIds": {
+      "description": "Set of identifiers for the data owner company. O",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "createdAt": {
+      "description": "Creation timestamp. M*",
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "status": {
+      "description": "Status of this TOC. M (always required). Defaults to `Active` when deserializing pre-v1.1 data that omits this field.",
+      "default": "Active",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Status"
+        }
+      ]
+    },
+    "referencePeriodStart": {
+      "description": "Reference period start (inclusive). M*",
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "referencePeriodEnd": {
+      "description": "Reference period end (exclusive). M*",
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "secondaryEmissionFactorSources": {
+      "description": "Secondary emission factor sources. O TODO: proposed attribute pending community input (spec Issue tag)",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/definitions/SecondaryEmissionFactorSource"
+      }
+    },
+    "pactPds": {
+      "description": "Primary data share (0–100). O TODO: proposed attribute pending community input (spec Issue tag)",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/PercentDecimal"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "comment": {
+      "description": "Additional comment. O TODO: proposed attribute pending community input (spec Issue tag)",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "tocId": {
       "type": "string"
     },
@@ -99,6 +184,35 @@
     }
   },
   "definitions": {
+    "Status": {
+      "description": "Status of an iLEAP data object (ShipmentFootprint, TOC, HOC, AggregatedReport). Mandatory for all exchanges (both standalone and PACT-based). Defaults to `Active` for backwards-compatible deserialization of pre-v1.1 data.",
+      "type": "string",
+      "enum": [
+        "Active",
+        "Deprecated"
+      ]
+    },
+    "SecondaryEmissionFactorSource": {
+      "description": "Secondary emission factor source, referencing a named data source and optional version.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "PercentDecimal": {
+      "type": "string"
+    },
     "NonEmptyVec_for_Certification": {
       "type": "array",
       "items": {
@@ -201,7 +315,12 @@
           ]
         },
         "emissionFactorWTW": {
-          "$ref": "#/definitions/Decimal"
+          "description": "TODO: The spec defines emissionFactorWTW and emissionFactorTTW as O at the field level, but states they MUST be defined when EnergyCarrier is used in the context of a TOC or HOC. Currently kept as required (WrappedDecimal) for simplicity. Consider making them Option<> and validating at the application layer based on context.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            }
+          ]
         },
         "emissionFactorTTW": {
           "$ref": "#/definitions/Decimal"
