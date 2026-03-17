@@ -82,7 +82,7 @@
       "description": "Primary data share (0–100). O TODO: proposed attribute pending community input (spec Issue tag)",
       "anyOf": [
         {
-          "$ref": "#/definitions/Decimal"
+          "$ref": "#/definitions/PercentDecimal"
         },
         {
           "type": "null"
@@ -216,9 +216,8 @@
         }
       }
     },
-    "Decimal": {
-      "type": "string",
-      "pattern": "^-?\\d+(\\.\\d+)?$"
+    "PercentDecimal": {
+      "type": "string"
     },
     "NonEmptyVec_for_Certification": {
       "type": "array",
@@ -342,6 +341,10 @@
     },
     "UicCode": {
       "type": "string"
+    },
+    "Decimal": {
+      "type": "string",
+      "pattern": "^-?\\d+(\\.\\d+)?$"
     },
     "TransportMode": {
       "type": "string",

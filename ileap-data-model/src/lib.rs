@@ -840,6 +840,93 @@ impl<T> From<Vec<T>> for NonEmptyVec<T> {
     }
 }
 
+/// Validation for M* fields – those that are mandatory when data is exchanged via the
+/// iLEAP standalone protocol endpoints but optional (i.e. `Option<>`) when embedded as
+/// a PACT ProductFootprint extension.
+pub trait Standalone {
+    /// Returns `Ok(())` if all M* fields are `Some`, or `Err(missing)` with the camelCase
+    /// field names of every M* field that is `None`.
+    fn validate_standalone(&self) -> Result<(), Vec<&'static str>>;
+}
+
+impl Standalone for ShipmentFootprint {
+    fn validate_standalone(&self) -> Result<(), Vec<&'static str>> {
+        let mut missing = vec![];
+        if self.spec_version.is_none() {
+            missing.push("specVersion");
+        }
+        if self.company_name.is_none() {
+            missing.push("companyName");
+        }
+        if self.created_at.is_none() {
+            missing.push("createdAt");
+        }
+        if self.reference_period_start.is_none() {
+            missing.push("referencePeriodStart");
+        }
+        if self.reference_period_end.is_none() {
+            missing.push("referencePeriodEnd");
+        }
+        if missing.is_empty() {
+            Ok(())
+        } else {
+            Err(missing)
+        }
+    }
+}
+
+impl Standalone for Toc {
+    fn validate_standalone(&self) -> Result<(), Vec<&'static str>> {
+        let mut missing = vec![];
+        if self.spec_version.is_none() {
+            missing.push("specVersion");
+        }
+        if self.company_name.is_none() {
+            missing.push("companyName");
+        }
+        if self.created_at.is_none() {
+            missing.push("createdAt");
+        }
+        if self.reference_period_start.is_none() {
+            missing.push("referencePeriodStart");
+        }
+        if self.reference_period_end.is_none() {
+            missing.push("referencePeriodEnd");
+        }
+        if missing.is_empty() {
+            Ok(())
+        } else {
+            Err(missing)
+        }
+    }
+}
+
+impl Standalone for Hoc {
+    fn validate_standalone(&self) -> Result<(), Vec<&'static str>> {
+        let mut missing = vec![];
+        if self.spec_version.is_none() {
+            missing.push("specVersion");
+        }
+        if self.company_name.is_none() {
+            missing.push("companyName");
+        }
+        if self.created_at.is_none() {
+            missing.push("createdAt");
+        }
+        if self.reference_period_start.is_none() {
+            missing.push("referencePeriodStart");
+        }
+        if self.reference_period_end.is_none() {
+            missing.push("referencePeriodEnd");
+        }
+        if missing.is_empty() {
+            Ok(())
+        } else {
+            Err(missing)
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
