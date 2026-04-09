@@ -57,8 +57,8 @@ fn test_toc_deser() {
             truck_loading_sequence: Some(TruckLoadingSequence::Ftl),
             energy_carriers: vec![EnergyCarrier {
                 energy_carrier: EnergyCarrierType::Diesel,
-                emission_factor_wtw: dec!(3.6801).into(),
-                emission_factor_ttw: dec!(3.2801).into(),
+                emission_factor_wtw: Some(dec!(3.6801).into()),
+                emission_factor_ttw: Some(dec!(3.2801).into()),
                 feedstocks: None,
                 energy_consumption: None,
                 energy_consumption_unit: None,

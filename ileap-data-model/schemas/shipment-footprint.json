@@ -8,15 +8,8 @@
     "tces"
   ],
   "properties": {
-    "specVersion": {
-      "description": "iLEAP spec version; MUST be \"1.1.0\". M* (mandatory when exchanged via standalone protocol)",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "companyName": {
-      "description": "Name of the company owning the data. M*",
+    "comment": {
+      "description": "Additional comment. O",
       "type": [
         "string",
         "null"
@@ -32,8 +25,8 @@
         "type": "string"
       }
     },
-    "description": {
-      "description": "Description of the Shipment. O",
+    "companyName": {
+      "description": "Name of the company owning the data. M*",
       "type": [
         "string",
         "null"
@@ -47,43 +40,18 @@
       ],
       "format": "date-time"
     },
-    "status": {
-      "description": "Status of this ShipmentFootprint. M (always required). Defaults to `Active` when deserializing pre-v1.1 data that omits this field.",
-      "default": "Active",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Status"
-        }
+    "description": {
+      "description": "Description of the Shipment. O",
+      "type": [
+        "string",
+        "null"
       ]
     },
-    "referencePeriodStart": {
-      "description": "Reference period start (inclusive). M*",
-      "type": [
-        "string",
-        "null"
-      ],
-      "format": "date-time"
-    },
-    "referencePeriodEnd": {
-      "description": "Reference period end (exclusive). M*",
-      "type": [
-        "string",
-        "null"
-      ],
-      "format": "date-time"
-    },
-    "secondaryEmissionFactorSources": {
-      "description": "Secondary emission factor sources used. O TODO: proposed attribute pending community input (spec Issue tag)",
-      "type": [
-        "array",
-        "null"
-      ],
-      "items": {
-        "$ref": "#/definitions/SecondaryEmissionFactorSource"
-      }
+    "mass": {
+      "type": "string"
     },
     "pactPds": {
-      "description": "Primary data share (0–100). O TODO: proposed attribute pending community input (spec Issue tag)",
+      "description": "Primary data share (0–100). O",
       "anyOf": [
         {
           "$ref": "#/definitions/PercentDecimal"
@@ -93,260 +61,65 @@
         }
       ]
     },
-    "comment": {
-      "description": "Additional comment. O TODO: proposed attribute pending community input (spec Issue tag)",
+    "referencePeriodEnd": {
+      "description": "Reference period end (exclusive). M*",
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "referencePeriodStart": {
+      "description": "Reference period start (inclusive). M*",
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "secondaryEmissionFactorSources": {
+      "description": "Secondary emission factor sources used. O",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/definitions/SecondaryEmissionFactorSource"
+      }
+    },
+    "shipmentId": {
+      "type": "string"
+    },
+    "specVersion": {
+      "description": "iLEAP spec version; MUST be \"1.1.0\". M* (mandatory when exchanged via standalone protocol)",
       "type": [
         "string",
         "null"
       ]
     },
-    "mass": {
-      "type": "string"
+    "status": {
+      "description": "Status of this ShipmentFootprint. M (always required). Defaults to `Active` when deserializing pre-v1.1 data that omits this field.",
+      "default": "Active",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Status"
+        }
+      ]
+    },
+    "tces": {
+      "$ref": "#/definitions/NonEmptyVec_for_TCE"
     },
     "volume": {
       "type": [
         "string",
         "null"
       ]
-    },
-    "shipmentId": {
-      "type": "string"
-    },
-    "tces": {
-      "$ref": "#/definitions/NonEmptyVec_for_TCE"
     }
   },
   "definitions": {
-    "Status": {
-      "description": "Status of an iLEAP data object (ShipmentFootprint, TOC, HOC, AggregatedReport). Mandatory for all exchanges (both standalone and PACT-based). Defaults to `Active` for backwards-compatible deserialization of pre-v1.1 data.",
-      "type": "string",
-      "enum": [
-        "Active",
-        "Deprecated"
-      ]
-    },
-    "SecondaryEmissionFactorSource": {
-      "description": "Secondary emission factor source, referencing a named data source and optional version.",
-      "type": "object",
-      "required": [
-        "name"
-      ],
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "version": {
-          "type": [
-            "string",
-            "null"
-          ]
-        }
-      }
-    },
-    "PercentDecimal": {
-      "type": "string"
-    },
-    "NonEmptyVec_for_TCE": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/TCE"
-      }
-    },
-    "TCE": {
-      "type": "object",
-      "required": [
-        "co2eTTW",
-        "co2eWTW",
-        "distance",
-        "mass",
-        "shipmentId",
-        "tceId",
-        "transportActivity"
-      ],
-      "properties": {
-        "tceId": {
-          "type": "string"
-        },
-        "prevTceIds": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "type": "string"
-          }
-        },
-        "tocId": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "hocId": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "shipmentId": {
-          "type": "string"
-        },
-        "consignmentId": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "mass": {
-          "$ref": "#/definitions/Decimal"
-        },
-        "packagingOrTrEqType": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/PackagingOrTrEqType"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "packagingOrTrEqAmount": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/PositiveDecimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "distance": {
-          "$ref": "#/definitions/GlecDistance"
-        },
-        "origin": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Location"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "destination": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Location"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "transportActivity": {
-          "$ref": "#/definitions/Decimal"
-        },
-        "departureAt": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "format": "date-time"
-        },
-        "arrivalAt": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "format": "date-time"
-        },
-        "flightNo": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "voyageNo": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "incoterms": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Incoterms"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "co2eWTW": {
-          "$ref": "#/definitions/Decimal"
-        },
-        "co2eTTW": {
-          "$ref": "#/definitions/Decimal"
-        },
-        "noxTTW": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Decimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "soxTTW": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Decimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "ch4TTW": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Decimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "pmTTW": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Decimal"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      }
-    },
     "Decimal": {
       "type": "string",
       "pattern": "^-?\\d+(\\.\\d+)?$"
-    },
-    "PackagingOrTrEqType": {
-      "type": "string",
-      "enum": [
-        "Box",
-        "Pallet",
-        "Container-TEU",
-        "Container-FEU",
-        "Container"
-      ]
-    },
-    "PositiveDecimal": {
-      "type": "string",
-      "pattern": "^\\d+(\\.\\d+)?$"
     },
     "GlecDistance": {
       "type": "object",
@@ -446,6 +219,29 @@
         }
       ]
     },
+    "ISO3166CC": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "IataCode": {
+      "type": "string"
+    },
+    "Incoterms": {
+      "type": "string",
+      "enum": [
+        "EXW",
+        "FCA",
+        "CPT",
+        "CIP",
+        "DAP",
+        "DPU",
+        "DDP",
+        "FAS",
+        "FOB",
+        "CFR",
+        "CIF"
+      ]
+    },
     "Location": {
       "type": "object",
       "required": [
@@ -453,18 +249,6 @@
         "country"
       ],
       "properties": {
-        "street": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "zip": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
         "city": {
           "type": "string"
         },
@@ -475,26 +259,6 @@
           "anyOf": [
             {
               "$ref": "#/definitions/IataCode"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "locode": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Locode"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "uic": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/UicCode"
             },
             {
               "type": "null"
@@ -520,37 +284,273 @@
               "type": "null"
             }
           ]
+        },
+        "locode": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Locode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "street": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "uic": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/UicCode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "zip": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       }
-    },
-    "ISO3166CC": {
-      "type": "string",
-      "pattern": "^[A-Z]{2}$"
-    },
-    "IataCode": {
-      "type": "string"
     },
     "Locode": {
       "type": "string"
     },
-    "UicCode": {
-      "type": "string"
+    "NonEmptyVec_for_TCE": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TCE"
+      }
     },
-    "Incoterms": {
+    "PackagingOrTrEqType": {
       "type": "string",
       "enum": [
-        "EXW",
-        "FCA",
-        "CPT",
-        "CIP",
-        "DAP",
-        "DPU",
-        "DDP",
-        "FAS",
-        "FOB",
-        "CFR",
-        "CIF"
+        "Box",
+        "Pallet",
+        "Container-TEU",
+        "Container-FEU",
+        "Container"
       ]
+    },
+    "PercentDecimal": {
+      "type": "string"
+    },
+    "PositiveDecimal": {
+      "type": "string",
+      "pattern": "^\\d+(\\.\\d+)?$"
+    },
+    "SecondaryEmissionFactorSource": {
+      "description": "Secondary emission factor source, referencing a named data source and optional version.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "Status": {
+      "description": "Status of an iLEAP data object (ShipmentFootprint, TOC, HOC, AggregatedReport). Mandatory for all exchanges (both standalone and PACT-based). Defaults to `Active` for backwards-compatible deserialization of pre-v1.1 data.",
+      "type": "string",
+      "enum": [
+        "Active",
+        "Deprecated"
+      ]
+    },
+    "TCE": {
+      "type": "object",
+      "required": [
+        "co2eTTW",
+        "co2eWTW",
+        "distance",
+        "mass",
+        "shipmentId",
+        "tceId",
+        "transportActivity"
+      ],
+      "properties": {
+        "arrivalAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "ch4TTW": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "co2eTTW": {
+          "$ref": "#/definitions/Decimal"
+        },
+        "co2eWTW": {
+          "$ref": "#/definitions/Decimal"
+        },
+        "consignmentId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "departureAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "destination": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Location"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "distance": {
+          "$ref": "#/definitions/GlecDistance"
+        },
+        "flightNo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "hocId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "incoterms": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Incoterms"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mass": {
+          "$ref": "#/definitions/Decimal"
+        },
+        "noxTTW": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "origin": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Location"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "packagingOrTrEqAmount": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PositiveDecimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "packagingOrTrEqType": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PackagingOrTrEqType"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pmTTW": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prevTceIds": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "shipmentId": {
+          "type": "string"
+        },
+        "soxTTW": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tceId": {
+          "type": "string"
+        },
+        "tocId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "transportActivity": {
+          "$ref": "#/definitions/Decimal"
+        },
+        "voyageNo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "UicCode": {
+      "type": "string"
     }
   }
 }

@@ -231,17 +231,14 @@ pub struct ShipmentFootprint {
     pub reference_period_end: Option<DateTime<Utc>>,
 
     /// Secondary emission factor sources used. O
-    /// TODO: proposed attribute pending community input (spec Issue tag)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub secondary_emission_factor_sources: Option<Vec<SecondaryEmissionFactorSource>>,
 
     /// Primary data share (0–100). O
-    /// TODO: proposed attribute pending community input (spec Issue tag)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pact_pds: Option<PercentDecimal>,
 
     /// Additional comment. O
-    /// TODO: proposed attribute pending community input (spec Issue tag)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
 
@@ -367,17 +364,14 @@ pub struct Toc {
     pub reference_period_end: Option<DateTime<Utc>>,
 
     /// Secondary emission factor sources. O
-    /// TODO: proposed attribute pending community input (spec Issue tag)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub secondary_emission_factor_sources: Option<Vec<SecondaryEmissionFactorSource>>,
 
     /// Primary data share (0–100). O
-    /// TODO: proposed attribute pending community input (spec Issue tag)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pact_pds: Option<PercentDecimal>,
 
     /// Additional comment. O
-    /// TODO: proposed attribute pending community input (spec Issue tag)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
 
@@ -389,9 +383,9 @@ pub struct Toc {
     pub description: Option<String>,
     pub mode: TransportMode,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub load_factor: Option<String>,
+    pub load_factor: Option<WrappedDecimal>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub empty_distance_factor: Option<String>,
+    pub empty_distance_factor: Option<WrappedDecimal>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub temperature_control: Option<TemperatureControl>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -489,17 +483,14 @@ pub struct Hoc {
     pub reference_period_end: Option<DateTime<Utc>>,
 
     /// Secondary emission factor sources. O
-    /// TODO: proposed attribute pending community input (spec Issue tag)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub secondary_emission_factor_sources: Option<Vec<SecondaryEmissionFactorSource>>,
 
     /// Primary data share (0–100). O
-    /// TODO: proposed attribute pending community input (spec Issue tag)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pact_pds: Option<PercentDecimal>,
 
     /// Additional comment. O
-    /// TODO: proposed attribute pending community input (spec Issue tag)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
 
@@ -719,14 +710,16 @@ pub struct EnergyCarrier {
     pub energy_consumption: Option<WrappedDecimal>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub energy_consumption_unit: Option<EnergyConsumptionUnit>,
-    /// TODO: The spec defines emissionFactorWTW and emissionFactorTTW as O at the field level,
-    /// but states they MUST be defined when EnergyCarrier is used in the context of a TOC or HOC.
-    /// Currently kept as required (WrappedDecimal) for simplicity. Consider making them Option<>
-    /// and validating at the application layer based on context.
-    #[serde(rename = "emissionFactorWTW")]
-    pub emission_factor_wtw: WrappedDecimal,
-    #[serde(rename = "emissionFactorTTW")]
-    pub emission_factor_ttw: WrappedDecimal,
+    /// kgCO2e per `energyConsumptionUnit`. Optional at field level per spec §6.7.7, but MUST be
+    /// defined when `EnergyCarrier` is used in the context of a TOC or HOC. May be omitted for
+    /// TAD usage where emission factors are not yet known.
+    #[serde(skip_serializing_if = "Option::is_none", rename = "emissionFactorWTW")]
+    pub emission_factor_wtw: Option<WrappedDecimal>,
+    /// kgCO2e per `energyConsumptionUnit`. Optional at field level per spec §6.7.7, but MUST be
+    /// defined when `EnergyCarrier` is used in the context of a TOC or HOC. May be omitted for
+    /// TAD usage where emission factors are not yet known.
+    #[serde(skip_serializing_if = "Option::is_none", rename = "emissionFactorTTW")]
+    pub emission_factor_ttw: Option<WrappedDecimal>,
     pub relative_share: WrappedDecimal,
 }
 
