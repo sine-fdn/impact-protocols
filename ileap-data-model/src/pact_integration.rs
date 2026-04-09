@@ -404,8 +404,8 @@ fn toc_to_pcf() {
     let toc = Toc {
         toc_id: "toc-test".to_string(),
         mode: TransportMode::Rail,
-        load_factor: Some(dec!(0.6).to_string()),
-        empty_distance_factor: Some(dec!(0.33).to_string()),
+        load_factor: Some(dec!(0.6).into()),
+        empty_distance_factor: Some(dec!(0.33).into()),
         temperature_control: Some(TemperatureControl::Ambient),
         truck_loading_sequence: None,
         energy_carriers: vec![EnergyCarrier {
@@ -417,8 +417,8 @@ fn toc_to_pcf() {
             }]),
             energy_consumption: None,
             energy_consumption_unit: Some(crate::EnergyConsumptionUnit::MJ),
-            emission_factor_wtw: dec!(97).into(),
-            emission_factor_ttw: dec!(0).into(),
+            emission_factor_wtw: Some(dec!(97).into()),
+            emission_factor_ttw: Some(dec!(0).into()),
             relative_share: dec!(1).into(),
         }]
         .into(),
@@ -480,8 +480,8 @@ fn hoc_to_pfc() {
                 feedstocks: None,
                 energy_consumption: None,
                 energy_consumption_unit: Some(crate::EnergyConsumptionUnit::Kg),
-                emission_factor_wtw: dec!(4.13).into(),
-                emission_factor_ttw: dec!(3.17).into(),
+                emission_factor_wtw: Some(dec!(4.13).into()),
+                emission_factor_ttw: Some(dec!(3.17).into()),
                 relative_share: dec!(0.5).into(),
             },
             EnergyCarrier {
@@ -489,8 +489,8 @@ fn hoc_to_pfc() {
                 feedstocks: None,
                 energy_consumption: None,
                 energy_consumption_unit: Some(crate::EnergyConsumptionUnit::MJ),
-                emission_factor_wtw: dec!(97).into(),
-                emission_factor_ttw: dec!(0).into(),
+                emission_factor_wtw: Some(dec!(97).into()),
+                emission_factor_ttw: Some(dec!(0).into()),
                 relative_share: dec!(0.5).into(),
             },
         ]

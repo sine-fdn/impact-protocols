@@ -537,6 +537,75 @@ fn flatten_json(map: Map<String, Value>) -> HashMap<String, String> {
     flattened_map
 }
 
+fn filter_tad_data(filter: Option<HashMap<String, Vec<String>>>) -> Vec<ileap_data_model::Tad> {
+    let data = ILEAP_TAD_DEMO_DATA.clone();
+    let Some(filter) = filter else {
+        return data;
+    };
+
+    let parsed_data = serde_json::to_string(&data)
+        .and_then(|s| serde_json::from_str::<Vec<Map<String, Value>>>(&s))
+        .unwrap();
+    let flattened = parsed_data
+        .into_iter()
+        .map(flatten_json)
+        .collect::<Vec<_>>();
+
+    let mut filtered_ids = std::collections::HashSet::new();
+    for (filter_key, filter_values) in filter.iter() {
+        for tad in flattened.iter() {
+            if tad.iter().any(|(k, v)| {
+                k.contains(filter_key)
+                    && filter_values
+                        .iter()
+                        .any(|filter_value| &filter_value.to_lowercase() == v)
+            }) {
+                filtered_ids.insert(tad.get("activityId").unwrap().clone());
+            }
+        }
+    }
+    data.into_iter()
+        .filter(|tad| filtered_ids.contains(&tad.activity_id))
+        .collect()
+}
+
+fn paginate_and_respond_tad(
+    data: Vec<ileap_data_model::Tad>,
+    limit: usize,
+    offset: usize,
+    host: &Host,
+    path: &str,
+) -> Result<TadListingResponse, error::AccessDenied> {
+    if offset > data.len() {
+        return Err(Default::default());
+    }
+    let max_limit = data.len() - offset;
+    let limit = min(limit, max_limit);
+    let next_offset = offset + limit;
+    let body = Json(TadListingResponseInner {
+        data: data[offset..offset + limit].to_vec(),
+    });
+    if next_offset < data.len() {
+        let host_str = host
+            .0
+            .map(|h| {
+                if h.starts_with("127.0.0.1:") || h.starts_with("localhost:") {
+                    format!("http://{h}")
+                } else {
+                    format!("https://{h}")
+                }
+            })
+            .unwrap_or_default();
+        let link = format!("<{host_str}{path}?offset={next_offset}&limit={limit}>; rel=\"next\"");
+        Ok(TadListingResponse::Cont(
+            body,
+            rocket::http::Header::new("link", link),
+        ))
+    } else {
+        Ok(TadListingResponse::Finished(body))
+    }
+}
+
 #[openapi]
 #[get("/2/ileap/tad?<limit>&<offset>&<filter..>", format = "json")]
 fn get_tad(
@@ -549,75 +618,14 @@ fn get_tad(
     if auth.is_none() {
         return Err(error::AccessDenied::default());
     }
-
-    let data = ILEAP_TAD_DEMO_DATA.clone();
-
-    let parsed_data = serde_json::to_string(&data)
-        .and_then(|s| serde_json::from_str::<Vec<Map<String, Value>>>(&s))
-        .unwrap();
-
-    let flattened_tad = parsed_data
-        .into_iter()
-        .map(flatten_json)
-        .collect::<Vec<_>>();
-
-    let result = match filter {
-        Some(filter) => {
-            let mut filtered_ids = std::collections::HashSet::new();
-            for (filter_key, filter_values) in filter.iter() {
-                for tad in flattened_tad.iter() {
-                    if tad.iter().any(|(k, v)| {
-                        k.contains(filter_key)
-                            && filter_values
-                                .iter()
-                                .any(|filter_value| &filter_value.to_lowercase() == v)
-                    }) {
-                        filtered_ids.insert(tad.get("activityId").unwrap());
-                    }
-                }
-            }
-
-            data.into_iter()
-                .filter(|tad| filtered_ids.contains(&tad.activity_id))
-                .collect()
-        }
-        None => data,
-    };
-
-    let limit = limit.unwrap_or(10);
-    let offset = offset.unwrap_or(0);
-
-    if offset > result.len() {
-        return Err(Default::default());
-    }
-
-    let max_limit = result.len() - offset;
-    let limit = min(limit, max_limit);
-
-    let next_offset = offset + limit;
-    let tad = Json(TadListingResponseInner {
-        data: result[offset..offset + limit].to_vec(),
-    });
-
-    if next_offset < result.len() {
-        let host = host
-            .0
-            .map(|host| {
-                if host.starts_with("127.0.0.1:") || host.starts_with("localhost:") {
-                    format!("http://{host}")
-                } else {
-                    format!("https://{host}")
-                }
-            })
-            .unwrap_or_default();
-        let link = format!("<{host}/2/ileap/tad?offset={next_offset}&limit={limit}>; rel=\"next\"");
-        Ok(TadListingResponse::Cont(
-            tad,
-            rocket::http::Header::new("link", link),
-        ))
-    } else {
-        Ok(TadListingResponse::Finished(tad))
-    }
+    let result = filter_tad_data(filter);
+    paginate_and_respond_tad(
+        result,
+        limit.unwrap_or(10),
+        offset.unwrap_or(0),
+        &host,
+        "/2/ileap/tad",
+    )
 }
 
 /// Extract ShipmentFootprint objects from PCF_DEMO_DATA and enrich with standalone metadata.
@@ -957,6 +965,8 @@ fn get_hocs(
 }
 
 /// `GET /v1/ileap/tad` – iLEAP standalone protocol: list TAD (same semantics as /2/ileap/tad, new path).
+/// Pagination `Link` headers use the `/v1/ileap/tad` path; `/2/ileap/tad` is maintained for
+/// backward compatibility only.
 #[openapi]
 #[get("/v1/ileap/tad?<limit>&<offset>&<filter..>", format = "json")]
 fn get_tad_standalone(
@@ -966,16 +976,27 @@ fn get_tad_standalone(
     filter: Option<HashMap<String, Vec<String>>>,
     host: Host,
 ) -> Result<TadListingResponse, error::AccessDenied> {
-    get_tad(auth, limit, offset, filter, host)
+    if auth.is_none() {
+        return Err(error::AccessDenied::default());
+    }
+    let result = filter_tad_data(filter);
+    paginate_and_respond_tad(
+        result,
+        limit.unwrap_or(10),
+        offset.unwrap_or(0),
+        &host,
+        "/v1/ileap/tad",
+    )
 }
 
 /// `GET /v1/ileap/aed` – iLEAP standalone protocol: list AggregatedReports (Data Transaction 4).
 #[openapi]
-#[get("/v1/ileap/aed?<limit>&<offset>", format = "json")]
+#[get("/v1/ileap/aed?<limit>&<offset>&<filter..>", format = "json")]
 fn get_aed(
     auth: Option<UserToken>,
     limit: Option<usize>,
     offset: Option<usize>,
+    filter: Option<HashMap<String, Vec<String>>>,
     host: Host,
 ) -> Result<AedListingResponse, error::AccessDenied> {
     if auth.is_none() {
@@ -983,6 +1004,34 @@ fn get_aed(
     }
 
     let data = ILEAP_AED_DEMO_DATA.clone();
+
+    let data = match filter {
+        Some(filter) => {
+            let parsed = serde_json::to_string(&data)
+                .and_then(|s| serde_json::from_str::<Vec<Map<String, Value>>>(&s))
+                .unwrap();
+            let flattened = parsed.into_iter().map(flatten_json).collect::<Vec<_>>();
+
+            let mut filtered_ids = std::collections::HashSet::new();
+            for (filter_key, filter_values) in filter.iter() {
+                for aed in flattened.iter() {
+                    if aed.iter().any(|(k, v)| {
+                        k.contains(filter_key)
+                            && filter_values
+                                .iter()
+                                .any(|filter_value| &filter_value.to_lowercase() == v)
+                    }) {
+                        filtered_ids.insert(aed.get("reportId").unwrap().clone());
+                    }
+                }
+            }
+            data.into_iter()
+                .filter(|aed| filtered_ids.contains(&aed.report_id))
+                .collect()
+        }
+        None => data,
+    };
+
     let limit = limit.unwrap_or(10);
     let offset = offset.unwrap_or(0);
 

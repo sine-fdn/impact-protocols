@@ -11,15 +11,34 @@
     "transportActivityUnit"
   ],
   "properties": {
-    "specVersion": {
-      "description": "iLEAP spec version; MUST be \"1.1.0\". M*",
-      "type": [
-        "string",
-        "null"
+    "airShippingOption": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/AirShippingOption"
+        },
+        {
+          "type": "null"
+        }
       ]
     },
-    "companyName": {
-      "description": "Name of the company owning the data. M*",
+    "certifications": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/NonEmptyVec_for_Certification"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "co2eIntensityTTW": {
+      "$ref": "#/definitions/Decimal"
+    },
+    "co2eIntensityWTW": {
+      "$ref": "#/definitions/Decimal"
+    },
+    "comment": {
+      "description": "Additional comment. O",
       "type": [
         "string",
         "null"
@@ -35,6 +54,13 @@
         "type": "string"
       }
     },
+    "companyName": {
+      "description": "Name of the company owning the data. M*",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "createdAt": {
       "description": "Creation timestamp. M*",
       "type": [
@@ -43,43 +69,50 @@
       ],
       "format": "date-time"
     },
-    "status": {
-      "description": "Status of this TOC. M (always required). Defaults to `Active` when deserializing pre-v1.1 data that omits this field.",
-      "default": "Active",
-      "allOf": [
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "emptyDistanceFactor": {
+      "anyOf": [
         {
-          "$ref": "#/definitions/Status"
+          "$ref": "#/definitions/Decimal"
+        },
+        {
+          "type": "null"
         }
       ]
     },
-    "referencePeriodStart": {
-      "description": "Reference period start (inclusive). M*",
-      "type": [
-        "string",
-        "null"
-      ],
-      "format": "date-time"
+    "energyCarriers": {
+      "$ref": "#/definitions/NonEmptyVec_for_EnergyCarrier"
     },
-    "referencePeriodEnd": {
-      "description": "Reference period end (exclusive). M*",
-      "type": [
-        "string",
-        "null"
-      ],
-      "format": "date-time"
+    "flightLength": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/FlightLength"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
-    "secondaryEmissionFactorSources": {
-      "description": "Secondary emission factor sources. O TODO: proposed attribute pending community input (spec Issue tag)",
-      "type": [
-        "array",
-        "null"
-      ],
-      "items": {
-        "$ref": "#/definitions/SecondaryEmissionFactorSource"
-      }
+    "loadFactor": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Decimal"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "mode": {
+      "$ref": "#/definitions/TransportMode"
     },
     "pactPds": {
-      "description": "Primary data share (0–100). O TODO: proposed attribute pending community input (spec Issue tag)",
+      "description": "Primary data share (0–100). O",
       "anyOf": [
         {
           "$ref": "#/definitions/PercentDecimal"
@@ -89,45 +122,46 @@
         }
       ]
     },
-    "comment": {
-      "description": "Additional comment. O TODO: proposed attribute pending community input (spec Issue tag)",
+    "referencePeriodEnd": {
+      "description": "Reference period end (exclusive). M*",
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "referencePeriodStart": {
+      "description": "Reference period start (inclusive). M*",
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "secondaryEmissionFactorSources": {
+      "description": "Secondary emission factor sources. O",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/definitions/SecondaryEmissionFactorSource"
+      }
+    },
+    "specVersion": {
+      "description": "iLEAP spec version; MUST be \"1.1.0\". M*",
       "type": [
         "string",
         "null"
       ]
     },
-    "tocId": {
-      "type": "string"
-    },
-    "certifications": {
-      "anyOf": [
+    "status": {
+      "description": "Status of this TOC. M (always required). Defaults to `Active` when deserializing pre-v1.1 data that omits this field.",
+      "default": "Active",
+      "allOf": [
         {
-          "$ref": "#/definitions/NonEmptyVec_for_Certification"
-        },
-        {
-          "type": "null"
+          "$ref": "#/definitions/Status"
         }
-      ]
-    },
-    "description": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "mode": {
-      "$ref": "#/definitions/TransportMode"
-    },
-    "loadFactor": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "emptyDistanceFactor": {
-      "type": [
-        "string",
-        "null"
       ]
     },
     "temperatureControl": {
@@ -140,6 +174,12 @@
         }
       ]
     },
+    "tocId": {
+      "type": "string"
+    },
+    "transportActivityUnit": {
+      "$ref": "#/definitions/TransportActivityUnit"
+    },
     "truckLoadingSequence": {
       "anyOf": [
         {
@@ -149,75 +189,15 @@
           "type": "null"
         }
       ]
-    },
-    "airShippingOption": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/AirShippingOption"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "flightLength": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/FlightLength"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "energyCarriers": {
-      "$ref": "#/definitions/NonEmptyVec_for_EnergyCarrier"
-    },
-    "co2eIntensityWTW": {
-      "$ref": "#/definitions/Decimal"
-    },
-    "co2eIntensityTTW": {
-      "$ref": "#/definitions/Decimal"
-    },
-    "transportActivityUnit": {
-      "$ref": "#/definitions/TransportActivityUnit"
     }
   },
   "definitions": {
-    "Status": {
-      "description": "Status of an iLEAP data object (ShipmentFootprint, TOC, HOC, AggregatedReport). Mandatory for all exchanges (both standalone and PACT-based). Defaults to `Active` for backwards-compatible deserialization of pre-v1.1 data.",
+    "AirShippingOption": {
       "type": "string",
       "enum": [
-        "Active",
-        "Deprecated"
+        "belly freight",
+        "freighter"
       ]
-    },
-    "SecondaryEmissionFactorSource": {
-      "description": "Secondary emission factor source, referencing a named data source and optional version.",
-      "type": "object",
-      "required": [
-        "name"
-      ],
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "version": {
-          "type": [
-            "string",
-            "null"
-          ]
-        }
-      }
-    },
-    "PercentDecimal": {
-      "type": "string"
-    },
-    "NonEmptyVec_for_Certification": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/Certification"
-      }
     },
     "Certification": {
       "type": "string",
@@ -228,71 +208,41 @@
         "GLECv3.1"
       ]
     },
-    "TransportMode": {
+    "Decimal": {
       "type": "string",
-      "enum": [
-        "Road",
-        "Rail",
-        "Air",
-        "Sea",
-        "InlandWaterway"
-      ]
-    },
-    "TemperatureControl": {
-      "type": "string",
-      "enum": [
-        "ambient",
-        "refrigerated",
-        "mixed"
-      ]
-    },
-    "TruckLoadingSequence": {
-      "type": "string",
-      "enum": [
-        "LTL",
-        "FTL"
-      ]
-    },
-    "AirShippingOption": {
-      "type": "string",
-      "enum": [
-        "belly freight",
-        "freighter"
-      ]
-    },
-    "FlightLength": {
-      "type": "string",
-      "enum": [
-        "short-haul",
-        "long-haul"
-      ]
-    },
-    "NonEmptyVec_for_EnergyCarrier": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/EnergyCarrier"
-      }
+      "pattern": "^-?\\d+(\\.\\d+)?$"
     },
     "EnergyCarrier": {
       "type": "object",
       "required": [
-        "emissionFactorTTW",
-        "emissionFactorWTW",
         "energyCarrier",
         "relativeShare"
       ],
       "properties": {
+        "emissionFactorTTW": {
+          "description": "kgCO2e per `energyConsumptionUnit`. Optional at field level per spec §6.7.7, but MUST be defined when `EnergyCarrier` is used in the context of a TOC or HOC. May be omitted for TAD usage where emission factors are not yet known.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "emissionFactorWTW": {
+          "description": "kgCO2e per `energyConsumptionUnit`. Optional at field level per spec §6.7.7, but MUST be defined when `EnergyCarrier` is used in the context of a TOC or HOC. May be omitted for TAD usage where emission factors are not yet known.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "energyCarrier": {
           "$ref": "#/definitions/EnergyCarrierType"
-        },
-        "feedstocks": {
-          "type": [
-            "array",
-            "null"
-          ],
-          "items": {
-            "$ref": "#/definitions/Feedstock"
-          }
         },
         "energyConsumption": {
           "anyOf": [
@@ -314,16 +264,14 @@
             }
           ]
         },
-        "emissionFactorWTW": {
-          "description": "TODO: The spec defines emissionFactorWTW and emissionFactorTTW as O at the field level, but states they MUST be defined when EnergyCarrier is used in the context of a TOC or HOC. Currently kept as required (WrappedDecimal) for simplicity. Consider making them Option<> and validating at the application layer based on context.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Decimal"
-            }
-          ]
-        },
-        "emissionFactorTTW": {
-          "$ref": "#/definitions/Decimal"
+        "feedstocks": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/Feedstock"
+          }
         },
         "relativeShare": {
           "$ref": "#/definitions/Decimal"
@@ -345,6 +293,15 @@
         "Hydrogen",
         "Methanol",
         "Electric"
+      ]
+    },
+    "EnergyConsumptionUnit": {
+      "type": "string",
+      "enum": [
+        "l",
+        "kg",
+        "kWh",
+        "MJ"
       ]
     },
     "Feedstock": {
@@ -384,17 +341,60 @@
         "Cooking oil"
       ]
     },
-    "Decimal": {
-      "type": "string",
-      "pattern": "^-?\\d+(\\.\\d+)?$"
-    },
-    "EnergyConsumptionUnit": {
+    "FlightLength": {
       "type": "string",
       "enum": [
-        "l",
-        "kg",
-        "kWh",
-        "MJ"
+        "short-haul",
+        "long-haul"
+      ]
+    },
+    "NonEmptyVec_for_Certification": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Certification"
+      }
+    },
+    "NonEmptyVec_for_EnergyCarrier": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EnergyCarrier"
+      }
+    },
+    "PercentDecimal": {
+      "type": "string"
+    },
+    "SecondaryEmissionFactorSource": {
+      "description": "Secondary emission factor source, referencing a named data source and optional version.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "Status": {
+      "description": "Status of an iLEAP data object (ShipmentFootprint, TOC, HOC, AggregatedReport). Mandatory for all exchanges (both standalone and PACT-based). Defaults to `Active` for backwards-compatible deserialization of pre-v1.1 data.",
+      "type": "string",
+      "enum": [
+        "Active",
+        "Deprecated"
+      ]
+    },
+    "TemperatureControl": {
+      "type": "string",
+      "enum": [
+        "ambient",
+        "refrigerated",
+        "mixed"
       ]
     },
     "TransportActivityUnit": {
@@ -402,6 +402,23 @@
       "enum": [
         "TEUkm",
         "tkm"
+      ]
+    },
+    "TransportMode": {
+      "type": "string",
+      "enum": [
+        "Road",
+        "Rail",
+        "Air",
+        "Sea",
+        "InlandWaterway"
+      ]
+    },
+    "TruckLoadingSequence": {
+      "type": "string",
+      "enum": [
+        "LTL",
+        "FTL"
       ]
     }
   }

@@ -217,11 +217,11 @@ impl Arbitrary for Certification {
     }
 }
 
-fn arbitrary_option_factor(g: &mut quickcheck::Gen) -> Option<String> {
+fn arbitrary_option_factor(g: &mut quickcheck::Gen) -> Option<WrappedDecimal> {
     let rand_num = u8::arbitrary(g) % 10 + 1;
     let rand_factor: Decimal = Decimal::new(rand_num as i64, 1);
 
-    Some(rand_factor.to_string())
+    Some(rand_factor.into())
 }
 
 fn arbitrary_share(g: &mut quickcheck::Gen) -> WrappedDecimal {
@@ -439,8 +439,8 @@ impl Arbitrary for EnergyCarrier {
             feedstocks,
             energy_consumption: arbitrary_option_wrapped_decimal(g),
             energy_consumption_unit: Option::<EnergyConsumptionUnit>::arbitrary(g),
-            emission_factor_wtw: arbitrary_wrapped_decimal(g),
-            emission_factor_ttw: arbitrary_wrapped_decimal(g),
+            emission_factor_wtw: arbitrary_option_wrapped_decimal(g),
+            emission_factor_ttw: arbitrary_option_wrapped_decimal(g),
             relative_share: arbitrary_share(g),
         }
     }
