@@ -513,14 +513,14 @@ fn flatten_json(map: Map<String, Value>) -> HashMap<String, String> {
             }
             Value::Array(arr) => {
                 for (i, e) in arr.iter().enumerate() {
-                    // TODO: For now, the only arrays are consignmentIds and feedstocks.
-                    // consignmentIds doesn't need flattening. feedstocks is a Vec<Feedstock>, where
-                    // Feedstock is a struct. This might change in the future and the code must be
-                    // adapted.
                     if key == "consignmentIds" {
                         continue;
                     }
-                    let inner_flattened = flatten_json(e.as_object().unwrap().clone());
+                    // Skip non-object array elements (e.g. prevTceIds is Vec<String>)
+                    let Some(obj) = e.as_object() else {
+                        continue;
+                    };
+                    let inner_flattened = flatten_json(obj.clone());
 
                     for (inner_key, inner_value) in inner_flattened {
                         let new_key = format!("{key}[{i}].{inner_key}");
@@ -640,6 +640,8 @@ fn standalone_shipments() -> Vec<ShipmentFootprint> {
                     sf.spec_version = Some("1.1.0".to_string());
                     sf.company_name = Some(pcf.company_name.0.clone());
                     sf.created_at = Some(pcf.created);
+                    sf.reference_period_start = Some(pcf.pcf.reference_period_start);
+                    sf.reference_period_end = Some(pcf.pcf.reference_period_end);
                     match sf.validate_standalone() {
                         Ok(()) => Some(sf),
                         Err(missing) => {
@@ -671,6 +673,8 @@ fn standalone_tocs() -> Vec<Toc> {
                     toc.spec_version = Some("1.1.0".to_string());
                     toc.company_name = Some(pcf.company_name.0.clone());
                     toc.created_at = Some(pcf.created);
+                    toc.reference_period_start = Some(pcf.pcf.reference_period_start);
+                    toc.reference_period_end = Some(pcf.pcf.reference_period_end);
                     match toc.validate_standalone() {
                         Ok(()) => Some(toc),
                         Err(missing) => {
@@ -702,6 +706,8 @@ fn standalone_hocs() -> Vec<Hoc> {
                     hoc.spec_version = Some("1.1.0".to_string());
                     hoc.company_name = Some(pcf.company_name.0.clone());
                     hoc.created_at = Some(pcf.created);
+                    hoc.reference_period_start = Some(pcf.pcf.reference_period_start);
+                    hoc.reference_period_end = Some(pcf.pcf.reference_period_end);
                     match hoc.validate_standalone() {
                         Ok(()) => Some(hoc),
                         Err(missing) => {
