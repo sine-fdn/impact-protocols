@@ -256,7 +256,7 @@ fn to_char_factors(
 #[test]
 fn ship_foot_to_pfc() {
     use crate::GlecDistanceKind;
-    use crate::{GlecDistance, Tce};
+    use crate::{GlecDistance, Status, Tce};
     use rust_decimal_macros::dec;
 
     let ship_foot = ShipmentFootprint {
@@ -362,6 +362,17 @@ fn ship_foot_to_pfc() {
         .into(),
         mass: "40000".to_string(),
         volume: None,
+        spec_version: None,
+        company_name: None,
+        company_ids: None,
+        description: None,
+        created_at: None,
+        status: Status::Active,
+        reference_period_start: None,
+        reference_period_end: None,
+        secondary_emission_factor_sources: None,
+        pact_pds: None,
+        comment: None,
     };
 
     let pfc = to_pcf(
@@ -385,16 +396,16 @@ fn ship_foot_to_pfc() {
 #[test]
 fn toc_to_pcf() {
     use crate::{
-        EnergyCarrier, EnergyCarrierType, Feedstock, FeedstockType, TemperatureControl, Toc,
-        TransportActivityUnit, TransportMode,
+        EnergyCarrier, EnergyCarrierType, Feedstock, FeedstockType, Status, TemperatureControl,
+        Toc, TransportActivityUnit, TransportMode,
     };
     use rust_decimal_macros::dec;
 
     let toc = Toc {
         toc_id: "toc-test".to_string(),
         mode: TransportMode::Rail,
-        load_factor: Some(dec!(0.6).to_string()),
-        empty_distance_factor: Some(dec!(0.33).to_string()),
+        load_factor: Some(dec!(0.6).into()),
+        empty_distance_factor: Some(dec!(0.33).into()),
         temperature_control: Some(TemperatureControl::Ambient),
         truck_loading_sequence: None,
         energy_carriers: vec![EnergyCarrier {
@@ -406,8 +417,8 @@ fn toc_to_pcf() {
             }]),
             energy_consumption: None,
             energy_consumption_unit: Some(crate::EnergyConsumptionUnit::MJ),
-            emission_factor_wtw: dec!(97).into(),
-            emission_factor_ttw: dec!(0).into(),
+            emission_factor_wtw: Some(dec!(97).into()),
+            emission_factor_ttw: Some(dec!(0).into()),
             relative_share: dec!(1).into(),
         }]
         .into(),
@@ -418,6 +429,16 @@ fn toc_to_pcf() {
         description: None,
         air_shipping_option: None,
         flight_length: None,
+        spec_version: None,
+        company_name: None,
+        company_ids: None,
+        created_at: None,
+        status: Status::Active,
+        reference_period_start: None,
+        reference_period_end: None,
+        secondary_emission_factor_sources: None,
+        pact_pds: None,
+        comment: None,
     };
 
     let pfc = to_pcf(
@@ -438,7 +459,7 @@ fn toc_to_pcf() {
 #[test]
 fn hoc_to_pfc() {
     use crate::{
-        EnergyCarrier, EnergyCarrierType, Hoc, HubType, TemperatureControl, TransportMode,
+        EnergyCarrier, EnergyCarrierType, Hoc, HubType, Status, TemperatureControl, TransportMode,
     };
     use rust_decimal_macros::dec;
 
@@ -459,8 +480,8 @@ fn hoc_to_pfc() {
                 feedstocks: None,
                 energy_consumption: None,
                 energy_consumption_unit: Some(crate::EnergyConsumptionUnit::Kg),
-                emission_factor_wtw: dec!(4.13).into(),
-                emission_factor_ttw: dec!(3.17).into(),
+                emission_factor_wtw: Some(dec!(4.13).into()),
+                emission_factor_ttw: Some(dec!(3.17).into()),
                 relative_share: dec!(0.5).into(),
             },
             EnergyCarrier {
@@ -468,8 +489,8 @@ fn hoc_to_pfc() {
                 feedstocks: None,
                 energy_consumption: None,
                 energy_consumption_unit: Some(crate::EnergyConsumptionUnit::MJ),
-                emission_factor_wtw: dec!(97).into(),
-                emission_factor_ttw: dec!(0).into(),
+                emission_factor_wtw: Some(dec!(97).into()),
+                emission_factor_ttw: Some(dec!(0).into()),
                 relative_share: dec!(0.5).into(),
             },
         ]
@@ -477,6 +498,16 @@ fn hoc_to_pfc() {
         co2e_intensity_wtw: dec!(33).into(),
         co2e_intensity_ttw: dec!(10).into(),
         hub_activity_unit: HubActivityUnit::Tonnes,
+        spec_version: None,
+        company_name: None,
+        company_ids: None,
+        created_at: None,
+        status: Status::Active,
+        reference_period_start: None,
+        reference_period_end: None,
+        secondary_emission_factor_sources: None,
+        pact_pds: None,
+        comment: None,
     };
 
     let pfc = to_pcf(
