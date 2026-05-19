@@ -115,7 +115,7 @@ fn write_schema_file(schema: RootSchema, schema_name: &str) -> Result<(), Error>
 
 #[test]
 fn compare_schemas() {
-    use crate::{Hoc, ShipmentFootprint, Tad, Toc};
+    use crate::{AggregatedReport, Hoc, ShipmentFootprint, Tad, Toc};
     use schemars::schema_for;
     use serde_json::to_string_pretty;
     use serde_json::Value;
@@ -172,7 +172,7 @@ fn compare_schemas() {
         normalize_json(&to_string_pretty(&schema_for!(Tad)).unwrap())
     );
     assert_eq!(
-        normalize_json(&read_schema("pcf-tad.json")),
-        normalize_json(&to_string_pretty(&gen_pcf_with_extension::<Tad>("Tad")).unwrap())
+        normalize_json(&read_schema("ar.json")),
+        normalize_json(&to_string_pretty(&schema_for!(AggregatedReport)).unwrap())
     );
 }
