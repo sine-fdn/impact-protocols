@@ -1,0 +1,378 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AR",
+  "description": "Aggregated Report (AR) – Data Transaction 4 (Section 6.6). Contains aggregated emissions data for one or more shipments. This type is ONLY exchanged through the iLEAP standalone API (`/v1/ileap/aed`), never as a PACT ProductFootprint extension.",
+  "type": "object",
+  "required": [
+    "co2eWTW",
+    "createdAt",
+    "reportId",
+    "shipmentIds",
+    "specVersion",
+    "standardsUsed",
+    "status",
+    "totalTransportActivity"
+  ],
+  "properties": {
+    "ch4TTW": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Decimal"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "co2eTTW": {
+      "description": "Total TTW GHG emissions (unit: kgCO2e). O",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Decimal"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "co2eWTW": {
+      "description": "Total WTW GHG emissions (unit: kgCO2e). M",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Decimal"
+        }
+      ]
+    },
+    "consignmentIds": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "createdAt": {
+      "description": "Creation timestamp of this AggregatedReport. M",
+      "type": "string",
+      "format": "date-time"
+    },
+    "hocIds": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "modalities": {
+      "description": "Transport modalities included. SHOULD be defined if perModeEmissions is not. O",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/definitions/Modality"
+      }
+    },
+    "noxTTW": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Decimal"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "packagingOrTrEqAmount": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Decimal"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "packagingOrTrEqType": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/PackagingOrTrEqType"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "perModeEmissions": {
+      "description": "Per-mode emissions breakdown. MUST be defined for ISO14083 conformance. O",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/definitions/ModeSpecificReport"
+      }
+    },
+    "pmTTW": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Decimal"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reportId": {
+      "description": "Unique report ID relative to the host system. M",
+      "type": "string"
+    },
+    "reportPeriodEnd": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "reportPeriodStart": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "shipmentIds": {
+      "description": "Shipment IDs covered by this report. M",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "soxTTW": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Decimal"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "specVersion": {
+      "description": "iLEAP spec version; MUST be \"1.1.0\" for this version. M",
+      "type": "string"
+    },
+    "standardsUsed": {
+      "description": "Non-empty set of methodological standards used. M Each element MUST be one of: \"ISO14083:2023\"",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "description": "Status of this report. M",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Status"
+        }
+      ]
+    },
+    "tceIds": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "tocIds": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "totalTransportActivity": {
+      "description": "Sum of transport activity across all referenced shipments (unit: ton kilometers). M",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Decimal"
+        }
+      ]
+    },
+    "transportServiceUserBuId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "transportServiceUserId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "definitions": {
+    "Decimal": {
+      "type": "string",
+      "pattern": "^-?\\d+(\\.\\d+)?$"
+    },
+    "DistanceType": {
+      "description": "Distance type values used in ModeSpecificReport.distanceTypes.",
+      "type": "string",
+      "enum": [
+        "actual",
+        "gcd",
+        "sfd"
+      ]
+    },
+    "Modality": {
+      "description": "Modality enumeration used in AggregatedReport. Extends TransportMode with MultiModal.",
+      "type": "string",
+      "enum": [
+        "Road",
+        "Rail",
+        "Air",
+        "Sea",
+        "InlandWaterway",
+        "MultiModal"
+      ]
+    },
+    "ModeSpecificReport": {
+      "description": "Mode-specific emissions sub-report within an AggregatedReport (Section 6.7.10).\n\nEither `transport_mode` or `hub_operations` MUST be defined.\n\nTODO: The spec example (Section 7.7 response) uses the field name `\"mode\"` while the data type table (Section 6.7.10) specifies `\"transportMode\"`. Implemented as `transportMode` per the table definition. Needs clarification.",
+      "type": "object",
+      "required": [
+        "co2eWTW"
+      ],
+      "properties": {
+        "ch4TTW": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "co2eTTW": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "co2eWTW": {
+          "$ref": "#/definitions/Decimal"
+        },
+        "distanceTypes": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/DistanceType"
+          }
+        },
+        "hubOperations": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/ModeSpecificReportHubOperation"
+          }
+        },
+        "noxTTW": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pmTTW": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "soxTTW": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "transportMode": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/TransportMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ModeSpecificReportHubOperation": {
+      "description": "Hub operation types used in ModeSpecificReport (differs slightly from HubType). Note: includes generic `Hub` value absent from HubType.",
+      "type": "string",
+      "enum": [
+        "Transshipment",
+        "StorageAndTransshipment",
+        "Warehouse",
+        "LiquidBulkTerminal",
+        "Hub"
+      ]
+    },
+    "PackagingOrTrEqType": {
+      "type": "string",
+      "enum": [
+        "Box",
+        "Pallet",
+        "Container-TEU",
+        "Container-FEU",
+        "Container"
+      ]
+    },
+    "Status": {
+      "description": "Status of an iLEAP data object (ShipmentFootprint, TOC, HOC, AggregatedReport). Mandatory for all exchanges (both standalone and PACT-based). Defaults to `Active` for backwards-compatible deserialization of pre-v1.1 data.",
+      "type": "string",
+      "enum": [
+        "Active",
+        "Deprecated"
+      ]
+    },
+    "TransportMode": {
+      "type": "string",
+      "enum": [
+        "Road",
+        "Rail",
+        "Air",
+        "Sea",
+        "InlandWaterway"
+      ]
+    }
+  }
+}

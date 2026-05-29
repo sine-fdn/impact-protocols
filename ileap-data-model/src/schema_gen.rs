@@ -13,20 +13,19 @@ use serde_json::to_string_pretty;
 use std::fs::File;
 use std::io::{Error, Write};
 
-pub fn write_schemas<T: schemars::JsonSchema>(
-    type_name: &str,
+pub fn write_standalone_schema<T: schemars::JsonSchema>(
     schema_file_name: &str,
-    pcf_schema_file_name: &str,
 ) -> Result<(), Error> {
     let schema = schema_for!(T);
+    write_schema_file(schema, schema_file_name)
+}
 
-    write_schema_file(schema, schema_file_name)?;
-
+pub fn write_pcf_schema<T: schemars::JsonSchema>(
+    type_name: &str,
+    pcf_schema_file_name: &str,
+) -> Result<(), Error> {
     let pcf_schema = gen_pcf_with_extension::<T>(type_name);
-
-    write_schema_file(pcf_schema, pcf_schema_file_name)?;
-
-    Ok(())
+    write_schema_file(pcf_schema, pcf_schema_file_name)
 }
 
 pub fn gen_pcf_with_extension<T: schemars::JsonSchema>(type_name: &str) -> RootSchema {
@@ -116,7 +115,7 @@ fn write_schema_file(schema: RootSchema, schema_name: &str) -> Result<(), Error>
 
 #[test]
 fn compare_schemas() {
-    use crate::{Hoc, ShipmentFootprint, Tad, Toc};
+    use crate::{AggregatedReport, Hoc, ShipmentFootprint, Tad, Toc};
     use schemars::schema_for;
     use serde_json::to_string_pretty;
     use serde_json::Value;
@@ -173,7 +172,7 @@ fn compare_schemas() {
         normalize_json(&to_string_pretty(&schema_for!(Tad)).unwrap())
     );
     assert_eq!(
-        normalize_json(&read_schema("pcf-tad.json")),
-        normalize_json(&to_string_pretty(&gen_pcf_with_extension::<Tad>("Tad")).unwrap())
+        normalize_json(&read_schema("ar.json")),
+        normalize_json(&to_string_pretty(&schema_for!(AggregatedReport)).unwrap())
     );
 }
