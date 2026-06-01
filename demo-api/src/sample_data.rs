@@ -691,8 +691,8 @@ lazy_static!(
                         TocArgs {
                             toc_id: "toc-road-1".to_string(),
                             mode: TransportMode::Road,
-                            load_factor: Some(dec!(0.6).to_string()),
-                            empty_distance_factor: Some(dec!(0.3).to_string()),
+                            load_factor: Some(dec!(0.6).into()),
+                            empty_distance_factor: Some(dec!(0.3).into()),
                             temperature_control: Some(TemperatureControl::Refrigerated),
                             truck_loading_sequence: Some(TruckLoadingSequence::Ftl),
                             energy_carriers: vec![EnergyCarrier {
@@ -704,8 +704,8 @@ lazy_static!(
                                 }]),
                                 energy_consumption: None,
                                 energy_consumption_unit: Some(EnergyConsumptionUnit::Kg),
-                                emission_factor_wtw: dec!(4.13).into(),
-                                emission_factor_ttw: dec!(3.17).into(),
+                                emission_factor_wtw: Some(dec!(4.13).into()),
+                                emission_factor_ttw: Some(dec!(3.17).into()),
                                 relative_share: dec!(1.0).into(),
                             }].into(),
                             co2e_intensity_wtw: dec!(0.116).into(),
@@ -782,8 +782,8 @@ lazy_static!(
                         TocArgs {
                             toc_id: "truck-40t-euro5-de".to_string(),
                             mode: TransportMode::Road,
-                            load_factor: Some(dec!(0.6).to_string()),
-                            empty_distance_factor: Some(dec!(0.3).to_string()),
+                            load_factor: Some(dec!(0.6).into()),
+                            empty_distance_factor: Some(dec!(0.3).into()),
                             temperature_control: Some(TemperatureControl::Refrigerated),
                             truck_loading_sequence: Some(TruckLoadingSequence::Ftl),
                             energy_carriers: vec![EnergyCarrier {
@@ -795,8 +795,8 @@ lazy_static!(
                                 }]),
                                 energy_consumption: None,
                                 energy_consumption_unit: Some(EnergyConsumptionUnit::Kg),
-                                emission_factor_wtw: dec!(4.13).into(),
-                                emission_factor_ttw: dec!(3.17).into(),
+                                emission_factor_wtw: Some(dec!(4.13).into()),
+                                emission_factor_ttw: Some(dec!(3.17).into()),
                                 relative_share: dec!(1.0).into(),
                             }].into(),
                             co2e_intensity_wtw: dec!(0.116).into(),
@@ -873,8 +873,8 @@ lazy_static!(
                         TocArgs {
                             toc_id: "toc-small-truck-1".to_string(),
                             mode: TransportMode::Road,
-                            load_factor: Some(dec!(0.2).to_string()),
-                            empty_distance_factor: Some(dec!(0.1).to_string()),
+                            load_factor: Some(dec!(0.2).into()),
+                            empty_distance_factor: Some(dec!(0.1).into()),
                             temperature_control: Some(TemperatureControl::Ambient),
                             truck_loading_sequence: Some(TruckLoadingSequence::Ftl),
                             energy_carriers: vec![EnergyCarrier {
@@ -886,8 +886,8 @@ lazy_static!(
                                 }]),
                                 energy_consumption: None,
                                 energy_consumption_unit: Some(EnergyConsumptionUnit::Kg),
-                                emission_factor_wtw: dec!(4.13).into(),
-                                emission_factor_ttw: dec!(3.17).into(),
+                                emission_factor_wtw: Some(dec!(4.13).into()),
+                                emission_factor_ttw: Some(dec!(3.17).into()),
                                 relative_share: dec!(1.0).into(),
                             }].into(),
                             co2e_intensity_wtw: dec!(0.793).into(),
@@ -965,8 +965,8 @@ lazy_static!(
                         TocArgs {
                             toc_id: "toc-rail-1".to_string(),
                             mode: TransportMode::Rail,
-                            load_factor: Some(dec!(0.6).to_string()),
-                            empty_distance_factor: Some(dec!(0.33).to_string()),
+                            load_factor: Some(dec!(0.6).into()),
+                            empty_distance_factor: Some(dec!(0.33).into()),
                             temperature_control: Some(TemperatureControl::Ambient),
                             truck_loading_sequence: None,
                             energy_carriers: vec![EnergyCarrier {
@@ -978,8 +978,8 @@ lazy_static!(
                                 }]),
                                 energy_consumption: None,
                                 energy_consumption_unit: Some(EnergyConsumptionUnit::MJ),
-                                emission_factor_wtw: dec!(97).into(),
-                                emission_factor_ttw: dec!(0).into(),
+                                emission_factor_wtw: Some(dec!(97).into()),
+                                emission_factor_ttw: Some(dec!(0).into()),
                                 relative_share: dec!(1.0).into(),
                             }].into(),
                             co2e_intensity_wtw: dec!(0.007).into(),
@@ -1151,14 +1151,25 @@ fn shipment_footprint(
         volume: None,
         shipment_id,
         tces,
+        spec_version: None,
+        company_name: None,
+        company_ids: None,
+        description: None,
+        created_at: None,
+        status: Status::Active,
+        reference_period_start: None,
+        reference_period_end: None,
+        secondary_emission_factor_sources: None,
+        pact_pds: None,
+        comment: None,
     }
 }
 
 struct TocArgs {
     toc_id: String,
     mode: TransportMode,
-    load_factor: Option<String>,
-    empty_distance_factor: Option<String>,
+    load_factor: Option<WrappedDecimal>,
+    empty_distance_factor: Option<WrappedDecimal>,
     temperature_control: Option<TemperatureControl>,
     truck_loading_sequence: Option<TruckLoadingSequence>,
     energy_carriers: NonEmptyVec<EnergyCarrier>,
@@ -1196,6 +1207,16 @@ fn toc(
         co2e_intensity_wtw,
         co2e_intensity_ttw,
         transport_activity_unit,
+        spec_version: None,
+        company_name: None,
+        company_ids: None,
+        created_at: None,
+        status: Status::Active,
+        reference_period_start: None,
+        reference_period_end: None,
+        secondary_emission_factor_sources: None,
+        pact_pds: None,
+        comment: None,
     }
 }
 
@@ -1227,14 +1248,24 @@ fn hoc(
         outbound_transport_mode,
         packaging_or_tr_eq_type: None,
         packaging_or_tr_eq_amount: None,
+        spec_version: None,
+        company_name: None,
+        company_ids: None,
+        created_at: None,
+        status: Status::Active,
+        reference_period_start: None,
+        reference_period_end: None,
+        secondary_emission_factor_sources: None,
+        pact_pds: None,
+        comment: None,
         energy_carriers: vec![
             EnergyCarrier {
                 energy_carrier: EnergyCarrierType::Diesel,
                 feedstocks: None,
                 energy_consumption: None,
                 energy_consumption_unit: Some(EnergyConsumptionUnit::Kg),
-                emission_factor_wtw: dec!(4.13).into(),
-                emission_factor_ttw: dec!(3.17).into(),
+                emission_factor_wtw: Some(dec!(4.13).into()),
+                emission_factor_ttw: Some(dec!(3.17).into()),
                 relative_share: dec!(0.5).into(),
             },
             EnergyCarrier {
@@ -1242,8 +1273,8 @@ fn hoc(
                 feedstocks: None,
                 energy_consumption: None,
                 energy_consumption_unit: Some(EnergyConsumptionUnit::MJ),
-                emission_factor_wtw: dec!(97).into(),
-                emission_factor_ttw: dec!(0).into(),
+                emission_factor_wtw: Some(dec!(97).into()),
+                emission_factor_ttw: Some(dec!(0).into()),
                 relative_share: dec!(0.5).into(),
             },
         ]
@@ -1329,6 +1360,7 @@ lazy_static! {
 
 fn demo_tad_base(activity_id: String, consignment_id: String, feedstock: FeedstockType) -> Tad {
     Tad {
+        spec_version: None,
         activity_id,
         consignment_ids: vec![consignment_id],
         distance: GlecDistance::new_actual(dec!(656.0).into()),
@@ -1382,8 +1414,8 @@ fn demo_tad_base(activity_id: String, consignment_id: String, feedstock: Feedsto
             }]),
             energy_consumption: Some(WrappedDecimal(dec!(10.496))),
             energy_consumption_unit: Some(EnergyConsumptionUnit::L),
-            emission_factor_wtw: dec!(4.13).into(),
-            emission_factor_ttw: dec!(3.17).into(),
+            emission_factor_wtw: Some(dec!(4.13).into()),
+            emission_factor_ttw: Some(dec!(3.17).into()),
             relative_share: dec!(1.0).into(),
         }])),
         temperature_control: None,
@@ -1407,6 +1439,46 @@ lazy_static! {
         ));
         demo_data
     };
+}
+
+lazy_static! {
+    pub(crate) static ref ILEAP_AED_DEMO_DATA: Vec<AggregatedReport> = vec![AggregatedReport {
+        spec_version: "1.1.0".to_string(),
+        report_id: "aed-report-1".to_string(),
+        standards_used: vec!["ISO14083:2023".to_string()],
+        shipment_ids: vec!["shipment-simple-1".to_string()],
+        tce_ids: Some(vec!["abcdef".to_string()]),
+        toc_ids: Some(vec!["truck-40t-euro5-de".to_string()]),
+        hoc_ids: None,
+        report_period_start: Some(Utc.with_ymd_and_hms(2024, 1, 1, 0, 0, 0).unwrap()),
+        report_period_end: Some(Utc.with_ymd_and_hms(2025, 1, 1, 0, 0, 0).unwrap()),
+        created_at: Utc.with_ymd_and_hms(2025, 1, 15, 10, 0, 0).unwrap(),
+        status: Status::Active,
+        transport_service_user_id: None,
+        transport_service_user_bu_id: None,
+        consignment_ids: None,
+        packaging_or_tr_eq_type: None,
+        packaging_or_tr_eq_amount: None,
+        total_transport_activity: dec!(16920).into(),
+        co2e_wtw: dec!(1962.72).into(),
+        co2e_ttw: Some(dec!(1505.88).into()),
+        nox_ttw: None,
+        sox_ttw: None,
+        ch4_ttw: None,
+        pm_ttw: None,
+        per_mode_emissions: Some(vec![ModeSpecificReport {
+            transport_mode: Some(TransportMode::Road),
+            hub_operations: None,
+            distance_types: Some(vec![DistanceType::Actual]),
+            co2e_wtw: dec!(1962.72).into(),
+            co2e_ttw: Some(dec!(1505.88).into()),
+            nox_ttw: None,
+            sox_ttw: None,
+            ch4_ttw: None,
+            pm_ttw: None,
+        },]),
+        modalities: Some(vec![Modality::Road]),
+    },];
 }
 
 #[test]
