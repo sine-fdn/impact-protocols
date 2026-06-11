@@ -12,6 +12,7 @@ extern crate rocket;
 extern crate lazy_static;
 mod api_types;
 mod auth;
+mod cors;
 mod error;
 mod openid_conf;
 mod sample_data;
@@ -1107,7 +1108,7 @@ fn create_server(key_pair: KeyPair) -> rocket::Rocket<rocket::Build> {
 
     rocket::build()
         .mount("/", openapi_routes)
-        .mount("/", routes![index])
+        .mount("/", routes![index, cors::default_options_handler])
         .mount("/", routes![get_list, get_pcf_unauth, post_event_fallback])
         .mount("/", routes![openid_configuration, jwks])
         .mount(
@@ -1124,6 +1125,7 @@ fn create_server(key_pair: KeyPair) -> rocket::Rocket<rocket::Build> {
         )
         .manage(key_pair)
         .register("/", catchers![bad_request, default_handler])
+        .attach(cors::Cors)
 }
 
 #[rocket::main]
