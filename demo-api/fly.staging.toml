@@ -6,6 +6,7 @@ primary_region = "fra"
 [env]
 PORT = "8000"
 PRIMARY_REGION = "fra"
+ROCKET_LOG_LEVEL = "debug"
 
 [build]
 dockerfile = "Dockerfile"
