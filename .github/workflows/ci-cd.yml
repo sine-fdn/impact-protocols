@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Rust projects
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - name: Cache target
-        uses: actions/cache@v4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             ~/.cargo/bin/
@@ -39,8 +39,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: build_and_test
     steps:
-      - uses: actions/checkout@v4
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1 # 1.6
       - run: flyctl deploy --remote-only --config demo-api/fly.production.toml
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -51,8 +51,8 @@ jobs:
     if: github.ref == 'refs/heads/preview'
     needs: build_and_test
     steps:
-      - uses: actions/checkout@v4
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1 # 1.6
       - run: flyctl deploy --remote-only --config demo-api/fly.staging.toml
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
