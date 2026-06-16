@@ -69,16 +69,15 @@ const DEMO_LSP_PASSWORD: &str = "ileap";
 const RANDOM_DATA_USERNAME: &str = "random_data";
 const RANDOM_DATA_PASSWORD: &str = "random_data";
 
-const API_URL: &str = "https://api.ileap.sine.dev";
-
 /// endpoint to retrieve the OpenId configuration document with the token_endpoint
 #[get("/.well-known/openid-configuration")]
-fn openid_configuration() -> Json<OpenIdConfiguration> {
+fn openid_configuration(host: Host) -> Json<OpenIdConfiguration> {
+    let base_url = host.base_url();
     let openid_conf = OpenIdConfiguration {
-        token_endpoint: format!("{API_URL}/auth/token"),
-        issuer: url::Url::parse(API_URL).unwrap(),
-        authorization_endpoint: format!("{API_URL}/auth/token"),
-        jwks_uri: format!("{API_URL}/jwks"),
+        token_endpoint: format!("{base_url}/auth/token"),
+        issuer: url::Url::parse(&base_url).unwrap(),
+        authorization_endpoint: format!("{base_url}/auth/token"),
+        jwks_uri: format!("{base_url}/jwks"),
         response_types_supported: vec![format!("token")],
         subject_types_supported: vec![format!("public")],
         id_token_signing_alg_values_supported: vec![format!("RS256")],
@@ -160,6 +159,20 @@ impl<'r> FromRequest<'r> for Host<'r> {
         request: &'r rocket::Request<'_>,
     ) -> rocket::request::Outcome<Self, Self::Error> {
         rocket::request::Outcome::Success(Host(request.headers().get("Host").next()))
+    }
+}
+
+impl Host<'_> {
+    fn base_url(&self) -> String {
+        self.0
+            .map(|host| {
+                if host.starts_with("127.0.0.1:") || host.starts_with("localhost:") {
+                    format!("http://{host}")
+                } else {
+                    format!("https://{host}")
+                }
+            })
+            .unwrap_or_default()
     }
 }
 
@@ -405,16 +418,7 @@ fn get_list(
     });
 
     if next_offset < authorized_data.len() {
-        let host = host
-            .0
-            .map(|host| {
-                if host.starts_with("127.0.0.1:") || host.starts_with("localhost:") {
-                    format!("http://{host}")
-                } else {
-                    format!("https://{host}")
-                }
-            })
-            .unwrap_or_default();
+        let host = host.base_url();
         let link =
             format!("<{host}/2/footprints?offset={next_offset}&limit={limit}>; rel=\"next\"");
         Ok(PfListingResponse::Cont(
@@ -587,16 +591,7 @@ fn paginate_and_respond_tad(
         data: data[offset..offset + limit].to_vec(),
     });
     if next_offset < data.len() {
-        let host_str = host
-            .0
-            .map(|h| {
-                if h.starts_with("127.0.0.1:") || h.starts_with("localhost:") {
-                    format!("http://{h}")
-                } else {
-                    format!("https://{h}")
-                }
-            })
-            .unwrap_or_default();
+        let host_str = host.base_url();
         let link = format!("<{host_str}{path}?offset={next_offset}&limit={limit}>; rel=\"next\"");
         Ok(TadListingResponse::Cont(
             body,
@@ -745,16 +740,7 @@ fn paginate_and_respond_shipments(
         data: data[offset..offset + limit].to_vec(),
     });
     if next_offset < data.len() {
-        let host_str = host
-            .0
-            .map(|h| {
-                if h.starts_with("127.0.0.1:") || h.starts_with("localhost:") {
-                    format!("http://{h}")
-                } else {
-                    format!("https://{h}")
-                }
-            })
-            .unwrap_or_default();
+        let host_str = host.base_url();
         let link = format!("<{host_str}{path}?offset={next_offset}&limit={limit}>; rel=\"next\"");
         Ok(ShipmentListingResponse::Cont(
             body,
@@ -872,16 +858,7 @@ fn get_tocs(
         data: result[offset..offset + limit].to_vec(),
     });
     if next_offset < result.len() {
-        let host_str = host
-            .0
-            .map(|h| {
-                if h.starts_with("127.0.0.1:") || h.starts_with("localhost:") {
-                    format!("http://{h}")
-                } else {
-                    format!("https://{h}")
-                }
-            })
-            .unwrap_or_default();
+        let host_str = host.base_url();
         let link =
             format!("<{host_str}/v1/ileap/tocs?offset={next_offset}&limit={limit}>; rel=\"next\"");
         Ok(TocListingResponse::Cont(
@@ -950,16 +927,7 @@ fn get_hocs(
         data: result[offset..offset + limit].to_vec(),
     });
     if next_offset < result.len() {
-        let host_str = host
-            .0
-            .map(|h| {
-                if h.starts_with("127.0.0.1:") || h.starts_with("localhost:") {
-                    format!("http://{h}")
-                } else {
-                    format!("https://{h}")
-                }
-            })
-            .unwrap_or_default();
+        let host_str = host.base_url();
         let link =
             format!("<{host_str}/v1/ileap/hocs?offset={next_offset}&limit={limit}>; rel=\"next\"");
         Ok(HocListingResponse::Cont(
@@ -1052,16 +1020,7 @@ fn get_aed(
         data: data[offset..offset + limit].to_vec(),
     });
     if next_offset < data.len() {
-        let host_str = host
-            .0
-            .map(|h| {
-                if h.starts_with("127.0.0.1:") || h.starts_with("localhost:") {
-                    format!("http://{h}")
-                } else {
-                    format!("https://{h}")
-                }
-            })
-            .unwrap_or_default();
+        let host_str = host.base_url();
         let link =
             format!("<{host_str}/v1/ileap/aed?offset={next_offset}&limit={limit}>; rel=\"next\"");
         Ok(AedListingResponse::Cont(
@@ -1141,6 +1100,28 @@ const EXAMPLE_HOST: &str = "api.pathfinder.sine.dev";
 #[cfg(test)]
 lazy_static! {
     static ref TEST_KEYPAIR: KeyPair = load_keys();
+}
+
+#[test]
+fn openid_configuration_reflects_request_host() {
+    let client = &Client::tracked(create_server(TEST_KEYPAIR.clone())).unwrap();
+
+    let resp = client
+        .get("/.well-known/openid-configuration")
+        .header(rocket::http::Header::new("Host", EXAMPLE_HOST))
+        .dispatch();
+
+    assert_eq!(rocket::http::Status::Ok, resp.status());
+
+    let conf: OpenIdConfiguration = resp.into_json().unwrap();
+    let base_url = format!("https://{EXAMPLE_HOST}");
+    assert_eq!(format!("{base_url}/auth/token"), conf.token_endpoint);
+    assert_eq!(
+        format!("{base_url}/auth/token"),
+        conf.authorization_endpoint
+    );
+    assert_eq!(format!("{base_url}/jwks"), conf.jwks_uri);
+    assert_eq!(base_url, conf.issuer.as_str().trim_end_matches('/'));
 }
 
 // tests the /auth/token endpoint
