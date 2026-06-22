@@ -68,7 +68,7 @@ const DEMO_LSP_PASSWORD: &str = "ileap";
 const RANDOM_DATA_USERNAME: &str = "random_data";
 const RANDOM_DATA_PASSWORD: &str = "random_data";
 
-const API_URL: &str = "https://api.ileap.sine.dev";
+const API_URL: &str = "https://api.ileap.dev";
 
 /// endpoint to retrieve the OpenId configuration document with the token_endpoint
 #[get("/.well-known/openid-configuration")]

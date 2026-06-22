@@ -7,7 +7,7 @@ SINE Foundation's demo implementation of the HTTP REST API specified in the [PAC
 
 ## How to use the demo API
 
-The demo API is available at https://api.ileap.sine.dev
+The demo API is available at https://api.ileap.dev
 
 ### Credentials
 
