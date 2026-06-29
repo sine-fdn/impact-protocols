@@ -10,7 +10,7 @@
 #![allow(clippy::blocks_in_conditions)]
 
 use chrono::{DateTime, Utc};
-use ileap_data_model::{ILeapType, Tad};
+use ileap_data_model::{AggregatedReport, Hoc, ILeapType, ShipmentFootprint, Tad, Toc};
 use okapi::openapi3::Responses;
 use pact_data_model::{PfId, ProductFootprint, UuidError};
 use rocket::serde::json::Json;
@@ -55,6 +55,56 @@ pub(crate) enum TadListingResponse {
 /// HTTP Body of Action `TransportActivityData`
 pub(crate) struct TadListingResponseInner {
     pub(crate) data: Vec<Tad>,
+}
+
+// --- iLEAP Standalone API response types ---
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[serde(crate = "rocket::serde", rename_all = "camelCase")]
+pub(crate) struct ShipmentListingResponseInner {
+    pub(crate) data: Vec<ShipmentFootprint>,
+}
+
+#[derive(Debug, Responder)]
+pub(crate) enum ShipmentListingResponse {
+    Finished(Json<ShipmentListingResponseInner>),
+    Cont(Json<ShipmentListingResponseInner>, Header<'static>),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[serde(crate = "rocket::serde", rename_all = "camelCase")]
+pub(crate) struct TocListingResponseInner {
+    pub(crate) data: Vec<Toc>,
+}
+
+#[derive(Debug, Responder)]
+pub(crate) enum TocListingResponse {
+    Finished(Json<TocListingResponseInner>),
+    Cont(Json<TocListingResponseInner>, Header<'static>),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[serde(crate = "rocket::serde", rename_all = "camelCase")]
+pub(crate) struct HocListingResponseInner {
+    pub(crate) data: Vec<Hoc>,
+}
+
+#[derive(Debug, Responder)]
+pub(crate) enum HocListingResponse {
+    Finished(Json<HocListingResponseInner>),
+    Cont(Json<HocListingResponseInner>, Header<'static>),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, PartialEq)]
+#[serde(crate = "rocket::serde", rename_all = "camelCase")]
+pub(crate) struct AedListingResponseInner {
+    pub(crate) data: Vec<AggregatedReport>,
+}
+
+#[derive(Debug, Responder)]
+pub(crate) enum AedListingResponse {
+    Finished(Json<AedListingResponseInner>),
+    Cont(Json<AedListingResponseInner>, Header<'static>),
 }
 
 #[derive(Responder, JsonSchema, Debug)]
@@ -206,6 +256,122 @@ impl OpenApiResponderInner for TadListingResponse {
             RefOr::Object(response) => {
                 let header = okapi::openapi3::Header {
                     description: Some("Link header to next result set.".to_owned()),
+                    ..openapi_link_header()
+                };
+                let header = RefOr::Object(header);
+                response.headers.insert("link".to_owned(), header);
+            }
+            _ => {
+                panic!("expected object");
+            }
+        }
+
+        Ok(responses)
+    }
+}
+
+impl OpenApiResponderInner for ShipmentListingResponse {
+    fn responses(
+        gen: &mut rocket_okapi::gen::OpenApiGenerator,
+    ) -> rocket_okapi::Result<okapi::openapi3::Responses> {
+        use okapi::openapi3::RefOr;
+
+        let mut responses: okapi::openapi3::Responses =
+            <Json<ShipmentListingResponseInner>>::responses(gen)?;
+
+        match &mut responses.responses["200"] {
+            RefOr::Object(response) => {
+                let header = okapi::openapi3::Header {
+                    description: Some(
+                        "Link header to next result set. See iLEAP Tech Specs section 7".to_owned(),
+                    ),
+                    ..openapi_link_header()
+                };
+                let header = RefOr::Object(header);
+                response.headers.insert("link".to_owned(), header);
+            }
+            _ => {
+                panic!("expected object");
+            }
+        }
+
+        Ok(responses)
+    }
+}
+
+impl OpenApiResponderInner for TocListingResponse {
+    fn responses(
+        gen: &mut rocket_okapi::gen::OpenApiGenerator,
+    ) -> rocket_okapi::Result<okapi::openapi3::Responses> {
+        use okapi::openapi3::RefOr;
+
+        let mut responses: okapi::openapi3::Responses =
+            <Json<TocListingResponseInner>>::responses(gen)?;
+
+        match &mut responses.responses["200"] {
+            RefOr::Object(response) => {
+                let header = okapi::openapi3::Header {
+                    description: Some(
+                        "Link header to next result set. See iLEAP Tech Specs section 7".to_owned(),
+                    ),
+                    ..openapi_link_header()
+                };
+                let header = RefOr::Object(header);
+                response.headers.insert("link".to_owned(), header);
+            }
+            _ => {
+                panic!("expected object");
+            }
+        }
+
+        Ok(responses)
+    }
+}
+
+impl OpenApiResponderInner for HocListingResponse {
+    fn responses(
+        gen: &mut rocket_okapi::gen::OpenApiGenerator,
+    ) -> rocket_okapi::Result<okapi::openapi3::Responses> {
+        use okapi::openapi3::RefOr;
+
+        let mut responses: okapi::openapi3::Responses =
+            <Json<HocListingResponseInner>>::responses(gen)?;
+
+        match &mut responses.responses["200"] {
+            RefOr::Object(response) => {
+                let header = okapi::openapi3::Header {
+                    description: Some(
+                        "Link header to next result set. See iLEAP Tech Specs section 7".to_owned(),
+                    ),
+                    ..openapi_link_header()
+                };
+                let header = RefOr::Object(header);
+                response.headers.insert("link".to_owned(), header);
+            }
+            _ => {
+                panic!("expected object");
+            }
+        }
+
+        Ok(responses)
+    }
+}
+
+impl OpenApiResponderInner for AedListingResponse {
+    fn responses(
+        gen: &mut rocket_okapi::gen::OpenApiGenerator,
+    ) -> rocket_okapi::Result<okapi::openapi3::Responses> {
+        use okapi::openapi3::RefOr;
+
+        let mut responses: okapi::openapi3::Responses =
+            <Json<AedListingResponseInner>>::responses(gen)?;
+
+        match &mut responses.responses["200"] {
+            RefOr::Object(response) => {
+                let header = okapi::openapi3::Header {
+                    description: Some(
+                        "Link header to next result set. See iLEAP Tech Specs section 7".to_owned(),
+                    ),
                     ..openapi_link_header()
                 };
                 let header = RefOr::Object(header);
