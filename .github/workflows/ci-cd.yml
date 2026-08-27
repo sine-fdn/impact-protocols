@@ -4,7 +4,7 @@ name: PACT and iLEAP CI & CD
 
 concurrency:
   group: ${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   build_and_test:
@@ -22,6 +22,9 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Generate demo-api test keypair
+        working-directory: demo-api
+        run: ./scripts/keygen.sh
       - name: CI
         run: |
           cargo build
@@ -32,6 +35,14 @@ jobs:
         working-directory: ileap-data-model/sql-example
         run: |
           sqlite3 < ileap.sql
+      - name: Install cargo-audit
+        uses: taiki-e/install-action@cargo-audit
+      - name: Security audit
+        run: |
+          cargo audit \
+            --ignore RUSTSEC-2023-0071 \
+            --ignore RUSTSEC-2026-0258 \
+            --ignore RUSTSEC-2026-0235
 
   demo_api_deployment:
     runs-on: ubuntu-latest
