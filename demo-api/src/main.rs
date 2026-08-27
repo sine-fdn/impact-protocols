@@ -78,9 +78,9 @@ fn openid_configuration() -> Json<OpenIdConfiguration> {
         issuer: url::Url::parse(API_URL).unwrap(),
         authorization_endpoint: format!("{API_URL}/auth/token"),
         jwks_uri: format!("{API_URL}/jwks"),
-        response_types_supported: vec![format!("token")],
-        subject_types_supported: vec![format!("public")],
-        id_token_signing_alg_values_supported: vec![format!("RS256")],
+        response_types_supported: vec!["token".to_string()],
+        subject_types_supported: vec!["public".to_string()],
+        id_token_signing_alg_values_supported: vec!["RS256".to_string()],
     };
     Json(openid_conf)
 }
