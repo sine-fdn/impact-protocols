@@ -48,6 +48,13 @@ fn formatted_arbitrary_string(fixed: &str, g: &mut quickcheck::Gen) -> String {
     fixed.to_string() + &LowerAToZNumDash::arbitrary(g).0
 }
 
+impl Arbitrary for Status {
+    fn arbitrary(g: &mut quickcheck::Gen) -> Self {
+        let options = &[Status::Active, Status::Deprecated];
+        g.choose(options).unwrap().to_owned()
+    }
+}
+
 impl Arbitrary for ShipmentFootprint {
     fn arbitrary(g: &mut quickcheck::Gen) -> Self {
         ShipmentFootprint {
@@ -57,6 +64,18 @@ impl Arbitrary for ShipmentFootprint {
             tces: NonEmptyVec::<Tce>::arbitrary(g),
             // Currently None for simplicity.
             volume: None,
+            // New standalone-protocol metadata fields.
+            spec_version: None,
+            company_name: None,
+            company_ids: None,
+            description: None,
+            created_at: None,
+            status: Status::Active,
+            reference_period_start: None,
+            reference_period_end: None,
+            secondary_emission_factor_sources: None,
+            pact_pds: None,
+            comment: None,
         }
     }
 }
@@ -136,6 +155,17 @@ impl Arbitrary for Hoc {
             description: None,
             hub_location: None,
             packaging_or_tr_eq_amount: None,
+            // New standalone-protocol metadata fields.
+            spec_version: None,
+            company_name: None,
+            company_ids: None,
+            created_at: None,
+            status: Status::Active,
+            reference_period_start: None,
+            reference_period_end: None,
+            secondary_emission_factor_sources: None,
+            pact_pds: None,
+            comment: None,
         }
     }
 }
@@ -187,11 +217,11 @@ impl Arbitrary for Certification {
     }
 }
 
-fn arbitrary_option_factor(g: &mut quickcheck::Gen) -> Option<String> {
+fn arbitrary_option_factor(g: &mut quickcheck::Gen) -> Option<WrappedDecimal> {
     let rand_num = u8::arbitrary(g) % 10 + 1;
     let rand_factor: Decimal = Decimal::new(rand_num as i64, 1);
 
-    Some(rand_factor.to_string())
+    Some(rand_factor.into())
 }
 
 fn arbitrary_share(g: &mut quickcheck::Gen) -> WrappedDecimal {
@@ -229,6 +259,17 @@ impl Arbitrary for Toc {
             transport_activity_unit: TransportActivityUnit::arbitrary(g),
             // Currently None for simplicity.
             description: None,
+            // New standalone-protocol metadata fields.
+            spec_version: None,
+            company_name: None,
+            company_ids: None,
+            created_at: None,
+            status: Status::Active,
+            reference_period_start: None,
+            reference_period_end: None,
+            secondary_emission_factor_sources: None,
+            pact_pds: None,
+            comment: None,
         }
     }
 }
@@ -398,8 +439,8 @@ impl Arbitrary for EnergyCarrier {
             feedstocks,
             energy_consumption: arbitrary_option_wrapped_decimal(g),
             energy_consumption_unit: Option::<EnergyConsumptionUnit>::arbitrary(g),
-            emission_factor_wtw: arbitrary_wrapped_decimal(g),
-            emission_factor_ttw: arbitrary_wrapped_decimal(g),
+            emission_factor_wtw: arbitrary_option_wrapped_decimal(g),
+            emission_factor_ttw: arbitrary_option_wrapped_decimal(g),
             relative_share: arbitrary_share(g),
         }
     }
